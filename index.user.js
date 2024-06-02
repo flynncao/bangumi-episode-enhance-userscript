@@ -29,7 +29,7 @@
 		})
 		const subReplyContnet = that.find('.topic_sub_reply')
 		subReplyContnet.hide()
-		const addReplyBtn = that.find('.action').eq(1)
+		const timestampArea = that.find('.action').first()
 		const commentsCount = subReplyContnet.find('.sub_reply_bg').length
 		if (commentsCount !== 0) {
 			const a = $(`<a class="expand_all" href="javascript:void(0)" style="margin:0 3px 0 5px;"><span class="ico ico_reply">展开(+${commentsCount})</span></a>`)
@@ -37,7 +37,7 @@
 				subReplyContnet.toggle()
 			})
 			const el = $(`<div class="action"></div>`).append(a)
-			addReplyBtn.before(el)
+			timestampArea.after(el)
 		}
 		const isShortReply = content.trim().length < minimumContentLength
 		if (commentScore === 1 && isShortReply) {
