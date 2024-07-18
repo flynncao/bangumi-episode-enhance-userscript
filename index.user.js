@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Bangumi Episode Enhance 
-// @version      0.0.6
+// @version      
 // @description  Enhance Bangumi episode page with more information and features
 // @updateURL 
 // @downloadURL 
@@ -20,17 +20,18 @@
 	 */
 	console.log('welcome to Bangumi Episode Enhance ')
 	/**
-	 * Settings
+	 * Prepare data
 	 */
 	const settings = {
 		hidePlainComments: true,
 		minimumFeaturedCommentLength: 15,
-		maxiumFeaturedComments: 99
+		maxFeaturedComments: 99,
+		sortMode: 'reactionCount',
 	}
 	async function initStorage() {
 		const keys = Object.keys(settings)
 		for (let key of keys) {
-			const value = await GM.getValue(key)
+			const value = GM.getValue(key)
 			if (value === undefined) {
 				await GM.setValue(key, settings[key])
 			}
@@ -44,13 +45,19 @@
 	}
 	await initStorage()
 
+	const sortModeData = await getStorageKey('sortMode')
 	const userSettings = {
 		hidePlainComments: await getStorageKey('hidePlainComments'),
 		minimumFeaturedCommentLength: Number(await getStorageKey('minimumFeaturedCommentLength')),
-		maxiumFeaturedComments: Number(await getStorageKey('maxiumFeaturedComments'))
+		maxFeaturedComments: Number(await getStorageKey('maxFeaturedComments')),
+		sortMode: sortModeData
 	}
+	await getStorageKey('sortMode')
+	/**
+	 *  Build components
+	 */
 	const setMinimumFeaturedCommentInput = $(`<input type="number" min="1" max="100" step="1" value="${userSettings.minimumFeaturedCommentLength}" style="width: 2rem;margin-left:3px;">`)
-	const setMaximumFeaturedCommentsInput = $(`<input type="number" min="1" max="100" step="1" value="${userSettings.maxiumFeaturedComments}" style="width: 2rem;margin-left:3px;" >`)
+	const setMaximumFeaturedCommentsInput = $(`<input type="number" min="1" max="100" step="1" value="${userSettings.maxFeaturedComments}" style="width: 2rem;margin-left:3px;" >`)
 	const setHidePlainCommentsInput = $(`<input type="checkbox"  style="flex:none;margin-right:3px;" id="epe-hide-plain">`).attr('checked', userSettings.hidePlainComments)
 	const settingsContainer = $(`<div style="padding:10px;"></div>`)
 	const settingsForm = $('<form style="display:flex; align-items:center; justify-content:flex-start; margin-top:5px;"></form>')
@@ -63,15 +70,19 @@
 	settingsLabel3.append('折叠普通评论')
 	settingsForm.append([settingsLabel, settingsLabel2, settingsLabel3])
 	const settingsButton = $('<button>保存</button>')
+	const sortMethodForm = $('<div style="width:100%;"><select id="sortMethodSelect" name="reactionCount"><option value="reactionCount">按热度（贴贴数）排序</option><option value="oldFirst">按时间排序(最旧在前)</option><option value="newFirst">按时间排序(最新在前)</option></select></div>')
+
 	settingsButton.click(async function () {
 		await setStorageKey('minimumFeaturedCommentLength', setMinimumFeaturedCommentInput.val() > 0 ? setMinimumFeaturedCommentInput.val() : 1)
-		await setStorageKey('maxiumFeaturedComments', setMaximumFeaturedCommentsInput.val() > 0 ? setMaximumFeaturedCommentsInput.val() : 1)
+		await setStorageKey('maxFeaturedComments', setMaximumFeaturedCommentsInput.val() > 0 ? setMaximumFeaturedCommentsInput.val() : 1)
 		await setStorageKey('hidePlainComments', setHidePlainCommentsInput.is(':checked'))
+		await setStorageKey('sortMode', $('#sortMethodSelect').val() || 'reactionCount')
 		alert('设置已保存')
 		location.reload()
 	})
+
 	settingsForm.append(settingsButton)
-	settingsContainer.append($('<div style="margin-right:5px;">※默认按照收到的贴贴数排序：</div>'))
+	settingsContainer.append(sortMethodForm)
 	settingsContainer.append(settingsForm)
 	/**
 	 * Main
@@ -83,7 +94,7 @@
 	const minimumContentLength = userSettings.minimumFeaturedCommentLength
 	const container = $('#comment_list')
 	const plainCommentElements = []
-	const featuredCommentElements = []
+	let featuredCommentElements = []
 	let conservedRow = null
 	allCommentRows.each(function (index, row) {
 		let that = $(this)
@@ -94,27 +105,25 @@
 		})
 		const hasConservedReply = conservedPostID && that.find(`#${conservedPostID}`).length > 0
 		if (hasConservedReply) conservedRow = row
-		const subReplyContnet = that.find('.topic_sub_reply')
-		if (!hasConservedReply) subReplyContnet.hide()
+		const subReplyContent = that.find('.topic_sub_reply')
+		if (!hasConservedReply) subReplyContent.hide()
 		const timestampArea = that.find('.action').first()
-		const commentsCount = subReplyContnet.find('.sub_reply_bg').length
+		const commentsCount = subReplyContent.find('.sub_reply_bg').length
 		if (commentsCount !== 0) {
 			const a = $(`<a class="expand_all" href="javascript:void(0)" style="margin:0 3px 0 5px;"><span class="ico ico_reply">展开(+${commentsCount})</span></a>`)
 			a.on('click', function () {
-				subReplyContnet.toggle()
+				subReplyContent.toggle()
 			})
 			const el = $(`<div class="action"></div>`).append(a)
 			timestampArea.after(el)
 		}
-		// check if thie comment meet the requirement of minimumContentLength
+		// check if this comment meet the requirement of minimumContentLength
 		const isShortReply = content.trim().length < minimumContentLength
-		let isFeatured = false
-		if (commentScore > 1 && !isShortReply) {
-			isFeatured = true
-		}	
-		if (featuredCommentsCount >= userSettings.maxiumFeaturedComments) {
+		let isFeatured = !(featuredCommentsCount >= userSettings.maxFeaturedComments)
+		if(isShortReply || commentScore <= 1 ){
 			isFeatured = false
 		}
+		// conserved reply must be fixed
 		if (hasConservedReply) {
 			isFeatured = true
 		}
@@ -123,38 +132,22 @@
 			featuredCommentElements.push({
 				element: row,
 				score: commentScore,
+				timestamp: $(row).find('.action:eq(0) small').first().contents().filter(function() {
+					return this.nodeType === 3; // Node.TEXT_NODE === 3
+				}).first().text()
 			})
 		} else {
 			plainCommentsCount++
 			plainCommentElements.push({
 				element: row,
 				score: commentScore,
+				timestamp: $(row).find('small').text().trim()
 			})
 		}
-		// if(featuredCommentsCount > userSettings.maxiumFeaturedComments || (commentScore === 1 && isShortReply)){
-		// 	plainCommentsCount++
-		// 	plainCommentElements.push({
-		// 		element: row,
-		// 		score: commentScore,
-		// 	})
-		// 	return 
-		// }
-		// if(((!(commentScore === 1 && isShortReply) && featuredCommentsCount < userSettings.maxiumFeaturedComments)) || hasConservedReply){
-		// 	conservedRow = row
-		// 	featuredCommentsCount++;
-		// 	featuredCommentElements.push({
-		// 		element: row,
-		// 		score: commentScore,
-		// 	})
-		// }else{
-		// 	plainCommentsCount++
-		// 	plainCommentElements.push({
-		// 		element: row,
-		// 		score: commentScore,
-		// 	})
-		// }
-
 	})
+	/**
+	 * Sort
+	 */
 	const quickSort = function (arr) {
 		if (arr.length <= 1) {
 			return arr
@@ -175,13 +168,36 @@
 	if (stateBar.length === 0) {
 		stateBar = $(`<div id class="row_state clearit"></div>`)
 	}
-	const hiddenCommentsInfo = $(`<div class="filtered" style="cursor:pointer;color:#48a2c3;">点击展开/折叠剩余${plainCommentsCount}条普通评论</div>`).click(function () {
+	const hiddenCommentsInfo = $(`<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">点击展开/折叠剩余${plainCommentsCount}条普通评论</div>`).click(function () {
 		$('#comment_list_plain').toggle()
 	})
 	stateBar.append(hiddenCommentsInfo)
 	container.find('.row').detach()
 	container.append(settingsContainer)
-	quickSort(featuredCommentElements).forEach(function (element) {
+	function purifiedDatetimeInMillionSeconds(timestamp){
+		return (new Date(timestamp.trim().replace('- ', '')).getTime())
+	}
+	const trinity = {
+		'reactionCount': function(){
+			featuredCommentElements = quickSort(featuredCommentElements)
+		},
+		'oldFirst': function (){
+			 featuredCommentElements.sort(function (a, b) {
+				 return purifiedDatetimeInMillionSeconds(a.timestamp) - purifiedDatetimeInMillionSeconds(b.timestamp)
+
+			 })
+		},
+		'newFirst': function (){
+			featuredCommentElements.sort(function (a, b) {
+				return purifiedDatetimeInMillionSeconds(b.timestamp) - purifiedDatetimeInMillionSeconds(a.timestamp)
+			})
+		}
+	}
+	trinity[sortModeData]()
+	/**
+	 * Append components
+	 */
+	featuredCommentElements.forEach(function (element) {
 		container.append($(element.element))
 	})
 	plainCommentElements.forEach(function (element) {
@@ -203,6 +219,11 @@
 			scrollTop: $(conservedRow).offset().top
 		}, 2000);
 	}
-
-
+	/**
+	 * Update layout
+	 */
+	$('#sortMethodSelect').val(sortModeData)
+	if(featuredCommentsCount < 10 && userSettings.hidePlainComments === true){
+		$('#toggleFilteredBtn').click()
+	}
 })();
