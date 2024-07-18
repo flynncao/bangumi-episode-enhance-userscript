@@ -1,6 +1,10 @@
 ## 预览
 
+![](/assets/demo.gif)
 
+视频预览：
+
+https://youtu.be/_ImSpa0Ef-8?si=oj9GQi7PACpE3PV5
 
 ## 特性
 
