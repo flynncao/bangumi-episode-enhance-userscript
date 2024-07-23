@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Bangumi Episode Enhance 
-// @version      
+// @version
 // @description  Enhance Bangumi episode page with more information and features
-// @updateURL 
-// @downloadURL 
+// @updateURL
+// @downloadURL
 // @author Flynn Cao
 // @namespace https://flynncao.xyz/
 // @match  https://bangumi.tv/ep/*
@@ -11,14 +11,41 @@
 // @match  https://bgm.tv/ep/*
 // @include /^https?:\/\/(((fast\.)?bgm\.tv)|chii\.in|bangumi\.tv)\/(ep)\/*/
 // @license MIT
-// @grant GM.getValue
-// @grant GM.setValue
 // ==/UserScript==
+
 (async function () {
 	/**
 	 * Greetings
 	 */
-	console.log('welcome to Bangumi Episode Enhance ')
+	console.log('welcome to Bangumi Episode Enhance V0.1.0.3')
+
+	/**
+	 * Namespace
+	 */
+	const NAMESPACE = 'BangumiEpisodeEnhance';
+
+	/**
+	 * Storage Functions
+	 */
+	function setLocalStorageKey(key, value) {
+		localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value));
+	}
+
+	function getLocalStorageKey(key) {
+		const value = localStorage.getItem(`${NAMESPACE}_${key}`);
+		return value ? JSON.parse(value) : undefined;
+	}
+
+	async function initStorage() {
+		const keys = Object.keys(settings);
+		for (let key of keys) {
+			const value = getLocalStorageKey(key);
+			if (value === undefined) {
+				setLocalStorageKey(key, settings[key]);
+			}
+		}
+	}
+
 	/**
 	 * Prepare data
 	 */
@@ -28,40 +55,34 @@
 		maxFeaturedComments: 99,
 		sortMode: 'reactionCount',
 	}
-	async function initStorage() {
-		const keys = Object.keys(settings)
-		for (let key of keys) {
-			const value = GM.getValue(key)
-			if (value === undefined) {
-				await GM.setValue(key, settings[key])
-			}
-		}
-	}
-	async function setStorageKey(key, value) {
-		await GM.setValue(key, value)
-	}
-	async function getStorageKey(key) {
-		return await GM.getValue(key)
-	}
-	await initStorage()
 
-	const sortModeData = await getStorageKey('sortMode')
+	async function setStorageKey(key, value) {
+		setLocalStorageKey(key, value);
+	}
+
+	async function getStorageKey(key) {
+		return getLocalStorageKey(key);
+	}
+
+	await initStorage();
+
+	const sortModeData = await getStorageKey('sortMode');
 	const userSettings = {
 		hidePlainComments: await getStorageKey('hidePlainComments'),
 		minimumFeaturedCommentLength: Number(await getStorageKey('minimumFeaturedCommentLength')),
 		maxFeaturedComments: Number(await getStorageKey('maxFeaturedComments')),
 		sortMode: sortModeData
 	}
-	await getStorageKey('sortMode')
+
 	/**
-	 *  Build components
+	 * Build components
 	 */
-	const setMinimumFeaturedCommentInput = $(`<input type="number" min="1" max="100" step="1" value="${userSettings.minimumFeaturedCommentLength}" style="width: 2rem;margin-left:3px;">`)
+	const setMinimumFeaturedCommentInput = $(`<input type="number" min="0" max="100" step="1" value="${userSettings.minimumFeaturedCommentLength}" style="width: 2rem;margin-left:3px;">`)
 	const setMaximumFeaturedCommentsInput = $(`<input type="number" min="1" max="100" step="1" value="${userSettings.maxFeaturedComments}" style="width: 2rem;margin-left:3px;" >`)
 	const setHidePlainCommentsInput = $(`<input type="checkbox"  style="flex:none;margin-right:3px;" id="epe-hide-plain">`).attr('checked', userSettings.hidePlainComments)
 	const settingsContainer = $(`<div style="padding:10px;"></div>`)
 	const settingsForm = $('<form style="display:flex; align-items:center; justify-content:flex-start; margin-top:5px;"></form>')
-	const settingsLabel = $('<label style="display:inline-block;margin-right:5px;" title="字数不够的评论不会设置为精选，至少为1" >最低有效字数</label>')
+	const settingsLabel = $('<label style="display:inline-block;margin-right:5px;" title="字数不够的评论不会设置为精选，至少为0" >最低有效字数</label>')
 	const settingsLabel2 = $('<label style="display:inline-block;margin-right:5px;" title="显示的精选评论数，至少为1，显示\'回复我\'的消息时会无视这个上限" >最大精选评论数</label>')
 	const settingsLabel3 = $('<label style="display:inline-flex;align-items:center;margin-right:5px;" title="你可以在最底部点击文字展开普通评论"></label>')
 	settingsLabel.append(setMinimumFeaturedCommentInput)
@@ -73,7 +94,7 @@
 	const sortMethodForm = $('<div style="width:100%;"><select id="sortMethodSelect" name="reactionCount"><option value="reactionCount">按热度（贴贴数）排序</option><option value="oldFirst">按时间排序(最旧在前)</option><option value="newFirst">按时间排序(最新在前)</option></select></div>')
 
 	settingsButton.click(async function () {
-		await setStorageKey('minimumFeaturedCommentLength', setMinimumFeaturedCommentInput.val() > 0 ? setMinimumFeaturedCommentInput.val() : 1)
+		await setStorageKey('minimumFeaturedCommentLength', setMinimumFeaturedCommentInput.val() >= 0 ? setMinimumFeaturedCommentInput.val() : 0)
 		await setStorageKey('maxFeaturedComments', setMaximumFeaturedCommentsInput.val() > 0 ? setMaximumFeaturedCommentsInput.val() : 1)
 		await setStorageKey('hidePlainComments', setHidePlainCommentsInput.is(':checked'))
 		await setStorageKey('sortMode', $('#sortMethodSelect').val() || 'reactionCount')
@@ -84,6 +105,7 @@
 	settingsForm.append(settingsButton)
 	settingsContainer.append(sortMethodForm)
 	settingsContainer.append(settingsForm)
+
 	/**
 	 * Main
 	 */
@@ -117,10 +139,10 @@
 			const el = $(`<div class="action"></div>`).append(a)
 			timestampArea.after(el)
 		}
-		// check if this comment meet the requirement of minimumContentLength
+		// check if this comment meets the requirement of minimumContentLength
 		const isShortReply = content.trim().length < minimumContentLength
 		let isFeatured = !(featuredCommentsCount >= userSettings.maxFeaturedComments)
-		if(isShortReply || commentScore <= 1 ){
+		if (isShortReply || commentScore <= 1) {
 			isFeatured = false
 		}
 		// conserved reply must be fixed
@@ -145,6 +167,7 @@
 			})
 		}
 	})
+
 	/**
 	 * Sort
 	 */
@@ -164,6 +187,7 @@
 		}
 		return quickSort(left).concat(pivot, quickSort(right))
 	}
+
 	let stateBar = container.find('.row_state.clearit')
 	if (stateBar.length === 0) {
 		stateBar = $(`<div id class="row_state clearit"></div>`)
@@ -174,26 +198,28 @@
 	stateBar.append(hiddenCommentsInfo)
 	container.find('.row').detach()
 	container.append(settingsContainer)
-	function purifiedDatetimeInMillionSeconds(timestamp){
+
+	function purifiedDatetimeInMillionSeconds(timestamp) {
 		return (new Date(timestamp.trim().replace('- ', '')).getTime())
 	}
+
 	const trinity = {
-		'reactionCount': function(){
+		'reactionCount': function () {
 			featuredCommentElements = quickSort(featuredCommentElements)
 		},
-		'oldFirst': function (){
-			 featuredCommentElements.sort(function (a, b) {
-				 return purifiedDatetimeInMillionSeconds(a.timestamp) - purifiedDatetimeInMillionSeconds(b.timestamp)
-
-			 })
+		'oldFirst': function () {
+			featuredCommentElements.sort(function (a, b) {
+				return purifiedDatetimeInMillionSeconds(a.timestamp) - purifiedDatetimeInMillionSeconds(b.timestamp)
+			})
 		},
-		'newFirst': function (){
+		'newFirst': function () {
 			featuredCommentElements.sort(function (a, b) {
 				return purifiedDatetimeInMillionSeconds(b.timestamp) - purifiedDatetimeInMillionSeconds(a.timestamp)
 			})
 		}
 	}
 	trinity[sortModeData]()
+
 	/**
 	 * Append components
 	 */
@@ -219,11 +245,12 @@
 			scrollTop: $(conservedRow).offset().top
 		}, 2000);
 	}
+
 	/**
 	 * Update layout
 	 */
 	$('#sortMethodSelect').val(sortModeData)
-	if(featuredCommentsCount < 10 && userSettings.hidePlainComments === true){
+	if (featuredCommentsCount < 10 && userSettings.hidePlainComments === true) {
 		$('#toggleFilteredBtn').click()
 	}
 })();
