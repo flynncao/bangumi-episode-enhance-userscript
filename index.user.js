@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name  Bangumi Episode Enhance
-// @version 0.1.1.1
+// @version 0.1.1.3
 // @description  Enhance Bangumi episode page with more information and features
 // @updateURL  https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
 // @downloadURL https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
