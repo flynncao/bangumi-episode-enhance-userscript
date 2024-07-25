@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         Bangumi Episode Enhance 
-// @version
+// @name  Bangumi Episode Enhance
+// @version 0.1.1.1
 // @description  Enhance Bangumi episode page with more information and features
-// @updateURL
-// @downloadURL
+// @updateURL  https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
+// @downloadURL https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
 // @author Flynn Cao
 // @namespace https://flynncao.xyz/
 // @match  https://bangumi.tv/ep/*
@@ -14,11 +14,6 @@
 // ==/UserScript==
 
 (async function () {
-	/**
-	 * Greetings
-	 */
-	console.log('welcome to Bangumi Episode Enhance V0.1.0.3')
-
 	/**
 	 * Namespace
 	 */
