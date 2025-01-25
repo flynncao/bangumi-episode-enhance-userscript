@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name  Bangumi Episode Enhance
-// @version 0.1.1.3
+// @version 0.1.1.5
 // @description  Enhance Bangumi episode page with more information and features
 // @updateURL  https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
-// @downloadURL https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
+// @downloadU RL https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
 // @author Flynn Cao
 // @namespace https://flynncao.xyz/
-// @match  https://bangumi.tv/ep/*
-// @match  https://chii.in/ep/*
-// @match  https://bgm.tv/ep/*
-// @include /^https?:\/\/(((fast\.)?bgm\.tv)|chii\.in|bangumi\.tv)\/(ep)\/*/
+// @match  https://bangumi.tv/*
+// @match  https://chii.in/*
+// @match  https://bgm.tv/*
+// @include /^https?:\/\/(((fast\.)?bgm\.tv)|chii\.in|bangumi\.tv)*/
 // @license MIT
 // ==/UserScript==
 

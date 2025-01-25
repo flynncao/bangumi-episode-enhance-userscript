@@ -1,0 +1,23 @@
+{
+  "name": "bangumi-episode-enhance",
+  "version": "1.0.0",
+  "description": "Enhance Bangumi episode page with more information and features",
+  "main": "index.user.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["bangumi", "anime"],
+  "author": "Flynn Cao",
+  "license": "ISC",
+  "devDependencies": {
+    "lint-staged": "^15.2.7",
+    "prettier": "^3.3.3",
+    "simple-git-hooks": "^2.11.1"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*.js": "prettier --write"
+  }
+}
