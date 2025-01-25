@@ -1,11 +1,11 @@
 // ==UserScript==
-// @name  Bangumi Episode Enhance
-// @version 0.1.1.5
-// @description  Enhance Bangumi episode page with more information and features
+// @name  Bangumi Comment Enhance
+// @version 0.2.0
+// @description  Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @updateURL  https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
 // @downloadU RL https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
 // @author Flynn Cao
-// @namespace https://flynncao.xyz/
+// @namespace https://flynncao.uk/
 // @match  https://bangumi.tv/*
 // @match  https://chii.in/*
 // @match  https://bgm.tv/*
@@ -17,8 +17,14 @@
   /**
    * Namespace
    */
-  const NAMESPACE = 'BangumiEpisodeEnhance'
+  const NAMESPACE = 'BangumiCommentEnhance'
+  const BGM_EP_REGEX = /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/ep\/\d+/
+  const BGM_GROUP_REGEX =
+    /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/group\/topic\/\d+/
 
+  if (!BGM_EP_REGEX.test(location.href) && !BGM_GROUP_REGEX.test(location.href)) {
+    return
+  }
   /**
    * Storage Functions
    */
@@ -138,7 +144,9 @@
   let conservedRow = null
   allCommentRows.each(function (index, row) {
     let that = $(this)
-    const content = $(row).find('.message.clearit').text()
+    const content = $(row)
+      .find(BGM_EP_REGEX.test(location.href) ? '.message.clearit' : '.inner')
+      .text()
     let commentScore = 1
     that.find('span.num').each(function (index, element) {
       commentScore += Number.parseInt($(element).text())
@@ -154,7 +162,7 @@
         `<a class="expand_all" href="javascript:void(0)" style="margin:0 3px 0 5px;"><span class="ico ico_reply">展开(+${commentsCount})</span></a>`,
       )
       a.on('click', function () {
-        subReplyContent.toggle()
+        subReplyContent.slideToggle()
       })
       const el = $(`<div class="action"></div>`).append(a)
       timestampArea.after(el)
@@ -221,7 +229,7 @@
   const hiddenCommentsInfo = $(
     `<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">点击展开/折叠剩余${plainCommentsCount}条普通评论</div>`,
   ).click(function () {
-    $('#comment_list_plain').toggle()
+    $('#comment_list_plain').slideToggle()
   })
   stateBar.append(hiddenCommentsInfo)
   container.find('.row').detach()
