@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name  Bangumi Episode Enhance
-// @version 0.1.1.4
+// @version 0.1.1.5
 // @description  Enhance Bangumi episode page with more information and features
 // @updateURL  https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
 // @downloadU RL https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
@@ -23,7 +23,7 @@
    * Storage Functions
    */
   function setLocalStorageKey(key, value) {
-              localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value))
+    localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value))
   }
 
   function getLocalStorageKey(key) {
