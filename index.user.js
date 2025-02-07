@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name  Bangumi Comment Enhance
-// @version 0.2.0
+// @version 0.2.1
 // @description  Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @updateURL  https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
 // @downloadU RL https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
@@ -107,7 +107,7 @@
   settingsForm.append([settingsLabel, settingsLabel2, settingsLabel3])
   const settingsButton = $('<button>保存</button>')
   const sortMethodForm = $(
-    '<div style="width:100%;"><select id="sortMethodSelect" name="reactionCount"><option value="reactionCount">按热度（贴贴数）排序</option><option value="oldFirst">按时间排序(最旧在前)</option><option value="newFirst">按时间排序(最新在前)</option></select></div>',
+    '<div style="width:100%;"><select id="sortMethodSelect" name="reactionCount"><option value="reactionCount">按热度（贴贴数）排序</option><option value="replyCount">按评论数排序</option><option value="oldFirst">按时间排序(最旧在前)</option><option value="newFirst">按时间排序(最新在前)</option></select></div>',
   )
 
   settingsButton.click(async function () {
@@ -177,12 +177,9 @@
     if (hasConservedReply) {
       isFeatured = true
     }
-    if (isFeatured) {
-      featuredCommentsCount++
-      featuredCommentElements.push({
-        element: row,
-        score: commentScore,
-        timestamp: $(row)
+
+    const timestamp = isFeatured
+      ? $(row)
           .find('.action:eq(0) small')
           .first()
           .contents()
@@ -190,22 +187,31 @@
             return this.nodeType === 3 // Node.TEXT_NODE === 3
           })
           .first()
-          .text(),
+          .text()
+      : $(row).find('small').text().trim()
+    if (isFeatured) {
+      featuredCommentsCount++
+      featuredCommentElements.push({
+        element: row,
+        score: commentScore,
+        commentsCount,
+        timestamp,
+        timestampNumber: purifiedDatetimeInMillionSeconds(timestamp),
       })
     } else {
       plainCommentsCount++
       plainCommentElements.push({
         element: row,
         score: commentScore,
-        timestamp: $(row).find('small').text().trim(),
+        timestamp,
+        timestampNumber: purifiedDatetimeInMillionSeconds(timestamp),
       })
     }
   })
-
   /**
    * Sort
    */
-  const quickSort = function (arr) {
+  const quickSort = function (arr, sortKey, changeCompareDirection = false) {
     if (arr.length <= 1) {
       return arr
     }
@@ -213,13 +219,19 @@
     const left = []
     const right = []
     for (let i = 1; i < arr.length; i++) {
-      if (arr[i].score > pivot.score) {
+      const compareResult = !changeCompareDirection
+        ? arr[i][sortKey] > pivot[sortKey]
+        : arr[i][sortKey] < pivot[sortKey]
+      if (arr[i][sortKey] && compareResult) {
         left.push(arr[i])
       } else {
         right.push(arr[i])
       }
     }
-    return quickSort(left).concat(pivot, quickSort(right))
+    return quickSort(left, sortKey, changeCompareDirection).concat(
+      pivot,
+      quickSort(right, sortKey, changeCompareDirection),
+    )
   }
 
   let stateBar = container.find('.row_state.clearit')
@@ -241,27 +253,19 @@
 
   const trinity = {
     reactionCount: function () {
-      featuredCommentElements = quickSort(featuredCommentElements)
+      featuredCommentElements = quickSort(featuredCommentElements, 'score')
+    },
+    replyCount: function () {
+      featuredCommentElements = quickSort(featuredCommentElements, 'commentsCount')
     },
     oldFirst: function () {
-      featuredCommentElements.sort(function (a, b) {
-        return (
-          purifiedDatetimeInMillionSeconds(a.timestamp) -
-          purifiedDatetimeInMillionSeconds(b.timestamp)
-        )
-      })
+      featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber', true)
     },
     newFirst: function () {
-      featuredCommentElements.sort(function (a, b) {
-        return (
-          purifiedDatetimeInMillionSeconds(b.timestamp) -
-          purifiedDatetimeInMillionSeconds(a.timestamp)
-        )
-      })
+      featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber')
     },
   }
   trinity[sortModeData]()
-
   /**
    * Append components
    */
