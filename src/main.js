@@ -1,19 +1,3 @@
-// ==UserScript==
-// @name        bangumi-comment-enhance
-// @version     0.2.2
-// @description Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
-// @author      Flynn Cao
-// @updateURL   https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
-// @downloadURL https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
-// @namespace   https://flynncao.uk/
-// @match       https://bangumi.tv/*
-// @match       https://chii.in/*
-// @match       https://bgm.tv/*
-// @include     /^https?:\/\/(((fast\.)?bgm\.tv)|chii\.in|bangumi\.tv)*/
-// @license     MIT
-// ==/UserScript==
-'use strict'
-
 ;(async function () {
   /**
    * Namespace
@@ -73,6 +57,7 @@
     hidePlainComments: await getStorageKey('hidePlainComments'),
     minimumFeaturedCommentLength: Number(await getStorageKey('minimumFeaturedCommentLength')),
     maxFeaturedComments: Number(await getStorageKey('maxFeaturedComments')),
+    sortMode: sortModeData,
   }
 
   /**
