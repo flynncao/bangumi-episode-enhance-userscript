@@ -1,8 +1,8 @@
+import Storage from './storage/index'
 ;(async function () {
   /**
    * Namespace
    */
-  const NAMESPACE = 'BangumiCommentEnhance'
   const BGM_EP_REGEX = /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/ep\/\d+/
   const BGM_GROUP_REGEX =
     /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/group\/topic\/\d+/
@@ -13,53 +13,21 @@
   /**
    * Storage Functions
    */
-  function setLocalStorageKey(key, value) {
-    localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value))
-  }
 
-  function getLocalStorageKey(key) {
-    const value = localStorage.getItem(`${NAMESPACE}_${key}`)
-    return value ? JSON.parse(value) : undefined
-  }
-
-  async function initStorage() {
-    const keys = Object.keys(settings)
-    for (let key of keys) {
-      const value = getLocalStorageKey(key)
-      if (value === undefined) {
-        setLocalStorageKey(key, settings[key])
-      }
-    }
-  }
-
-  /**
-   * Prepare data
-   */
-  const settings = {
+  Storage.init({
     hidePlainComments: true,
     minimumFeaturedCommentLength: 15,
     maxFeaturedComments: 99,
     sortMode: 'reactionCount',
-  }
+  })
 
-  async function setStorageKey(key, value) {
-    setLocalStorageKey(key, value)
-  }
-
-  async function getStorageKey(key) {
-    return getLocalStorageKey(key)
-  }
-
-  await initStorage()
-
-  const sortModeData = await getStorageKey('sortMode')
   const userSettings = {
-    hidePlainComments: await getStorageKey('hidePlainComments'),
-    minimumFeaturedCommentLength: Number(await getStorageKey('minimumFeaturedCommentLength')),
-    maxFeaturedComments: Number(await getStorageKey('maxFeaturedComments')),
-    sortMode: sortModeData,
+    hidePlainComments: Storage.get('hidePlainComments'),
+    minimumFeaturedCommentLength: Storage.get('minimumFeaturedCommentLength'),
+    maxFeaturedComments: Storage.get('maxFeaturedComments'),
+    sortMode: Storage.get('sortMode'),
   }
-
+  const sortModeData = userSettings.sortMode || 'reactionCount'
   /**
    * Build components
    */
@@ -96,16 +64,16 @@
   )
 
   settingsButton.click(async function () {
-    await setStorageKey(
+    Storage.set(
       'minimumFeaturedCommentLength',
       setMinimumFeaturedCommentInput.val() >= 0 ? setMinimumFeaturedCommentInput.val() : 0,
     )
-    await setStorageKey(
+    Storage.set(
       'maxFeaturedComments',
       setMaximumFeaturedCommentsInput.val() > 0 ? setMaximumFeaturedCommentsInput.val() : 1,
     )
-    await setStorageKey('hidePlainComments', setHidePlainCommentsInput.is(':checked'))
-    await setStorageKey('sortMode', $('#sortMethodSelect').val() || 'reactionCount')
+    Storage.set('hidePlainComments', setHidePlainCommentsInput.is(':checked'))
+    Storage.set('sortMode', $('#sortMethodSelect').val() || 'reactionCount')
     alert('设置已保存')
     location.reload()
   })
