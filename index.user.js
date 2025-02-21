@@ -3,7 +3,7 @@
 // @version 0.2.1
 // @description  Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @updateURL  https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
-// @downloadU RL https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
+// @downloadURL https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
 // @author Flynn Cao
 // @namespace https://flynncao.uk/
 // @match  https://bangumi.tv/*
