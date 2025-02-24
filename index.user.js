@@ -37,38 +37,10 @@ class Storage {
   }
 }
 
-;(async function () {
-  /**
-   * Namespace
-   */
-  const BGM_EP_REGEX = /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/ep\/\d+/
-  const BGM_GROUP_REGEX =
-    /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/group\/topic\/\d+/
-
-  if (!BGM_EP_REGEX.test(location.href) && !BGM_GROUP_REGEX.test(location.href)) {
-    return
-  }
-  /**
-   * Storage Functions
-   */
-
-  Storage.init({
-    hidePlainComments: true,
-    minimumFeaturedCommentLength: 15,
-    maxFeaturedComments: 99,
-    sortMode: 'reactionCount',
-  })
-
-  const userSettings = {
-    hidePlainComments: Storage.get('hidePlainComments'),
-    minimumFeaturedCommentLength: Storage.get('minimumFeaturedCommentLength'),
-    maxFeaturedComments: Storage.get('maxFeaturedComments'),
-    sortMode: Storage.get('sortMode'),
-  }
-  const sortModeData = userSettings.sortMode || 'reactionCount'
-  /**
-   * Build components
-   */
+/**
+ * Build components
+ */
+function initSettingsContainer(userSettings) {
   const setMinimumFeaturedCommentInput = $(
     `<input type="number" min="0" max="100" step="1" value="${userSettings.minimumFeaturedCommentLength}" style="width: 2rem;margin-left:3px;">`,
   )
@@ -120,12 +92,44 @@ class Storage {
   settingsContainer.append(sortMethodForm)
   settingsContainer.append(settingsForm)
 
-  /**
-   * Main
-   */
-  const allCommentRows = $('.row.row_reply.clearit')
+  return settingsContainer
+}
+
+function quickSort(arr, sortKey, changeCompareDirection = false) {
+  if (arr.length <= 1) {
+    return arr
+  }
+  const pivot = arr[0]
+  const left = []
+  const right = []
+  for (let i = 1; i < arr.length; i++) {
+    const compareResult = !changeCompareDirection
+      ? arr[i][sortKey] > pivot[sortKey]
+      : arr[i][sortKey] < pivot[sortKey]
+    if (arr[i][sortKey] && compareResult) {
+      left.push(arr[i])
+    } else {
+      right.push(arr[i])
+    }
+  }
+  return quickSort(left, sortKey, changeCompareDirection).concat(
+    pivot,
+    quickSort(right, sortKey, changeCompareDirection),
+  )
+}
+
+function purifiedDatetimeInMillionSeconds(timestamp) {
+  return new Date(timestamp.trim().replace('- ', '')).getTime()
+}
+
+const BGM_EP_REGEX = /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/ep\/\d+/
+const BGM_GROUP_REGEX =
+  /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/group\/topic\/\d+/
+
+function processComments(userSettings) {
   const conservedPostID =
     $(location).attr('href').split('#').length > 1 ? $(location).attr('href').split('#')[1] : null
+  const allCommentRows = $('.row.row_reply.clearit')
   let plainCommentsCount = 0
   let featuredCommentsCount = 0
   const minimumContentLength = userSettings.minimumFeaturedCommentLength
@@ -186,7 +190,6 @@ class Storage {
         element: row,
         score: commentScore,
         commentsCount,
-        timestamp,
         timestampNumber: purifiedDatetimeInMillionSeconds(timestamp),
       })
     } else {
@@ -199,32 +202,49 @@ class Storage {
       })
     }
   })
-  /**
-   * Sort
-   */
-  const quickSort = function (arr, sortKey, changeCompareDirection = false) {
-    if (arr.length <= 1) {
-      return arr
-    }
-    const pivot = arr[0]
-    const left = []
-    const right = []
-    for (let i = 1; i < arr.length; i++) {
-      const compareResult = !changeCompareDirection
-        ? arr[i][sortKey] > pivot[sortKey]
-        : arr[i][sortKey] < pivot[sortKey]
-      if (arr[i][sortKey] && compareResult) {
-        left.push(arr[i])
-      } else {
-        right.push(arr[i])
-      }
-    }
-    return quickSort(left, sortKey, changeCompareDirection).concat(
-      pivot,
-      quickSort(right, sortKey, changeCompareDirection),
-    )
-  }
 
+  return {
+    plainCommentsCount,
+    featuredCommentsCount,
+    container,
+    plainCommentElements,
+    featuredCommentElements,
+    conservedRow,
+  }
+}
+
+;(async function () {
+  if (!BGM_EP_REGEX.test(location.href) && !BGM_GROUP_REGEX.test(location.href)) {
+    return
+  }
+  Storage.init({
+    hidePlainComments: true,
+    minimumFeaturedCommentLength: 15,
+    maxFeaturedComments: 99,
+    sortMode: 'reactionCount',
+  })
+  const userSettings = {
+    hidePlainComments: Storage.get('hidePlainComments'),
+    minimumFeaturedCommentLength: Storage.get('minimumFeaturedCommentLength'),
+    maxFeaturedComments: Storage.get('maxFeaturedComments'),
+    sortMode: Storage.get('sortMode'),
+  }
+  const sortModeData = userSettings.sortMode || 'reactionCount'
+  /**
+   * Main
+   */
+  let {
+    plainCommentsCount,
+    featuredCommentsCount,
+    container,
+    plainCommentElements,
+    featuredCommentElements,
+    conservedRow,
+  } = processComments(userSettings)
+
+  console.log('plainCommentElements', plainCommentElements)
+
+  console.log('plainCommentElements', plainCommentElements)
   let stateBar = container.find('.row_state.clearit')
   if (stateBar.length === 0) {
     stateBar = $(`<div id class="row_state clearit"></div>`)
@@ -236,12 +256,7 @@ class Storage {
   })
   stateBar.append(hiddenCommentsInfo)
   container.find('.row').detach()
-  container.append(settingsContainer)
-
-  function purifiedDatetimeInMillionSeconds(timestamp) {
-    return new Date(timestamp.trim().replace('- ', '')).getTime()
-  }
-
+  container.append(initSettingsContainer(userSettings))
   const trinity = {
     reactionCount: function () {
       featuredCommentElements = quickSort(featuredCommentElements, 'score')
@@ -285,10 +300,6 @@ class Storage {
       2000,
     )
   }
-
-  /**
-   * Update layout
-   */
   $('#sortMethodSelect').val(sortModeData)
   if (featuredCommentsCount < 10 && userSettings.hidePlainComments === true) {
     $('#toggleFilteredBtn').click()
