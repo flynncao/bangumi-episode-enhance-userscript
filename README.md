@@ -19,3 +19,7 @@ https://youtu.be/_ImSpa0Ef-8?si=oj9GQi7PACpE3PV5
 如果觉得本脚本对你有帮助，给我点个STAR吧！♪(･ω･)ﾉ
 
 bug或者功能提议可以在issues里直接提出！
+
+## 致敬
+
+https://bgm.tv/dev/app/14/gadget/108

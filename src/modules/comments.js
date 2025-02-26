@@ -1,8 +1,10 @@
 import { purifiedDatetimeInMillionSeconds } from '../utils/index'
-import { BGM_EP_REGEX } from '../constants/index'
+import { BGM_EP_REGEX, BGM_GROUP_REGEX } from '../constants/index'
 export default function processComments(userSettings) {
+  const username = $('.idBadgerNeue .avatar').attr('href').split('/user/')[1]
   const conservedPostID =
     $(location).attr('href').split('#').length > 1 ? $(location).attr('href').split('#')[1] : null
+  const isTopicPage = BGM_GROUP_REGEX.test(location.href)
   const allCommentRows = $('.row.row_reply.clearit')
   let plainCommentsCount = 0
   let featuredCommentsCount = 0
@@ -17,6 +19,30 @@ export default function processComments(userSettings) {
       .find(BGM_EP_REGEX.test(location.href) ? '.message.clearit' : '.inner')
       .text()
     let commentScore = 1
+    let mentionedInSubReply = false
+    const stickyMentioned = Boolean(userSettings.stickyMentioned)
+    // prioritize @me comments on
+    const highlightMentionedColor = '#ff8c00'
+    if (userSettings.stickyMentioned) {
+      if (that.find('.avatar').attr('href').includes(username)) {
+        that.css('border-color', highlightMentionedColor)
+        that.css('border-width', '1px')
+        that.css('border-style', 'dashed')
+        commentScore += 10000
+      }
+    }
+    that.find(`.topic_sub_reply .sub_reply_bg.clearit`).each(function (index, element) {
+      that.find('span.num').each(function (index, element) {
+        commentScore += Number.parseInt($(element).text())
+      })
+      if (userSettings.stickyMentioned && $(element).attr('data-item-user') === username) {
+        $(element).css('border-color', highlightMentionedColor)
+        $(element).css('border-width', '1px')
+        $(element).css('border-style', 'dashed')
+        commentScore += 1000
+        mentionedInSubReply = true
+      }
+    })
     that.find('span.num').each(function (index, element) {
       commentScore += Number.parseInt($(element).text())
     })
@@ -30,6 +56,7 @@ export default function processComments(userSettings) {
       const a = $(
         `<a class="expand_all" href="javascript:void(0)" style="margin:0 3px 0 5px;"><span class="ico ico_reply">展开(+${commentsCount})</span></a>`,
       )
+      mentionedInSubReply && a.css('color', highlightMentionedColor)
       a.on('click', function () {
         subReplyContent.slideToggle()
       })
@@ -76,7 +103,6 @@ export default function processComments(userSettings) {
       })
     }
   })
-
   return {
     plainCommentsCount,
     featuredCommentsCount,

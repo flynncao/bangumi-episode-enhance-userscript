@@ -12,12 +12,14 @@ import { BGM_EP_REGEX, BGM_GROUP_REGEX } from './constants/index'
     minimumFeaturedCommentLength: 15,
     maxFeaturedComments: 99,
     sortMode: 'reactionCount',
+    stickyMentioned: false,
   })
   const userSettings = {
     hidePlainComments: Storage.get('hidePlainComments'),
     minimumFeaturedCommentLength: Storage.get('minimumFeaturedCommentLength'),
     maxFeaturedComments: Storage.get('maxFeaturedComments'),
     sortMode: Storage.get('sortMode'),
+    stickyMentioned: Storage.get('stickyMentioned'),
   }
   const sortModeData = userSettings.sortMode || 'reactionCount'
   /**
@@ -31,10 +33,6 @@ import { BGM_EP_REGEX, BGM_GROUP_REGEX } from './constants/index'
     featuredCommentElements,
     conservedRow,
   } = processComments(userSettings)
-
-  console.log('plainCommentElements', plainCommentElements)
-
-  console.log('plainCommentElements', plainCommentElements)
   let stateBar = container.find('.row_state.clearit')
   if (stateBar.length === 0) {
     stateBar = $(`<div id class="row_state clearit"></div>`)
@@ -47,6 +45,7 @@ import { BGM_EP_REGEX, BGM_GROUP_REGEX } from './constants/index'
   stateBar.append(hiddenCommentsInfo)
   container.find('.row').detach()
   container.append(initSettingsContainer(userSettings))
+  container.append($('<h3 style="padding:0 10px 10px 10px;">所有精选评论</h3>'))
   const trinity = {
     reactionCount: function () {
       featuredCommentElements = quickSort(featuredCommentElements, 'score')

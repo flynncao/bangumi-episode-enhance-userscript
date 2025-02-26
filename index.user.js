@@ -50,6 +50,9 @@ function initSettingsContainer(userSettings) {
   const setHidePlainCommentsInput = $(
     `<input type="checkbox"  style="flex:none;margin-right:3px;" id="epe-hide-plain">`,
   ).attr('checked', userSettings.hidePlainComments)
+  const setStickyMentionedInput = $(
+    `<input type="checkbox"  style="flex:none;margin-right:3px;" id="epe-sticky-mentioned">`,
+  ).attr('checked', userSettings.stickyMentioned)
   const settingsContainer = $(`<div style="padding:10px;"></div>`)
   const settingsForm = $(
     '<form style="display:flex; align-items:center; justify-content:flex-start; margin-top:5px;"></form>',
@@ -63,11 +66,16 @@ function initSettingsContainer(userSettings) {
   const settingsLabel3 = $(
     '<label style="display:inline-flex;align-items:center;margin-right:5px;" title="你可以在最底部点击文字展开普通评论"></label>',
   )
+  const settingsLabel4 = $(
+    '<label style="display:inline-flex;align-items:center;margin-right:5px;"></label>',
+  )
   settingsLabel.append(setMinimumFeaturedCommentInput)
   settingsLabel2.append(setMaximumFeaturedCommentsInput)
   settingsLabel3.append(setHidePlainCommentsInput)
   settingsLabel3.append('折叠普通评论')
-  settingsForm.append([settingsLabel, settingsLabel2, settingsLabel3])
+  settingsLabel4.append(setStickyMentionedInput)
+  settingsLabel4.append('置顶@我')
+  settingsForm.append([settingsLabel, settingsLabel2, settingsLabel3, settingsLabel4])
   const settingsButton = $('<button>保存</button>')
   const sortMethodForm = $(
     '<div style="width:100%;"><select id="sortMethodSelect" name="reactionCount"><option value="reactionCount">按热度（贴贴数）排序</option><option value="replyCount">按评论数排序</option><option value="oldFirst">按时间排序(最旧在前)</option><option value="newFirst">按时间排序(最新在前)</option></select></div>',
@@ -83,6 +91,7 @@ function initSettingsContainer(userSettings) {
       setMaximumFeaturedCommentsInput.val() > 0 ? setMaximumFeaturedCommentsInput.val() : 1,
     )
     Storage.set('hidePlainComments', setHidePlainCommentsInput.is(':checked'))
+    Storage.set('stickyMentioned', setStickyMentionedInput.is(':checked'))
     Storage.set('sortMode', $('#sortMethodSelect').val() || 'reactionCount')
     alert('设置已保存')
     location.reload()
@@ -127,6 +136,7 @@ const BGM_GROUP_REGEX =
   /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/group\/topic\/\d+/
 
 function processComments(userSettings) {
+  const username = $('.idBadgerNeue .avatar').attr('href').split('/user/')[1]
   const conservedPostID =
     $(location).attr('href').split('#').length > 1 ? $(location).attr('href').split('#')[1] : null
   const allCommentRows = $('.row.row_reply.clearit')
@@ -143,6 +153,29 @@ function processComments(userSettings) {
       .find(BGM_EP_REGEX.test(location.href) ? '.message.clearit' : '.inner')
       .text()
     let commentScore = 1
+    let mentionedInSubReply = false
+    // prioritize @me comments on
+    const highlightMentionedColor = '#ff8c00'
+    if (userSettings.stickyMentioned) {
+      if (that.find('.avatar').attr('href').includes(username)) {
+        that.css('border-color', highlightMentionedColor)
+        that.css('border-width', '1px')
+        that.css('border-style', 'dashed')
+        commentScore += 10000
+      }
+    }
+    that.find(`.topic_sub_reply .sub_reply_bg.clearit`).each(function (index, element) {
+      that.find('span.num').each(function (index, element) {
+        commentScore += Number.parseInt($(element).text())
+      })
+      if (userSettings.stickyMentioned && $(element).attr('data-item-user') === username) {
+        $(element).css('border-color', highlightMentionedColor)
+        $(element).css('border-width', '1px')
+        $(element).css('border-style', 'dashed')
+        commentScore += 1000
+        mentionedInSubReply = true
+      }
+    })
     that.find('span.num').each(function (index, element) {
       commentScore += Number.parseInt($(element).text())
     })
@@ -156,6 +189,7 @@ function processComments(userSettings) {
       const a = $(
         `<a class="expand_all" href="javascript:void(0)" style="margin:0 3px 0 5px;"><span class="ico ico_reply">展开(+${commentsCount})</span></a>`,
       )
+      mentionedInSubReply && a.css('color', highlightMentionedColor)
       a.on('click', function () {
         subReplyContent.slideToggle()
       })
@@ -202,7 +236,6 @@ function processComments(userSettings) {
       })
     }
   })
-
   return {
     plainCommentsCount,
     featuredCommentsCount,
@@ -222,12 +255,14 @@ function processComments(userSettings) {
     minimumFeaturedCommentLength: 15,
     maxFeaturedComments: 99,
     sortMode: 'reactionCount',
+    stickyMentioned: false,
   })
   const userSettings = {
     hidePlainComments: Storage.get('hidePlainComments'),
     minimumFeaturedCommentLength: Storage.get('minimumFeaturedCommentLength'),
     maxFeaturedComments: Storage.get('maxFeaturedComments'),
     sortMode: Storage.get('sortMode'),
+    stickyMentioned: Storage.get('stickyMentioned'),
   }
   const sortModeData = userSettings.sortMode || 'reactionCount'
   /**
@@ -241,10 +276,6 @@ function processComments(userSettings) {
     featuredCommentElements,
     conservedRow,
   } = processComments(userSettings)
-
-  console.log('plainCommentElements', plainCommentElements)
-
-  console.log('plainCommentElements', plainCommentElements)
   let stateBar = container.find('.row_state.clearit')
   if (stateBar.length === 0) {
     stateBar = $(`<div id class="row_state clearit"></div>`)
@@ -257,6 +288,7 @@ function processComments(userSettings) {
   stateBar.append(hiddenCommentsInfo)
   container.find('.row').detach()
   container.append(initSettingsContainer(userSettings))
+  container.append($('<h3 style="padding:0 10px 10px 10px;">所有精选评论</h3>'))
   const trinity = {
     reactionCount: function () {
       featuredCommentElements = quickSort(featuredCommentElements, 'score')

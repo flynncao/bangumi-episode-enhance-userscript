@@ -12,6 +12,9 @@ function initSettingsContainer(userSettings) {
   const setHidePlainCommentsInput = $(
     `<input type="checkbox"  style="flex:none;margin-right:3px;" id="epe-hide-plain">`,
   ).attr('checked', userSettings.hidePlainComments)
+  const setStickyMentionedInput = $(
+    `<input type="checkbox"  style="flex:none;margin-right:3px;" id="epe-sticky-mentioned">`,
+  ).attr('checked', userSettings.stickyMentioned)
   const settingsContainer = $(`<div style="padding:10px;"></div>`)
   const settingsForm = $(
     '<form style="display:flex; align-items:center; justify-content:flex-start; margin-top:5px;"></form>',
@@ -25,11 +28,16 @@ function initSettingsContainer(userSettings) {
   const settingsLabel3 = $(
     '<label style="display:inline-flex;align-items:center;margin-right:5px;" title="你可以在最底部点击文字展开普通评论"></label>',
   )
+  const settingsLabel4 = $(
+    '<label style="display:inline-flex;align-items:center;margin-right:5px;"></label>',
+  )
   settingsLabel.append(setMinimumFeaturedCommentInput)
   settingsLabel2.append(setMaximumFeaturedCommentsInput)
   settingsLabel3.append(setHidePlainCommentsInput)
   settingsLabel3.append('折叠普通评论')
-  settingsForm.append([settingsLabel, settingsLabel2, settingsLabel3])
+  settingsLabel4.append(setStickyMentionedInput)
+  settingsLabel4.append('置顶@我')
+  settingsForm.append([settingsLabel, settingsLabel2, settingsLabel3, settingsLabel4])
   const settingsButton = $('<button>保存</button>')
   const sortMethodForm = $(
     '<div style="width:100%;"><select id="sortMethodSelect" name="reactionCount"><option value="reactionCount">按热度（贴贴数）排序</option><option value="replyCount">按评论数排序</option><option value="oldFirst">按时间排序(最旧在前)</option><option value="newFirst">按时间排序(最新在前)</option></select></div>',
@@ -45,6 +53,7 @@ function initSettingsContainer(userSettings) {
       setMaximumFeaturedCommentsInput.val() > 0 ? setMaximumFeaturedCommentsInput.val() : 1,
     )
     Storage.set('hidePlainComments', setHidePlainCommentsInput.is(':checked'))
+    Storage.set('stickyMentioned', setStickyMentionedInput.is(':checked'))
     Storage.set('sortMode', $('#sortMethodSelect').val() || 'reactionCount')
     alert('设置已保存')
     location.reload()
