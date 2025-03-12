@@ -2,20 +2,25 @@
   "name": "bangumi-episode-enhance",
   "version": "1.0.0",
   "description": "Enhance Bangumi episode page with more information and features",
-  "main": "index.user.js",
   "type": "module",
-  "scripts": {
-    "dev": "rollup -c -w",
-    "build": "rollup -c",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "keywords": [
     "bangumi",
     "anime"
   ],
-  "author": "Flynn Cao",
   "license": "ISC",
+  "author": "Flynn Cao",
+  "main": "index.user.js",
+  "scripts": {
+    "dev": "rollup -c -w --environment BUILD:development",
+    "build": "rollup -c --environment BUILD:production",
+    "format": "prettier --write *.js",
+    "lint": "eslint --fix ."
+  },
   "devDependencies": {
+    "@rollup/plugin-strip": "^3.0.4",
+    "@sxzz/eslint-config": "^6.0.2",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.22.0",
     "lint-staged": "^15.2.7",
     "prettier": "^3.3.3",
     "rollup": "^4.34.8",
@@ -23,9 +28,9 @@
     "simple-git-hooks": "^2.11.1"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm lint-staged"
+    "pre-commit": "npm run lint-staged"
   },
   "lint-staged": {
-    "*.js": "prettier --write"
+    "*.js": "npm run lint"
   }
 }
