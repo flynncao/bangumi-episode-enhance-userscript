@@ -16,25 +16,25 @@
 
 const NAMESPACE = 'BangumiCommentEnhance'
 
-class Storage {
-  static set(key, value) {
+const Storage = {
+  set(key, value) {
     localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value))
-  }
+  },
 
-  static get(key) {
+  get(key) {
     const value = localStorage.getItem(`${NAMESPACE}_${key}`)
     return value ? JSON.parse(value) : undefined
-  }
+  },
 
-  static async init(settings) {
+  async init(settings) {
     const keys = Object.keys(settings)
-    for (let key of keys) {
+    for (const key of keys) {
       const value = Storage.get(key)
       if (value === undefined) {
         Storage.set(key, settings[key])
       }
     }
-  }
+  },
 }
 
 /**
@@ -82,10 +82,7 @@ function initSettingsContainer(userSettings) {
   )
 
   settingsButton.click(async function () {
-    Storage.set(
-      'minimumFeaturedCommentLength',
-      setMinimumFeaturedCommentInput.val() >= 0 ? setMinimumFeaturedCommentInput.val() : 0,
-    )
+    Storage.set('minimumFeaturedCommentLength', Math.max(setMinimumFeaturedCommentInput.val(), 0))
     Storage.set(
       'maxFeaturedComments',
       setMaximumFeaturedCommentsInput.val() > 0 ? setMaximumFeaturedCommentsInput.val() : 1,
@@ -103,6 +100,10 @@ function initSettingsContainer(userSettings) {
 
   return settingsContainer
 }
+
+const BGM_EP_REGEX = /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/ep\/\d+/
+const BGM_GROUP_REGEX =
+  /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/group\/topic\/\d+/
 
 function quickSort(arr, sortKey, changeCompareDirection = false) {
   if (arr.length <= 1) {
@@ -131,10 +132,6 @@ function purifiedDatetimeInMillionSeconds(timestamp) {
   return new Date(timestamp.trim().replace('- ', '')).getTime()
 }
 
-const BGM_EP_REGEX = /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/ep\/\d+/
-const BGM_GROUP_REGEX =
-  /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/group\/topic\/\d+/
-
 function processComments(userSettings) {
   const username = $('.idBadgerNeue .avatar').attr('href').split('/user/')[1]
   const conservedPostID =
@@ -145,10 +142,10 @@ function processComments(userSettings) {
   const minimumContentLength = userSettings.minimumFeaturedCommentLength
   const container = $('#comment_list')
   const plainCommentElements = []
-  let featuredCommentElements = []
+  const featuredCommentElements = []
   let conservedRow = null
   allCommentRows.each(function (index, row) {
-    let that = $(this)
+    const that = $(this)
     const content = $(row)
       .find(BGM_EP_REGEX.test(location.href) ? '.message.clearit' : '.inner')
       .text()
@@ -156,13 +153,11 @@ function processComments(userSettings) {
     let mentionedInSubReply = false
     // prioritize @me comments on
     const highlightMentionedColor = '#ff8c00'
-    if (userSettings.stickyMentioned) {
-      if (that.find('.avatar').attr('href').includes(username)) {
-        that.css('border-color', highlightMentionedColor)
-        that.css('border-width', '1px')
-        that.css('border-style', 'dashed')
-        commentScore += 10000
-      }
+    if (userSettings.stickyMentioned && that.find('.avatar').attr('href').includes(username)) {
+      that.css('border-color', highlightMentionedColor)
+      that.css('border-width', '1px')
+      that.css('border-style', 'dashed')
+      commentScore += 10000
     }
     that.find(`.topic_sub_reply .sub_reply_bg.clearit`).each(function (index, element) {
       that.find('span.num').each(function (index, element) {
@@ -290,16 +285,16 @@ function processComments(userSettings) {
   container.append(initSettingsContainer(userSettings))
   container.append($('<h3 style="padding:0 10px 10px 10px;">所有精选评论</h3>'))
   const trinity = {
-    reactionCount: function () {
+    reactionCount() {
       featuredCommentElements = quickSort(featuredCommentElements, 'score')
     },
-    replyCount: function () {
+    replyCount() {
       featuredCommentElements = quickSort(featuredCommentElements, 'commentsCount')
     },
-    oldFirst: function () {
+    oldFirst() {
       featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber', true)
     },
-    newFirst: function () {
+    newFirst() {
       featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber')
     },
   }

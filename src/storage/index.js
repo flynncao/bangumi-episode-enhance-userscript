@@ -12,7 +12,7 @@ export default class Storage {
 
   static async init(settings) {
     const keys = Object.keys(settings)
-    for (let key of keys) {
+    for (const key of keys) {
       const value = Storage.get(key)
       if (value === undefined) {
         Storage.set(key, settings[key])

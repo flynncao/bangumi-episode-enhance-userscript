@@ -2,17 +2,11 @@
   "name": "bangumi-comment-enhance",
   "version": "0.2.3.1",
   "description": "Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.",
-	"author": "Flynn Cao",
-	"updateURL": "https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js",
-	"downloadURL": "https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js",
-	"namespace": "https://flynncao.uk/",
-  "match": [
-    "https://bangumi.tv/*",
-    "https://chii.in/*",
-    "https://bgm.tv/*"
-  ],
-  "include": [
-    "/^https?:\\/\\/(((fast\\.)?bgm\\.tv)|chii\\.in|bangumi\\.tv)*/"
-  ],
+  "author": "Flynn Cao",
+  "updateURL": "https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js",
+  "downloadURL": "https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js",
+  "namespace": "https://flynncao.uk/",
+  "match": ["https://bangumi.tv/*", "https://chii.in/*", "https://bgm.tv/*"],
+  "include": ["/^https?:\\/\\/(((fast\\.)?bgm\\.tv)|chii\\.in|bangumi\\.tv)*/"],
   "license": "MIT"
 }

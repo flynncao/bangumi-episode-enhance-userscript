@@ -1,5 +1,5 @@
-import { purifiedDatetimeInMillionSeconds } from '../utils/index'
 import { BGM_EP_REGEX, BGM_GROUP_REGEX } from '../constants/index'
+import { purifiedDatetimeInMillionSeconds } from '../utils/index'
 export default function processComments(userSettings) {
   const username = $('.idBadgerNeue .avatar').attr('href').split('/user/')[1]
   const conservedPostID =
@@ -11,10 +11,10 @@ export default function processComments(userSettings) {
   const minimumContentLength = userSettings.minimumFeaturedCommentLength
   const container = $('#comment_list')
   const plainCommentElements = []
-  let featuredCommentElements = []
+  const featuredCommentElements = []
   let conservedRow = null
   allCommentRows.each(function (index, row) {
-    let that = $(this)
+    const that = $(this)
     const content = $(row)
       .find(BGM_EP_REGEX.test(location.href) ? '.message.clearit' : '.inner')
       .text()
@@ -23,13 +23,11 @@ export default function processComments(userSettings) {
     const stickyMentioned = Boolean(userSettings.stickyMentioned)
     // prioritize @me comments on
     const highlightMentionedColor = '#ff8c00'
-    if (userSettings.stickyMentioned) {
-      if (that.find('.avatar').attr('href').includes(username)) {
-        that.css('border-color', highlightMentionedColor)
-        that.css('border-width', '1px')
-        that.css('border-style', 'dashed')
-        commentScore += 10000
-      }
+    if (userSettings.stickyMentioned && that.find('.avatar').attr('href').includes(username)) {
+      that.css('border-color', highlightMentionedColor)
+      that.css('border-width', '1px')
+      that.css('border-style', 'dashed')
+      commentScore += 10000
     }
     that.find(`.topic_sub_reply .sub_reply_bg.clearit`).each(function (index, element) {
       that.find('span.num').each(function (index, element) {

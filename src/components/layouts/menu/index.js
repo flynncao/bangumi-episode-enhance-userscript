@@ -44,10 +44,7 @@ function initSettingsContainer(userSettings) {
   )
 
   settingsButton.click(async function () {
-    Storage.set(
-      'minimumFeaturedCommentLength',
-      setMinimumFeaturedCommentInput.val() >= 0 ? setMinimumFeaturedCommentInput.val() : 0,
-    )
+    Storage.set('minimumFeaturedCommentLength', Math.max(setMinimumFeaturedCommentInput.val(), 0))
     Storage.set(
       'maxFeaturedComments',
       setMaximumFeaturedCommentsInput.val() > 0 ? setMaximumFeaturedCommentsInput.val() : 1,

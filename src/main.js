@@ -1,8 +1,8 @@
-import Storage from './storage/index'
 import initSettingsContainer from './components/layouts/menu/index'
-import { quickSort, purifiedDatetimeInMillionSeconds } from './utils/index'
-import processComments from './modules/comments'
 import { BGM_EP_REGEX, BGM_GROUP_REGEX } from './constants/index'
+import processComments from './modules/comments'
+import Storage from './storage/index'
+import { quickSort } from './utils/index'
 ;(async function () {
   if (!BGM_EP_REGEX.test(location.href) && !BGM_GROUP_REGEX.test(location.href)) {
     return
@@ -47,16 +47,16 @@ import { BGM_EP_REGEX, BGM_GROUP_REGEX } from './constants/index'
   container.append(initSettingsContainer(userSettings))
   container.append($('<h3 style="padding:0 10px 10px 10px;">所有精选评论</h3>'))
   const trinity = {
-    reactionCount: function () {
+    reactionCount() {
       featuredCommentElements = quickSort(featuredCommentElements, 'score')
     },
-    replyCount: function () {
+    replyCount() {
       featuredCommentElements = quickSort(featuredCommentElements, 'commentsCount')
     },
-    oldFirst: function () {
+    oldFirst() {
       featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber', true)
     },
-    newFirst: function () {
+    newFirst() {
       featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber')
     },
   }
