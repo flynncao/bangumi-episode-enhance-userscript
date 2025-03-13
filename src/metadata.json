@@ -1,6 +1,6 @@
 {
   "name": "bangumi-comment-enhance",
-  "version": "0.2.3.1",
+  "version": "0.2.4",
   "description": "Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.",
   "author": "Flynn Cao",
   "updateURL": "https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js",
