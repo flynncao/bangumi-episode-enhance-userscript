@@ -1,6 +1,7 @@
-import initSettingsContainer from './components/layouts/menu/index'
+import { initSettings } from './components/layouts/settings/index'
 import { BGM_EP_REGEX, BGM_GROUP_REGEX } from './constants/index'
 import processComments from './modules/comments'
+import Icons from './static/svg/index'
 import Storage from './storage/index'
 import { quickSort } from './utils/index'
 ;(async function () {
@@ -44,8 +45,22 @@ import { quickSort } from './utils/index'
   })
   stateBar.append(hiddenCommentsInfo)
   container.find('.row').detach()
-  container.append(initSettingsContainer(userSettings))
-  container.append($('<h3 style="padding:0 10px 10px 10px;">所有精选评论</h3>'))
+  const settingBtn = $('<strong></strong>')
+    .css({
+      display: 'inline-block',
+      width: '20px',
+      height: '20px',
+      transform: 'translate(4px, -3px)',
+      cursor: 'pointer',
+    })
+    .html(Icons.gear)
+    .click(() => window.settingsDialog.show())
+  container.append(
+    $(
+      '<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>',
+    ).append(settingBtn),
+  )
+
   const trinity = {
     reactionCount() {
       featuredCommentElements = quickSort(featuredCommentElements, 'score')
@@ -80,7 +95,7 @@ import { quickSort } from './utils/index'
   })
 
   container.append(plainCommentsContainer)
-
+  // Scroll to conserved row if exists
   if (conservedRow) {
     $('html, body').animate(
       {
@@ -93,4 +108,9 @@ import { quickSort } from './utils/index'
   if (featuredCommentsCount < 10 && userSettings.hidePlainComments === true) {
     $('#toggleFilteredBtn').click()
   }
+  initSettings(userSettings)
+  // control center
+  $(document).on('settingsSaved', (event, data) => {
+    location.reload()
+  })
 })()
