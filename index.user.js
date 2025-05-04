@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        bangumi-comment-enhance
-// @version     0.2.4
+// @version     0.2.4.1
 // @description Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @author      Flynn Cao
 // @updateURL   https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
@@ -26,17 +26,17 @@ const Icons = {
 
 const NAMESPACE = 'BangumiCommentEnhance'
 
-const Storage = {
-  set(key, value) {
+class Storage {
+  static set(key, value) {
     localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value))
-  },
+  }
 
-  get(key) {
+  static get(key) {
     const value = localStorage.getItem(`${NAMESPACE}_${key}`)
     return value ? JSON.parse(value) : undefined
-  },
+  }
 
-  async init(settings) {
+  static async init(settings) {
     const keys = Object.keys(settings)
     for (const key of keys) {
       const value = Storage.get(key)
@@ -44,7 +44,7 @@ const Storage = {
         Storage.set(key, settings[key])
       }
     }
-  },
+  }
 }
 
 function initSettings(userSettings) {
@@ -481,8 +481,7 @@ function processComments(userSettings) {
       .find(BGM_EP_REGEX.test(location.href) ? '.message.clearit' : '.inner .message')
       .text()
     // findi img tag count inside inner .message
-    const imgCount = $(row).find('.inner .message img').length
-    console.log('imgCount', imgCount)
+    $(row).find('.inner .message img').length
     let commentScore = 0
     // prioritize @me comments on
     const highlightMentionedColor = '#ff8c00'
@@ -537,10 +536,6 @@ function processComments(userSettings) {
     if (hasConservedReply || important) {
       isFeatured = true
     }
-
-    if (isFeatured) {
-      console.log(`content.trim()`, content.trim().length)
-    }
     const timestamp = isFeatured
       ? $(row)
           .find('.action:eq(0) small')
@@ -571,7 +566,6 @@ function processComments(userSettings) {
       })
     }
   })
-  console.log('featuredCommentElements', featuredCommentElements)
   return {
     plainCommentsCount,
     featuredCommentsCount,
@@ -785,8 +779,6 @@ const renderComments = (commentData, userSettings, otherScriptActive) => {
 const renderWithOtherScript = (commentData, userSettings, sortModeData) => {
   const { plainCommentsCount, container, plainCommentElements, featuredCommentElements } =
     commentData
-
-  console.log('Prebroadcast script detected, adapting behavior')
 
   // Find the toggle element added by the other script
   const otherScriptToggle = $('#comments_seperater').closest('.row_state')
