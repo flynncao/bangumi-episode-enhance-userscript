@@ -19,9 +19,11 @@ export default function processComments(userSettings) {
   allCommentRows.each(function (index, row) {
     const that = $(this)
     const content = $(row)
-      .find(BGM_EP_REGEX.test(location.href) ? '.message.clearit' : '.inner')
+      .find(BGM_EP_REGEX.test(location.href) ? '.message.clearit' : '.inner .message')
       .text()
-
+    // findi img tag count inside inner .message
+    const imgCount = $(row).find('.inner .message img').length
+    console.log('imgCount', imgCount)
     let commentScore = 0
     // prioritize @me comments on
     const highlightMentionedColor = '#ff8c00'
@@ -77,6 +79,9 @@ export default function processComments(userSettings) {
       isFeatured = true
     }
 
+    if (isFeatured) {
+      console.log(`content.trim()`, content.trim().length)
+    }
     const timestamp = isFeatured
       ? $(row)
           .find('.action:eq(0) small')
@@ -107,6 +112,7 @@ export default function processComments(userSettings) {
       })
     }
   })
+  console.log('featuredCommentElements', featuredCommentElements)
   return {
     plainCommentsCount,
     featuredCommentsCount,

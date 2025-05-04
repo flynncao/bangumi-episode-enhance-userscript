@@ -478,9 +478,11 @@ function processComments(userSettings) {
   allCommentRows.each(function (index, row) {
     const that = $(this)
     const content = $(row)
-      .find(BGM_EP_REGEX.test(location.href) ? '.message.clearit' : '.inner')
+      .find(BGM_EP_REGEX.test(location.href) ? '.message.clearit' : '.inner .message')
       .text()
-
+    // findi img tag count inside inner .message
+    const imgCount = $(row).find('.inner .message img').length
+    console.log('imgCount', imgCount)
     let commentScore = 0
     // prioritize @me comments on
     const highlightMentionedColor = '#ff8c00'
@@ -536,6 +538,9 @@ function processComments(userSettings) {
       isFeatured = true
     }
 
+    if (isFeatured) {
+      console.log(`content.trim()`, content.trim().length)
+    }
     const timestamp = isFeatured
       ? $(row)
           .find('.action:eq(0) small')
@@ -566,6 +571,7 @@ function processComments(userSettings) {
       })
     }
   })
+  console.log('featuredCommentElements', featuredCommentElements)
   return {
     plainCommentsCount,
     featuredCommentsCount,
@@ -576,47 +582,297 @@ function processComments(userSettings) {
   }
 }
 
-;(async function () {
-  if (!BGM_EP_REGEX.test(location.href) && !BGM_GROUP_REGEX.test(location.href)) {
-    return
+/**
+ * Check if the prebroadcast script is active
+ */
+const isPrebroadcastScriptActive = () => {
+  return $('#comments_seperater').length > 0
+}
+
+/**
+ * Wait for the other script to finish processing
+ */
+const waitForPrebroadcastScript = async () => {
+  // If the script isn't active, return immediately
+  if (!isPrebroadcastScriptActive()) {
+    return false
   }
-  Storage.init({
-    hidePlainComments: true,
-    minimumFeaturedCommentLength: 15,
-    maxFeaturedComments: 99,
-    sortMode: 'reactionCount',
-    stickyMentioned: false,
+
+  // Create a promise that resolves when the other script is done
+  return new Promise((resolve) => {
+    const pollInterval = 50 // ms
+    const maxWaitTime = 5000 // ms
+    let elapsedTime = 0
+
+    const checkCompletion = () => {
+      // Check if the toggle function exists and has completed
+      const toggleExists = typeof window.toggleComments === 'function'
+      const isComplete = toggleExists && window.toggleCommentsComplete === true
+
+      // Check if the DOM has been modified by the other script
+      const domModified =
+        $('#comments_seperater').length > 0 &&
+        $('.row.row_reply.clearit').filter(function () {
+          return $(this).css('display') === 'none'
+        }).length > 0
+
+      if (isComplete || domModified || elapsedTime >= maxWaitTime) {
+        resolve(domModified || isComplete)
+        return
+      }
+
+      elapsedTime += pollInterval
+      setTimeout(checkCompletion, pollInterval)
+    }
+
+    checkCompletion()
   })
-  const userSettings = {
-    hidePlainComments: Storage.get('hidePlainComments'),
-    minimumFeaturedCommentLength: Storage.get('minimumFeaturedCommentLength'),
-    maxFeaturedComments: Storage.get('maxFeaturedComments'),
-    sortMode: Storage.get('sortMode'),
-    stickyMentioned: Storage.get('stickyMentioned'),
-  }
+}
+
+/**
+ * Handle click events for the prebroadcast toggle
+ * This ensures our script works correctly with the other script's dynamic DOM changes
+ */
+const setupPrebroadcastToggleHandler = () => {
+  // Create a flag to track if we're currently handling a click
+  let isHandlingClick = false
+
+  // Set up a delegated event handler for all comments_seperater elements
+  $(document).on('click', '#comments_seperater', function (event) {
+    // Prevent handling multiple clicks at once
+    if (isHandlingClick) return
+    isHandlingClick = true
+
+    // Store the current button text to determine the toggle state
+    const currentText = $(this).text()
+
+    // After the click, there might be a new separator added
+    setTimeout(() => {
+      // Find all separators
+      const allSeparators = $('[id="comments_seperater"]')
+
+      // Keep only the one in our header, remove all others
+      const headerSeparator = $('h3:contains("所有精选评论") #comments_seperater')
+
+      if (headerSeparator.length > 0) {
+        // Update the header separator text
+        headerSeparator.text(
+          currentText.includes('展开')
+            ? currentText.replace('展开', '折叠')
+            : currentText.replace('折叠', '展开'),
+        )
+
+        // Remove all other separators
+        allSeparators.each(function () {
+          if (!$(this).closest('h3').length) {
+            $(this).closest('.row_state').remove()
+          }
+        })
+      } else {
+        // If we don't have a header separator yet, move one there
+        const firstSeparator = allSeparators.first()
+        if (firstSeparator.length > 0) {
+          // Clone the separator with its event handlers
+          const clonedSeparator = firstSeparator.clone(true)
+
+          // Style it to fit in the header
+          clonedSeparator.css({
+            'margin-left': '10px',
+            display: 'inline-block',
+          })
+
+          // Add it to the header
+          $('h3:contains("所有精选评论")').append(clonedSeparator)
+
+          // Remove the original
+          firstSeparator.closest('.row_state').remove()
+        }
+      }
+
+      // Reset the flag
+      isHandlingClick = false
+    }, 200) // Slightly longer delay to ensure the DOM has been updated
+  })
+
+  // Also set up a MutationObserver to catch any new separators added by the script
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+        // Check if any new separators were added
+        const newSeparators = $('#comments_seperater').filter(function () {
+          return !$(this).closest('h3').length
+        })
+
+        if (newSeparators.length > 0) {
+          // Get the header separator
+          const headerSeparator = $('h3:contains("所有精选评论") #comments_seperater')
+
+          if (headerSeparator.length > 0) {
+            // Update the header separator text
+            headerSeparator.text(newSeparators.first().text())
+
+            // Remove the new separators
+            newSeparators.each(function () {
+              $(this).closest('.row_state').remove()
+            })
+          } else {
+            // If we don't have a header separator yet, move one there
+            const firstSeparator = newSeparators.first()
+
+            // Clone the separator with its event handlers
+            const clonedSeparator = firstSeparator.clone(true)
+
+            // Style it to fit in the header
+            clonedSeparator.css({
+              'margin-left': '10px',
+              display: 'inline-block',
+            })
+
+            // Add it to the header
+            $('h3:contains("所有精选评论")').append(clonedSeparator)
+
+            // Remove the original
+            firstSeparator.closest('.row_state').remove()
+          }
+        }
+      }
+    })
+  })
+
+  // Start observing the document body for changes
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  })
+
+  // Store the observer on the window object so it doesn't get garbage collected
+  window.commentsMutationObserver = observer
+}
+
+/**
+ * Render comments based on processed data
+ */
+const renderComments = (commentData, userSettings, otherScriptActive) => {
+  const { featuredCommentsCount, conservedRow } = commentData
+
   const sortModeData = userSettings.sortMode || 'reactionCount'
-  /**
-   * Main
-   */
-  let {
-    plainCommentsCount,
-    featuredCommentsCount,
-    container,
-    plainCommentElements,
-    featuredCommentElements,
-    conservedRow,
-  } = processComments(userSettings)
-  let stateBar = container.find('.row_state.clearit')
-  if (stateBar.length === 0) {
-    stateBar = $(`<div id class="row_state clearit"></div>`)
+
+  if (otherScriptActive) {
+    renderWithOtherScript(commentData, userSettings, sortModeData)
+  } else {
+    renderStandalone(commentData, userSettings, sortModeData)
   }
+
+  // Scroll to conserved row if exists
+  if (conservedRow) {
+    $('html, body').animate(
+      {
+        scrollTop: $(conservedRow).offset().top,
+      },
+      2000,
+    )
+  }
+
+  $('#sortMethodSelect').val(sortModeData)
+  if (featuredCommentsCount < 10 && userSettings.hidePlainComments === true) {
+    $('#toggleFilteredBtn').click()
+  }
+}
+
+/**
+ * Render comments when another script is active
+ */
+const renderWithOtherScript = (commentData, userSettings, sortModeData) => {
+  const { plainCommentsCount, container, plainCommentElements, featuredCommentElements } =
+    commentData
+
+  console.log('Prebroadcast script detected, adapting behavior')
+
+  // Find the toggle element added by the other script
+  const otherScriptToggle = $('#comments_seperater').closest('.row_state')
+
+  // Create our state bar
+  let stateBar = container.find('.row_state.clearit').not(otherScriptToggle)
+  if (stateBar.length === 0) {
+    stateBar = $(`<div class="row_state clearit"></div>`)
+  }
+
+  // Add our toggle for plain comments
   const hiddenCommentsInfo = $(
     `<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">点击展开/折叠剩余${plainCommentsCount}条普通评论</div>`,
   ).click(function () {
     $('#comment_list_plain').slideToggle()
   })
   stateBar.append(hiddenCommentsInfo)
-  container.find('.row').detach()
+
+  // Clean up container but preserve the other script's elements
+  container.find('.row').each(function () {
+    if (!$(this).hasClass('row_reply') && !$(this).hasClass('row_state')) {
+      $(this).detach()
+    }
+  })
+
+  // Add settings button and header
+  const header = addHeaderWithSettings(container)
+
+  // Move the prebroadcast toggle to the top
+  movePrebroadcastToggleToTop(header, otherScriptToggle)
+
+  // Sort and append featured comments
+  sortAndAppendFeaturedComments(featuredCommentElements, container, sortModeData, true)
+
+  // Add our state bar after the featured comments but before the other script's toggle
+  // We don't need to add the otherScriptToggle here anymore since we moved it to the top
+  container.append(stateBar)
+
+  // Create and add plain comments container
+  addPlainCommentsContainer(plainCommentElements, stateBar, userSettings.hidePlainComments, true)
+}
+
+/**
+ * Render comments in standalone mode (no other script)
+ */
+const renderStandalone = (commentData, userSettings, sortModeData) => {
+  const { plainCommentsCount, container, plainCommentElements, featuredCommentElements } =
+    commentData
+
+  // Create state bar
+  let stateBar = container.find('.row_state.clearit')
+  if (stateBar.length === 0) {
+    stateBar = $(`<div class="row_state clearit"></div>`)
+  }
+
+  // Add toggle for plain comments
+  const hiddenCommentsInfo = $(
+    `<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">点击展开/折叠剩余${plainCommentsCount}条普通评论</div>`,
+  ).click(function () {
+    $('#comment_list_plain').slideToggle()
+  })
+  stateBar.append(hiddenCommentsInfo)
+
+  // Clean up container
+  container.find('.row').each(function () {
+    if (!$(this).hasClass('row_reply')) {
+      $(this).detach()
+    }
+  })
+
+  // Add settings button and header
+  addHeaderWithSettings(container)
+
+  // Sort and append featured comments
+  sortAndAppendFeaturedComments(featuredCommentElements, container, sortModeData, false)
+
+  // Add plain comments container
+  container.append(stateBar)
+  addPlainCommentsContainer(plainCommentElements, container, userSettings.hidePlainComments, false)
+}
+
+/**
+ * Add header with settings button
+ */
+const addHeaderWithSettings = (container) => {
+  // Add settings button
   const settingBtn = $('<strong></strong>')
     .css({
       display: 'inline-block',
@@ -627,62 +883,210 @@ function processComments(userSettings) {
     })
     .html(Icons.gear)
     .click(() => window.settingsDialog.show())
-  container.append(
-    $(
-      '<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>',
-    ).append(settingBtn),
-  )
 
+  // Create header with flex display to accommodate multiple elements
+  const header = $('<h3 style="padding:10px;display:flex;width:100%;align-items:center;"></h3>')
+
+  // Add the title text
+  const titleText = $('<span>所有精选评论</span>')
+
+  // Add elements to header
+  header.append(titleText)
+  header.append(settingBtn)
+
+  // Add header to container
+  container.append(header)
+
+  // Return the header element so we can add more elements to it if needed
+  return header
+}
+
+/**
+ * Sort and append featured comments
+ */
+const sortAndAppendFeaturedComments = (
+  featuredCommentElements,
+  container,
+  sortModeData,
+  checkHidden,
+) => {
+  // Sort featured comments
   const trinity = {
     reactionCount() {
-      featuredCommentElements = quickSort(featuredCommentElements, 'score')
+      return quickSort(featuredCommentElements, 'score')
     },
     replyCount() {
-      featuredCommentElements = quickSort(featuredCommentElements, 'commentsCount')
+      return quickSort(featuredCommentElements, 'commentsCount')
     },
     oldFirst() {
-      featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber', true)
+      return quickSort(featuredCommentElements, 'timestampNumber', true)
     },
     newFirst() {
-      featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber')
+      return quickSort(featuredCommentElements, 'timestampNumber')
     },
   }
-  trinity[sortModeData]()
-  /**
-   * Append components
-   */
-  featuredCommentElements.forEach(function (element) {
-    container.append($(element.element))
+
+  const sortedElements = trinity[sortModeData]()
+
+  // Get all comments that are hidden by the other script if needed
+  const hiddenByOtherScript = checkHidden
+    ? $('.row.row_reply.clearit').filter(function () {
+        return $(this).css('display') === 'none'
+      })
+    : []
+
+  // Append featured comments
+  sortedElements.forEach(function (element) {
+    if (checkHidden) {
+      // Skip comments that are already hidden by the other script
+      const isHidden =
+        hiddenByOtherScript.filter(function () {
+          return this.id === element.element.id
+        }).length > 0
+
+      if (!isHidden) {
+        container.append($(element.element))
+      }
+    } else {
+      container.append($(element.element))
+    }
   })
-  plainCommentElements.forEach(function (element) {
-    container.append($(element.element))
-  })
-  container.append(stateBar)
+
+  return sortedElements
+}
+
+/**
+ * Add plain comments container
+ */
+const addPlainCommentsContainer = (
+  plainCommentElements,
+  container,
+  hidePlainComments,
+  checkHidden,
+) => {
+  // Create plain comments container
   const plainCommentsContainer = $('<div id="comment_list_plain" style="margin-top:2rem;"></div>')
-  if (userSettings.hidePlainComments) {
+  if (hidePlainComments) {
     plainCommentsContainer.hide()
   }
+
+  // Get all comments that are hidden by the other script if needed
+  const hiddenByOtherScript = checkHidden
+    ? $('.row.row_reply.clearit').filter(function () {
+        return $(this).css('display') === 'none'
+      })
+    : []
+
+  // Add plain comments to container
   plainCommentElements.forEach(function (element) {
-    plainCommentsContainer.append($(element.element))
+    if (checkHidden) {
+      // Skip comments that are already hidden by the other script
+      const isHidden =
+        hiddenByOtherScript.filter(function () {
+          return this.id === element.element.id
+        }).length > 0
+
+      if (!isHidden) {
+        plainCommentsContainer.append($(element.element))
+      }
+    } else {
+      plainCommentsContainer.append($(element.element))
+    }
   })
 
   container.append(plainCommentsContainer)
-  // Scroll to conserved row if exists
-  if (conservedRow) {
-    $('html, body').animate(
-      {
-        scrollTop: $(conservedRow).offset().top,
-      },
-      2000,
-    )
+}
+
+/**
+ * Move the prebroadcast toggle to the top of the page
+ */
+const movePrebroadcastToggleToTop = (header, otherScriptToggle) => {
+  if (otherScriptToggle && otherScriptToggle.length > 0) {
+    // Find the separator element
+    const separator = otherScriptToggle.find('#comments_seperater')
+
+    if (separator.length > 0) {
+      // Clone the separator with its event handlers
+      const clonedSeparator = separator.clone(true)
+
+      // Style it to fit in the header
+      clonedSeparator.css({
+        'margin-left': '10px',
+        display: 'inline-block',
+      })
+
+      // Add it to the header
+      header.append(clonedSeparator)
+
+      // Remove the original toggle from the DOM to prevent duplicates
+      otherScriptToggle.remove()
+
+      // Remove any other separators that might exist
+      $('.row_state').each(function () {
+        if (
+          $(this).find('#comments_seperater').length > 0 &&
+          !$(this).find('#comments_seperater').closest('h3').length
+        ) {
+          $(this).remove()
+        }
+      })
+    }
   }
-  $('#sortMethodSelect').val(sortModeData)
-  if (featuredCommentsCount < 10 && userSettings.hidePlainComments === true) {
-    $('#toggleFilteredBtn').click()
+}
+
+;(async function () {
+  // Exit early if not on a supported page
+  if (!BGM_EP_REGEX.test(location.href) && !BGM_GROUP_REGEX.test(location.href)) {
+    return
   }
-  initSettings(userSettings)
-  // control center
-  $(document).on('settingsSaved', (event, data) => {
-    location.reload()
+
+  // Initialize storage with default values
+  Storage.init({
+    hidePlainComments: true,
+    minimumFeaturedCommentLength: 15,
+    maxFeaturedComments: 99,
+    sortMode: 'reactionCount',
+    stickyMentioned: false,
+  })
+
+  // Get user settings from storage
+  const userSettings = {
+    hidePlainComments: Storage.get('hidePlainComments'),
+    minimumFeaturedCommentLength: Storage.get('minimumFeaturedCommentLength'),
+    maxFeaturedComments: Storage.get('maxFeaturedComments'),
+    sortMode: Storage.get('sortMode'),
+    stickyMentioned: Storage.get('stickyMentioned'),
+  }
+
+  // Initialize settings dialog
+  window.settingsDialog = initSettings(userSettings)
+
+  // Check if the prebroadcast script is active and wait for it to finish
+  const otherScriptActive = await waitForPrebroadcastScript()
+
+  // Process comments
+  const commentData = processComments(userSettings)
+
+  // Render comments
+  renderComments(commentData, userSettings, otherScriptActive)
+
+  // Set up handler for prebroadcast toggle if needed
+  if (otherScriptActive) {
+    setupPrebroadcastToggleHandler()
+  }
+
+  // Listen for settings changes
+  document.addEventListener('settingsSaved', function (e) {
+    const newSettings = {
+      hidePlainComments: userSettings.hidePlainComments,
+      minimumFeaturedCommentLength: e.detail.minEffectiveNumber,
+      maxFeaturedComments: e.detail.maxSelectedPosts,
+      sortMode: e.detail.sortBy,
+      stickyMentioned: e.detail.showMine,
+    }
+
+    // Re-process and re-render comments with new settings
+    const newCommentData = processComments(newSettings)
+    renderComments(newCommentData, newSettings, otherScriptActive)
   })
 })()
