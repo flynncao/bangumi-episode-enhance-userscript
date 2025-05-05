@@ -9,6 +9,8 @@ export const renderComments = (commentData, userSettings, otherScriptActive) => 
 
   const sortModeData = userSettings.sortMode || 'reactionCount'
 
+  $('h3:contains("所有精选评论")').remove()
+
   if (otherScriptActive) {
     renderWithOtherScript(commentData, userSettings, sortModeData)
   } else {

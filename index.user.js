@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        bangumi-comment-enhance
-// @version     0.2.4.1
+// @version     0.2.4.2
 // @description Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @author      Flynn Cao
 // @updateURL   https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
@@ -363,17 +363,9 @@ function initSettings(userSettings) {
     })
     document.dispatchEvent(event)
 
-    // jQuery compatibility
-    if (window.jQuery) {
-      jQuery(document).trigger('settingsSaved', {
-        sortBy: dropdown.value,
-        showMine: checkbox.checked,
-        minEffectiveNumber: Number.parseInt(minEffInput.value),
-        maxSelectedPosts: Number.parseInt(maxPostsInput.value),
-      })
-    }
-
     hideDialog(container)
+
+    location.reload(true)
   }
 
   // Show dialog
@@ -402,7 +394,7 @@ function initSettings(userSettings) {
     elements.cancelBtn.addEventListener('click', () => hideDialog(elements.container))
 
     // Expose API
-    window.settingsDialog = {
+    return {
       show: () => showDialog(elements.container),
       hide: () => hideDialog(elements.container),
       save: () => saveSettings(elements),
@@ -410,12 +402,43 @@ function initSettings(userSettings) {
     }
   }
 
-  // Auto-initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init)
+  // Create a settings dialog object that will be returned immediately
+  let settingsDialog = null
+
+  // Initialize immediately if DOM is ready
+  if (document.readyState !== 'loading') {
+    settingsDialog = init()
   } else {
-    init()
+    // Create a placeholder object with methods that will initialize when needed
+    settingsDialog = {
+      show: () => {
+        // Replace this object with the real one when first used
+        settingsDialog = init()
+        settingsDialog.show()
+      },
+      hide: () => {
+        settingsDialog = init()
+        settingsDialog.hide()
+      },
+      save: () => {
+        settingsDialog = init()
+        settingsDialog.save()
+      },
+      getElements: () => {
+        settingsDialog = init()
+        return settingsDialog.getElements()
+      },
+    }
+
+    // Also set up the event listener to initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      // Replace the placeholder with the real implementation
+      settingsDialog = init()
+    })
   }
+
+  // Always return an object with the required methods
+  return settingsDialog
 }
 
 const BGM_EP_REGEX = /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/ep\/\d+/
@@ -751,6 +774,8 @@ const renderComments = (commentData, userSettings, otherScriptActive) => {
 
   const sortModeData = userSettings.sortMode || 'reactionCount'
 
+  $('h3:contains("所有精选评论")').remove()
+
   if (otherScriptActive) {
     renderWithOtherScript(commentData, userSettings, sortModeData)
   } else {
@@ -1051,8 +1076,7 @@ const movePrebroadcastToggleToTop = (header, otherScriptToggle) => {
   }
 
   // Initialize settings dialog
-  window.settingsDialog = initSettings(userSettings)
-
+  window.settingsDialog = initSettings(userSettings) // This should now always be an object
   // Check if the prebroadcast script is active and wait for it to finish
   const otherScriptActive = await waitForPrebroadcastScript()
 

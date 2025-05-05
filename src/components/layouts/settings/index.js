@@ -316,17 +316,9 @@ export function initSettings(userSettings) {
     })
     document.dispatchEvent(event)
 
-    // jQuery compatibility
-    if (window.jQuery) {
-      jQuery(document).trigger('settingsSaved', {
-        sortBy: dropdown.value,
-        showMine: checkbox.checked,
-        minEffectiveNumber: Number.parseInt(minEffInput.value),
-        maxSelectedPosts: Number.parseInt(maxPostsInput.value),
-      })
-    }
-
     hideDialog(container)
+
+    location.reload(true)
   }
 
   // Show dialog
@@ -355,7 +347,7 @@ export function initSettings(userSettings) {
     elements.cancelBtn.addEventListener('click', () => hideDialog(elements.container))
 
     // Expose API
-    window.settingsDialog = {
+    return {
       show: () => showDialog(elements.container),
       hide: () => hideDialog(elements.container),
       save: () => saveSettings(elements),
@@ -363,10 +355,41 @@ export function initSettings(userSettings) {
     }
   }
 
-  // Auto-initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init)
+  // Create a settings dialog object that will be returned immediately
+  let settingsDialog = null
+
+  // Initialize immediately if DOM is ready
+  if (document.readyState !== 'loading') {
+    settingsDialog = init()
   } else {
-    init()
+    // Create a placeholder object with methods that will initialize when needed
+    settingsDialog = {
+      show: () => {
+        // Replace this object with the real one when first used
+        settingsDialog = init()
+        settingsDialog.show()
+      },
+      hide: () => {
+        settingsDialog = init()
+        settingsDialog.hide()
+      },
+      save: () => {
+        settingsDialog = init()
+        settingsDialog.save()
+      },
+      getElements: () => {
+        settingsDialog = init()
+        return settingsDialog.getElements()
+      },
+    }
+
+    // Also set up the event listener to initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      // Replace the placeholder with the real implementation
+      settingsDialog = init()
+    })
   }
+
+  // Always return an object with the required methods
+  return settingsDialog
 }

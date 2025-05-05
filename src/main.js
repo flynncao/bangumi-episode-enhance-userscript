@@ -31,6 +31,7 @@ import Storage from './storage/index'
   // Initialize settings dialog
   window.settingsDialog = initSettings(userSettings)
 
+  console.log('window.settingsDialog', window.settingsDialog) // This should now always be an object
   // Check if the prebroadcast script is active and wait for it to finish
   const otherScriptActive = await waitForPrebroadcastScript()
 
