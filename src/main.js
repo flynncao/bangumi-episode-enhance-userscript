@@ -1,4 +1,4 @@
-import { initSettings } from './components/layouts/settings/index'
+import { createSettingMenu } from './components/layouts/settings/index'
 import { BGM_EP_REGEX, BGM_GROUP_REGEX } from './constants/index'
 import processComments from './modules/comments'
 import Icons from './static/svg/index'
@@ -14,13 +14,16 @@ import { quickSort } from './utils/index'
     maxFeaturedComments: 99,
     sortMode: 'reactionCount',
     stickyMentioned: false,
+    hidePremature: false,
   })
+
   const userSettings = {
     hidePlainComments: Storage.get('hidePlainComments'),
     minimumFeaturedCommentLength: Storage.get('minimumFeaturedCommentLength'),
     maxFeaturedComments: Storage.get('maxFeaturedComments'),
     sortMode: Storage.get('sortMode'),
     stickyMentioned: Storage.get('stickyMentioned'),
+    hidePremature: Storage.get('hidePremature'),
   }
   const sortModeData = userSettings.sortMode || 'reactionCount'
   /**
@@ -108,9 +111,9 @@ import { quickSort } from './utils/index'
   if (featuredCommentsCount < 10 && userSettings.hidePlainComments === true) {
     $('#toggleFilteredBtn').click()
   }
-  initSettings(userSettings)
+  createSettingMenu(userSettings, BGM_EP_REGEX.test(location.href))
   // control center
-  $(document).on('settingsSaved', (event, data) => {
+  $(document).on('settingsSaved', () => {
     location.reload()
   })
 })()

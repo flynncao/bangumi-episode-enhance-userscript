@@ -1,0 +1,144 @@
+.fixed-container {
+  position: fixed;
+  z-index: 100;
+  width: calc(100vw - 50px);
+  max-width: 380px;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  padding: 30px;
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
+  display: none;
+}
+
+[data-theme="dark"] .fixed-container {
+  background-color: rgba(30, 30, 30, 0.8);
+  color: #fff;
+}
+
+.container-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.dropdown-select {
+  padding: 8px;
+  padding-right: 16px;
+  border-radius: 6px;
+  border: 1px solid #e2e2e2;
+  background-color: #f5f5f5;
+  font-size: 14px;
+  width: 100%;
+}
+
+[data-theme="dark"] .dropdown-select {
+  background-color: #333;
+  border-color: #555;
+  color: #fff;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.checkbox-container input[type="checkbox"] {
+  margin-right: 12px;
+  transform: translateY(1.5px);
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  justify-content: flex-start;
+}
+
+.input-group label {
+  text-align: left;
+  font-size: 14px;
+  margin-right: 8px;
+}
+
+.input-group input {
+  max-width: 40px;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #e2e2e2;
+  text-align: center;
+}
+
+[data-theme="dark"] .input-group input {
+  background-color: #333;
+  border-color: #555;
+  color: #fff;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.button-group button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background-color: white;
+  border: 1px solid #e2e2e2;
+}
+
+[data-theme="dark"] .cancel-btn {
+  background-color: #333;
+  border-color: #555;
+  color: #fff;
+}
+
+.save-btn {
+  background-color: #333;
+  color: white;
+}
+
+[data-theme="dark"] .save-btn {
+  background-color: #555;
+}
+
+button:hover {
+  filter: brightness(1.5);
+  transition: all 0.3s;
+}
+
+strong svg {
+  max-width: 21px;
+  max-height: 21px;
+  transform: translateY(2px);
+  margin-right: 10px;
+}
+
+[data-theme="dark"] strong svg {
+  filter: invert(1);
+}
+
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+}

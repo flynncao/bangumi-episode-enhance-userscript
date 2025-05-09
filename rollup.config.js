@@ -1,5 +1,7 @@
 import strip from '@rollup/plugin-strip'
+import css from 'rollup-plugin-import-css'
 import metadata from 'rollup-plugin-userscript-metadata'
+
 export default {
   input: 'src/main.js',
   output: [
@@ -12,6 +14,7 @@ export default {
     metadata({
       metadata: 'src/metadata.json',
     }),
+    css(),
     strip({
       functions: process.env.BUILD === 'production' ? ['console.log'] : [],
     }),

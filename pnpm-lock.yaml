@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      dotenv:
-        specifier: ^16.4.7
-        version: 16.4.7
     devDependencies:
       '@rollup/plugin-strip':
         specifier: ^3.0.4
@@ -33,6 +29,9 @@ importers:
       rollup:
         specifier: ^4.34.8
         version: 4.34.8
+      rollup-plugin-import-css:
+        specifier: ^3.5.8
+        version: 3.5.8(rollup@4.34.8)
       rollup-plugin-userscript-metadata:
         specifier: ^2.0.1
         version: 2.0.1
@@ -561,10 +560,6 @@ packages:
   doctrine@3.0.0:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
-
-  dotenv@16.4.7:
-    resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
-    engines: {node: '>=12'}
 
   electron-to-chromium@1.5.114:
     resolution: {integrity: sha512-DFptFef3iktoKlFQK/afbo274/XNWD00Am0xa7M8FZUepHlHT8PEuiNBoRfFHbH1okqN58AlhbJ4QTkcnXorjA==}
@@ -1405,6 +1400,12 @@ packages:
   rfdc@1.4.1:
     resolution: {integrity: sha512-q1b3N5QkRUWUl7iyylaaj3kOpIT0N2i9MqIEQXP73GVsN9cw3fdx8X63cEmWhJGi2PPCF23Ijp7ktmd39rawIA==}
 
+  rollup-plugin-import-css@3.5.8:
+    resolution: {integrity: sha512-a3YsZnwHz66mRHCKHjaPCSfWczczvS/HTkgDc+Eogn0mt/0JZXz0WjK0fzM5WwBpVtOqHB4/gHdmEY40ILsaVg==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      rollup: ^2.x.x || ^3.x.x || ^4.x.x
+
   rollup-plugin-userscript-metadata@2.0.1:
     resolution: {integrity: sha512-OsQAPSIYQEc0wkOBv8wHksHAwR8cA+0h6ioXCrORrDTyFH9jgaKJMun3Spplg24hfwSgdkaDSqmQE7UcxRQkVg==}
 
@@ -2166,8 +2167,6 @@ snapshots:
   doctrine@3.0.0:
     dependencies:
       esutils: 2.0.3
-
-  dotenv@16.4.7: {}
 
   electron-to-chromium@1.5.114: {}
 
@@ -3211,6 +3210,11 @@ snapshots:
   reusify@1.1.0: {}
 
   rfdc@1.4.1: {}
+
+  rollup-plugin-import-css@3.5.8(rollup@4.34.8):
+    dependencies:
+      '@rollup/pluginutils': 5.1.4(rollup@4.34.8)
+      rollup: 4.34.8
 
   rollup-plugin-userscript-metadata@2.0.1: {}
 

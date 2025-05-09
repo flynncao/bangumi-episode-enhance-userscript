@@ -1,139 +1,15 @@
+import { CustomCheckboxContainer } from '../../../classes/checkbox'
 import Icons from '../../../static/svg/index'
 import Storage from '../../../storage/index'
-export function initSettings(userSettings) {
-  // Create and inject styles
+import styles from './styles.css'
+
+export function createSettingMenu(userSettings, episodeMode = false) {
   const injectStyles = () => {
     const styleEl = document.createElement('style')
-    styleEl.textContent = `
-			.fixed-container {
-				position: fixed;
-				z-index: 100;
-				width: calc(100vw - 50px);
-				max-width: 380px;
-				background-color: rgba(255, 255, 255, 0.8);
-				backdrop-filter: blur(8px);
-				left: 50%;
-				top: 50%;
-				transform: translate(-50%, -50%);
-				border-radius: 12px;
-				box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
-				padding: 30px;
-				text-align: center;
-				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-				box-sizing: border-box;
-				display: none;
-			}
-			[data-theme="dark"] .fixed-container {
-				background-color: rgba(30, 30, 30, 0.8);
-				color: #fff;
-			}
-			.container-header {
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-				margin-bottom: 16px;
-			}
-			.dropdown-select {
-				padding: 8px;
-				padding-right:16px;
-				border-radius: 6px;
-				border: 1px solid #e2e2e2;
-				background-color: #f5f5f5;
-				font-size: 14px;
-				width: 100%;
-			}
-			[data-theme="dark"] .dropdown-select {
-				background-color: #333;
-				border-color: #555;
-				color: #fff;
-			}
-			.checkbox-container {
-				display: flex;
-				align-items: center;
-				margin-bottom: 16x;
-				text-align: left;
-				font-size:14px;
-			}
-			.input-group {
-				display: flex;
-				align-items: center;
-				margin-bottom: 16px;
-				justify-content:flex-start;
-			}
-			.input-group label {
-				text-align: left;
-				font-size: 14px;
-				margin-right:8px;
-			}
-			.input-group input {
-				max-width: 40px;
-				padding: 6px;
-				border-radius: 6px;
-				border: 1px solid #e2e2e2;
-				text-align: center;
-			}
-			[data-theme="dark"] .input-group input {
-				background-color: #333;
-				border-color: #555;
-				color: #fff;
-			}
-			.button-group {
-				display: flex;
-				justify-content: space-between;
-				gap: 12px;
-			}
-			.button-group button {
-				flex: 1;
-				padding: 10px;
-				border-radius: 6px;
-				border: none;
-				font-size: 16px;
-				cursor: pointer;
-			}
-			.cancel-btn {
-				background-color: white;
-				border: 1px solid #e2e2e2;
-			}
-			[data-theme="dark"] .cancel-btn {
-				background-color: #333;
-				border-color: #555;
-				color: #fff;
-			}
-			.save-btn {
-				background-color: #333;
-				color: white;
-			}
-			[data-theme="dark"] .save-btn {
-				background-color: #555;
-			}
-			button:hover{
-				filter: brightness(1.5);
-				transition: all 0.3s;
-			}
-			
-			strong svg{
-				max-width:21px;
-				max-height:21px;
-				transform: translateY(2px);
-				margin-right: 10px;
-			}
-			[data-theme="dark"] strong svg{
-				filter: invert(1);
-			}
-			input[type="checkbox"]{
-				width:20px;
-				height:20px;
-				margin:0;
-				cursor:pointer;
-			}
-			.checkbox-container input[type="checkbox"] {
-				margin-right: 12px;
-				transform: translateY(1.5px);
-			}
-		`
+    styleEl.textContent = styles
     document.head.append(styleEl)
   }
-  // Create DOM elements and construct the UI
+
   const createSettingsDialog = () => {
     // Create container
     const container = document.createElement('div')
@@ -179,22 +55,36 @@ export function initSettings(userSettings) {
     header.append(spacerRight)
 
     // Create checkbox
-    const checkboxContainer = document.createElement('div')
-    checkboxContainer.className = 'checkbox-container'
+    const checkboxContainers = []
 
-    const checkbox = document.createElement('input')
-    checkbox.type = 'checkbox'
-    checkbox.id = 'showMine'
-    checkbox.checked = userSettings.stickyMentioned || false
+    const hidePlainCommentsCheckboxContainer = new CustomCheckboxContainer(
+      'hidePlainComments',
+      '隐藏普通评论',
+      userSettings.hidePlainComments || false,
+    )
 
-    const checkboxLabel = document.createElement('label')
-    checkboxLabel.htmlFor = 'showMine'
-    checkboxLabel.textContent = '置顶我发表/回复我的帖子'
+    const pinMyCommentsCheckboxContainer = new CustomCheckboxContainer(
+      'showMine',
+      '置顶我发表/回复我的帖子',
+      userSettings.stickyMentioned || false,
+    )
 
-    checkboxContainer.append(checkbox)
-    checkboxContainer.append(checkboxLabel)
+    const hidePrematureCommentsCheckboxContainer = new CustomCheckboxContainer(
+      'hidePremature',
+      '隐藏开播前发表的评论',
+      userSettings.hidePremature || false,
+    )
 
-    // Create min effective number input
+    checkboxContainers.push(
+      hidePlainCommentsCheckboxContainer.getContainer(),
+      pinMyCommentsCheckboxContainer.getContainer(),
+    )
+
+    if (episodeMode) {
+      checkboxContainers.push(hidePrematureCommentsCheckboxContainer.getContainer())
+    }
+
+    // Create min effective number int
     const minEffGroup = document.createElement('div')
     minEffGroup.className = 'input-group'
 
@@ -251,7 +141,7 @@ export function initSettings(userSettings) {
     container.append(header)
     container.append(minEffGroup)
     container.append(maxPostsGroup)
-    container.append(checkboxContainer)
+    container.append(...checkboxContainers)
     container.append(spaceHr)
     container.append(buttonGroup)
 
@@ -261,7 +151,9 @@ export function initSettings(userSettings) {
     return {
       container,
       dropdown,
-      checkbox,
+      pinMyCommentsCheckboxContainer,
+      hidePlainCommentsCheckboxContainer,
+      hidePrematureCommentsCheckboxContainer,
       minEffInput,
       maxPostsInput,
       cancelBtn,
@@ -270,14 +162,32 @@ export function initSettings(userSettings) {
   }
   // Initialize settings from localStorage
   const initSettings = (elements) => {
-    const { dropdown, checkbox, minEffInput, maxPostsInput } = elements
+    const {
+      dropdown,
+      pinMyCommentsCheckboxContainer,
+      hidePlainCommentsCheckboxContainer,
+      hidePrematureCommentsCheckboxContainer,
+      minEffInput,
+      maxPostsInput,
+    } = elements
 
     if (localStorage.getItem('sortBy')) {
       dropdown.value = localStorage.getItem('sortBy')
     }
 
     if (localStorage.getItem('showMine') !== null) {
-      checkbox.checked = localStorage.getItem('showMine') === 'true'
+      pinMyCommentsCheckboxContainer.getInput().checked =
+        localStorage.getItem('showMine') === 'true'
+    }
+
+    if (localStorage.getItem('hidePremature') !== null) {
+      hidePrematureCommentsCheckboxContainer.getInput().checked =
+        localStorage.getItem('hidePremature') === 'true'
+    }
+
+    if (localStorage.getItem('hidePlainComments') !== null) {
+      hidePlainCommentsCheckboxContainer.getInput().checked =
+        localStorage.getItem('hidePlainComments') === 'true'
     }
 
     if (localStorage.getItem('minEffectiveNumber')) {
@@ -291,7 +201,15 @@ export function initSettings(userSettings) {
 
   // Save settings
   const saveSettings = (elements) => {
-    const { container, dropdown, checkbox, minEffInput, maxPostsInput } = elements
+    const {
+      container,
+      dropdown,
+      pinMyCommentsCheckboxContainer,
+      hidePrematureCommentsCheckboxContainer,
+      hidePlainCommentsCheckboxContainer,
+      minEffInput,
+      maxPostsInput,
+    } = elements
 
     Storage.set(
       'minimumFeaturedCommentLength',
@@ -301,29 +219,20 @@ export function initSettings(userSettings) {
       'maxFeaturedComments',
       Number.parseInt(maxPostsInput.value) > 0 ? Number.parseInt(maxPostsInput.value) : 1,
     )
-    // Storage.set('hidePlainComments', setHidePlainCommentsInput.is(':checked'))
-    Storage.set('stickyMentioned', checkbox.checked)
+
+    Storage.set('hidePlainComments', hidePlainCommentsCheckboxContainer.getInput().checked)
+    Storage.set('stickyMentioned', pinMyCommentsCheckboxContainer.getInput().checked)
     Storage.set('sortMode', dropdown.value)
+    Storage.set('stickyMentioned', pinMyCommentsCheckboxContainer.getInput().checked)
+    Storage.set('hidePremature', hidePrematureCommentsCheckboxContainer.getInput().checked)
 
     // Trigger custom event
-    const event = new CustomEvent('settingsSaved', {
-      detail: {
-        sortBy: dropdown.value,
-        showMine: checkbox.checked,
-        minEffectiveNumber: Number.parseInt(minEffInput.value),
-        maxSelectedPosts: Number.parseInt(maxPostsInput.value),
-      },
-    })
+    const event = new CustomEvent('settingsSaved')
     document.dispatchEvent(event)
 
     // jQuery compatibility
     if (window.jQuery) {
-      jQuery(document).trigger('settingsSaved', {
-        sortBy: dropdown.value,
-        showMine: checkbox.checked,
-        minEffectiveNumber: Number.parseInt(minEffInput.value),
-        maxSelectedPosts: Number.parseInt(maxPostsInput.value),
-      })
+      jQuery(document).trigger('settingsSaved')
     }
 
     hideDialog(container)
@@ -341,12 +250,10 @@ export function initSettings(userSettings) {
 
   // Main initialization function
   const init = () => {
-    // Inject CSS
+    // Inject the styles
     injectStyles()
-
     // Create the dialog
     const elements = createSettingsDialog()
-
     // Initialize settings
     initSettings(elements)
 
