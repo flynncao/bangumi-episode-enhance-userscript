@@ -224,7 +224,10 @@ export function createSettingMenu(userSettings, episodeMode = false) {
     Storage.set('stickyMentioned', pinMyCommentsCheckboxContainer.getInput().checked)
     Storage.set('sortMode', dropdown.value)
     Storage.set('stickyMentioned', pinMyCommentsCheckboxContainer.getInput().checked)
-    Storage.set('hidePremature', hidePrematureCommentsCheckboxContainer.getInput().checked)
+
+    if (episodeMode) {
+      Storage.set('hidePremature', hidePrematureCommentsCheckboxContainer.getInput().checked)
+    }
 
     // Trigger custom event
     const event = new CustomEvent('settingsSaved')

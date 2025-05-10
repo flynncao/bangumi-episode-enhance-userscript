@@ -2,7 +2,6 @@ import { BGM_EP_REGEX } from '../constants/index'
 import { purifiedDatetimeInMillionSeconds } from '../utils/index'
 export default function processComments(userSettings) {
   // check if the target element is valid
-
   const username = $('.idBadgerNeue .avatar').attr('href')
     ? $('.idBadgerNeue .avatar').attr('href').split('/user/')[1]
     : ''
@@ -11,16 +10,66 @@ export default function processComments(userSettings) {
   const allCommentRows = $('.row.row_reply.clearit')
   let plainCommentsCount = 0
   let featuredCommentsCount = 0
+  let prematureCommentsCount = 0
   const minimumContentLength = userSettings.minimumFeaturedCommentLength
   const container = $('#comment_list')
   const plainCommentElements = []
   const featuredCommentElements = []
   let conservedRow = null
+
+  // Get first broadcast time for episode pages
+  let firstBroadcastDate = null
+  if (BGM_EP_REGEX.test(location.href) && userSettings.hidePremature) {
+    try {
+      const broadcastTimeMatch = document
+        .querySelectorAll('.tip')[0]
+        .innerHTML.match(/\d{4}-\d{1,2}-\d{1,2}/)
+      if (broadcastTimeMatch && broadcastTimeMatch[0]) {
+        const dateParts = broadcastTimeMatch[0].split('-')
+        firstBroadcastDate = new Date(
+          Number.parseInt(dateParts[0]),
+          Number.parseInt(dateParts[1]) - 1, // Month is 0-indexed in JS
+          Number.parseInt(dateParts[2]),
+        )
+        firstBroadcastDate.setHours(0, 0, 0, 0) // Set to beginning of the day
+      }
+    } catch (error) {
+      console.error('Error parsing broadcast date:', error)
+    }
+  }
+
   allCommentRows.each(function (index, row) {
     const that = $(this)
     const content = $(row)
       .find(BGM_EP_REGEX.test(location.href) ? '.message.clearit' : '.inner')
       .text()
+
+    // Check if comment is before broadcast date
+    let isBeforeBroadcast = false
+    if (firstBroadcastDate && BGM_EP_REGEX.test(location.href) && userSettings.hidePremature) {
+      try {
+        const postTimeMatch = that
+          .find('.re_info')
+          .text()
+          .match(/\d{4}-\d{1,2}-\d{1,2}/)
+        if (postTimeMatch && postTimeMatch[0]) {
+          const postDateParts = postTimeMatch[0].split('-')
+          const postDate = new Date(
+            Number.parseInt(postDateParts[0]),
+            Number.parseInt(postDateParts[1]) - 1,
+            Number.parseInt(postDateParts[2]),
+          )
+          postDate.setHours(0, 0, 0, 0)
+
+          if (postDate < firstBroadcastDate) {
+            isBeforeBroadcast = true
+            prematureCommentsCount++
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing post date:', error)
+      }
+    }
 
     let commentScore = 0
     // prioritize @me comments on
@@ -88,6 +137,13 @@ export default function processComments(userSettings) {
           .first()
           .text()
       : $(row).find('small').text().trim()
+
+    // Skip premature comments if hidePremature is enabled
+    if (isBeforeBroadcast && userSettings.hidePremature) {
+      // Still count the comment but don't add it to either array
+      return
+    }
+
     if (isFeatured) {
       featuredCommentsCount++
       featuredCommentElements.push({
@@ -107,9 +163,11 @@ export default function processComments(userSettings) {
       })
     }
   })
+
   return {
     plainCommentsCount,
     featuredCommentsCount,
+    prematureCommentsCount,
     container,
     plainCommentElements,
     featuredCommentElements,

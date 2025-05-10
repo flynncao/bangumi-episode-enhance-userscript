@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        bangumi-comment-enhance
-// @version     0.2.5.0
+// @version     0.2.5.1
 // @description Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @author      Flynn Cao
 // @updateURL   https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
@@ -89,7 +89,7 @@ class Storage {
 }
 
 var styles =
-  '.fixed-container {\n  position: fixed;\n  z-index: 100;\n  width: calc(100vw - 50px);\n  max-width: 380px;\n  background-color: rgba(255, 255, 255, 0.8);\n  backdrop-filter: blur(8px);\n  left: 50%;\n  top: 50%;\n  transform: translate(-50%, -50%);\n  border-radius: 12px;\n  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);\n  padding: 30px;\n  text-align: center;\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;\n  box-sizing: border-box;\n  display: none;\n}\n\n[data-theme="dark"] .fixed-container {\n  background-color: rgba(30, 30, 30, 0.8);\n  color: #fff;\n}\n\n.container-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 16px;\n}\n\n.dropdown-select {\n  padding: 8px;\n  padding-right: 16px;\n  border-radius: 6px;\n  border: 1px solid #e2e2e2;\n  background-color: #f5f5f5;\n  font-size: 14px;\n  width: 100%;\n}\n\n[data-theme="dark"] .dropdown-select {\n  background-color: #333;\n  border-color: #555;\n  color: #fff;\n}\n\n.checkbox-container {\n  display: flex;\n  align-items: center;\n  margin-bottom: 16px;\n  text-align: left;\n  font-size: 14px;\n}\n\n.checkbox-container input[type="checkbox"] {\n  margin-right: 12px;\n  transform: translateY(1.5px);\n}\n\n.input-group {\n  display: flex;\n  align-items: center;\n  margin-bottom: 16px;\n  justify-content: flex-start;\n}\n\n.input-group label {\n  text-align: left;\n  font-size: 14px;\n  margin-right: 8px;\n}\n\n.input-group input {\n  max-width: 40px;\n  padding: 6px;\n  border-radius: 6px;\n  border: 1px solid #e2e2e2;\n  text-align: center;\n}\n\n[data-theme="dark"] .input-group input {\n  background-color: #333;\n  border-color: #555;\n  color: #fff;\n}\n\n.button-group {\n  display: flex;\n  justify-content: space-between;\n  gap: 12px;\n}\n\n.button-group button {\n  flex: 1;\n  padding: 10px;\n  border-radius: 6px;\n  border: none;\n  font-size: 16px;\n  cursor: pointer;\n}\n\n.cancel-btn {\n  background-color: white;\n  border: 1px solid #e2e2e2;\n}\n\n[data-theme="dark"] .cancel-btn {\n  background-color: #333;\n  border-color: #555;\n  color: #fff;\n}\n\n.save-btn {\n  background-color: #333;\n  color: white;\n}\n\n[data-theme="dark"] .save-btn {\n  background-color: #555;\n}\n\nbutton:hover {\n  filter: brightness(1.5);\n  transition: all 0.3s;\n}\n\nstrong svg {\n  max-width: 21px;\n  max-height: 21px;\n  transform: translateY(2px);\n  margin-right: 10px;\n}\n\n[data-theme="dark"] strong svg {\n  filter: invert(1);\n}\n\ninput[type="checkbox"] {\n  width: 20px;\n  height: 20px;\n  margin: 0;\n  cursor: pointer;\n}\n'
+  '.fixed-container {\r\n  position: fixed;\r\n  z-index: 100;\r\n  width: calc(100vw - 50px);\r\n  max-width: 380px;\r\n  background-color: rgba(255, 255, 255, 0.8);\r\n  backdrop-filter: blur(8px);\r\n  left: 50%;\r\n  top: 50%;\r\n  transform: translate(-50%, -50%);\r\n  border-radius: 12px;\r\n  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);\r\n  padding: 30px;\r\n  text-align: center;\r\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;\r\n  box-sizing: border-box;\r\n  display: none;\r\n}\r\n\r\n[data-theme="dark"] .fixed-container {\r\n  background-color: rgba(30, 30, 30, 0.8);\r\n  color: #fff;\r\n}\r\n\r\n.container-header {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n}\r\n\r\n.dropdown-select {\r\n  padding: 8px;\r\n  padding-right: 16px;\r\n  border-radius: 6px;\r\n  border: 1px solid #e2e2e2;\r\n  background-color: #f5f5f5;\r\n  font-size: 14px;\r\n  width: 100%;\r\n}\r\n\r\n[data-theme="dark"] .dropdown-select {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.checkbox-container {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n  text-align: left;\r\n  font-size: 14px;\r\n}\r\n\r\n.checkbox-container input[type="checkbox"] {\r\n  margin-right: 12px;\r\n  transform: translateY(1.5px);\r\n}\r\n\r\n.input-group {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n  justify-content: flex-start;\r\n}\r\n\r\n.input-group label {\r\n  text-align: left;\r\n  font-size: 14px;\r\n  margin-right: 8px;\r\n}\r\n\r\n.input-group input {\r\n  max-width: 40px;\r\n  padding: 6px;\r\n  border-radius: 6px;\r\n  border: 1px solid #e2e2e2;\r\n  text-align: center;\r\n}\r\n\r\n[data-theme="dark"] .input-group input {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.button-group {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  gap: 12px;\r\n}\r\n\r\n.button-group button {\r\n  flex: 1;\r\n  padding: 10px;\r\n  border-radius: 6px;\r\n  border: none;\r\n  font-size: 16px;\r\n  cursor: pointer;\r\n}\r\n\r\n.cancel-btn {\r\n  background-color: white;\r\n  border: 1px solid #e2e2e2;\r\n}\r\n\r\n[data-theme="dark"] .cancel-btn {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.save-btn {\r\n  background-color: #333;\r\n  color: white;\r\n}\r\n\r\n[data-theme="dark"] .save-btn {\r\n  background-color: #555;\r\n}\r\n\r\nbutton:hover {\r\n  filter: brightness(1.5);\r\n  transition: all 0.3s;\r\n}\r\n\r\nstrong svg {\r\n  max-width: 21px;\r\n  max-height: 21px;\r\n  transform: translateY(2px);\r\n  margin-right: 10px;\r\n}\r\n\r\n[data-theme="dark"] strong svg {\r\n  filter: invert(1);\r\n}\r\n\r\ninput[type="checkbox"] {\r\n  width: 20px;\r\n  height: 20px;\r\n  margin: 0;\r\n  cursor: pointer;\r\n}\r\n'
 
 function createSettingMenu(userSettings, episodeMode = false) {
   const injectStyles = () => {
@@ -312,7 +312,10 @@ function createSettingMenu(userSettings, episodeMode = false) {
     Storage.set('stickyMentioned', pinMyCommentsCheckboxContainer.getInput().checked)
     Storage.set('sortMode', dropdown.value)
     Storage.set('stickyMentioned', pinMyCommentsCheckboxContainer.getInput().checked)
-    Storage.set('hidePremature', hidePrematureCommentsCheckboxContainer.getInput().checked)
+
+    if (episodeMode) {
+      Storage.set('hidePremature', hidePrematureCommentsCheckboxContainer.getInput().checked)
+    }
 
     // Trigger custom event
     const event = new CustomEvent('settingsSaved')
@@ -409,7 +412,6 @@ function purifiedDatetimeInMillionSeconds(timestamp) {
 
 function processComments(userSettings) {
   // check if the target element is valid
-
   const username = $('.idBadgerNeue .avatar').attr('href')
     ? $('.idBadgerNeue .avatar').attr('href').split('/user/')[1]
     : ''
@@ -418,16 +420,66 @@ function processComments(userSettings) {
   const allCommentRows = $('.row.row_reply.clearit')
   let plainCommentsCount = 0
   let featuredCommentsCount = 0
+  let prematureCommentsCount = 0
   const minimumContentLength = userSettings.minimumFeaturedCommentLength
   const container = $('#comment_list')
   const plainCommentElements = []
   const featuredCommentElements = []
   let conservedRow = null
+
+  // Get first broadcast time for episode pages
+  let firstBroadcastDate = null
+  if (BGM_EP_REGEX.test(location.href) && userSettings.hidePremature) {
+    try {
+      const broadcastTimeMatch = document
+        .querySelectorAll('.tip')[0]
+        .innerHTML.match(/\d{4}-\d{1,2}-\d{1,2}/)
+      if (broadcastTimeMatch && broadcastTimeMatch[0]) {
+        const dateParts = broadcastTimeMatch[0].split('-')
+        firstBroadcastDate = new Date(
+          Number.parseInt(dateParts[0]),
+          Number.parseInt(dateParts[1]) - 1, // Month is 0-indexed in JS
+          Number.parseInt(dateParts[2]),
+        )
+        firstBroadcastDate.setHours(0, 0, 0, 0) // Set to beginning of the day
+      }
+    } catch (error) {
+      console.error('Error parsing broadcast date:', error)
+    }
+  }
+
   allCommentRows.each(function (index, row) {
     const that = $(this)
     const content = $(row)
       .find(BGM_EP_REGEX.test(location.href) ? '.message.clearit' : '.inner')
       .text()
+
+    // Check if comment is before broadcast date
+    let isBeforeBroadcast = false
+    if (firstBroadcastDate && BGM_EP_REGEX.test(location.href) && userSettings.hidePremature) {
+      try {
+        const postTimeMatch = that
+          .find('.re_info')
+          .text()
+          .match(/\d{4}-\d{1,2}-\d{1,2}/)
+        if (postTimeMatch && postTimeMatch[0]) {
+          const postDateParts = postTimeMatch[0].split('-')
+          const postDate = new Date(
+            Number.parseInt(postDateParts[0]),
+            Number.parseInt(postDateParts[1]) - 1,
+            Number.parseInt(postDateParts[2]),
+          )
+          postDate.setHours(0, 0, 0, 0)
+
+          if (postDate < firstBroadcastDate) {
+            isBeforeBroadcast = true
+            prematureCommentsCount++
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing post date:', error)
+      }
+    }
 
     let commentScore = 0
     // prioritize @me comments on
@@ -495,6 +547,13 @@ function processComments(userSettings) {
           .first()
           .text()
       : $(row).find('small').text().trim()
+
+    // Skip premature comments if hidePremature is enabled
+    if (isBeforeBroadcast && userSettings.hidePremature) {
+      // Still count the comment but don't add it to either array
+      return
+    }
+
     if (isFeatured) {
       featuredCommentsCount++
       featuredCommentElements.push({
@@ -514,9 +573,11 @@ function processComments(userSettings) {
       })
     }
   })
+
   return {
     plainCommentsCount,
     featuredCommentsCount,
+    prematureCommentsCount,
     container,
     plainCommentElements,
     featuredCommentElements,
@@ -561,10 +622,22 @@ function processComments(userSettings) {
   if (stateBar.length === 0) {
     stateBar = $(`<div id class="row_state clearit"></div>`)
   }
+  // Create toggle button with appropriate text based on current state
+  const toggleButtonText = userSettings.hidePlainComments
+    ? `点击展开剩余${plainCommentsCount}条普通评论`
+    : `点击折叠${plainCommentsCount}条普通评论`
+
   const hiddenCommentsInfo = $(
-    `<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">点击展开/折叠剩余${plainCommentsCount}条普通评论</div>`,
+    `<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">${toggleButtonText}</div>`,
   ).click(function () {
     $('#comment_list_plain').slideToggle()
+    // Update button text when toggled
+    const isHidden = $('#comment_list_plain').is(':hidden')
+    $(this).text(
+      isHidden
+        ? `点击展开剩余${plainCommentsCount}条普通评论`
+        : `点击折叠${plainCommentsCount}条普通评论`,
+    )
   })
   stateBar.append(hiddenCommentsInfo)
   container.find('.row').detach()
@@ -609,10 +682,15 @@ function processComments(userSettings) {
     container.append($(element.element))
   })
   container.append(stateBar)
+  // Create container for plain comments
   const plainCommentsContainer = $('<div id="comment_list_plain" style="margin-top:2rem;"></div>')
+
+  // Only hide plain comments if the setting is enabled
   if (userSettings.hidePlainComments) {
     plainCommentsContainer.hide()
   }
+
+  // Add plain comments to the container
   plainCommentElements.forEach(function (element) {
     plainCommentsContainer.append($(element.element))
   })
@@ -628,6 +706,7 @@ function processComments(userSettings) {
     )
   }
   $('#sortMethodSelect').val(sortModeData)
+  // Auto-expand plain comments if there are few featured comments and plain comments are hidden
   if (featuredCommentsCount < 10 && userSettings.hidePlainComments === true) {
     $('#toggleFilteredBtn').click()
   }

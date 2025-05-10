@@ -41,10 +41,22 @@ import { quickSort } from './utils/index'
   if (stateBar.length === 0) {
     stateBar = $(`<div id class="row_state clearit"></div>`)
   }
+  // Create toggle button with appropriate text based on current state
+  const toggleButtonText = userSettings.hidePlainComments
+    ? `点击展开剩余${plainCommentsCount}条普通评论`
+    : `点击折叠${plainCommentsCount}条普通评论`
+
   const hiddenCommentsInfo = $(
-    `<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">点击展开/折叠剩余${plainCommentsCount}条普通评论</div>`,
+    `<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">${toggleButtonText}</div>`,
   ).click(function () {
     $('#comment_list_plain').slideToggle()
+    // Update button text when toggled
+    const isHidden = $('#comment_list_plain').is(':hidden')
+    $(this).text(
+      isHidden
+        ? `点击展开剩余${plainCommentsCount}条普通评论`
+        : `点击折叠${plainCommentsCount}条普通评论`,
+    )
   })
   stateBar.append(hiddenCommentsInfo)
   container.find('.row').detach()
@@ -89,10 +101,15 @@ import { quickSort } from './utils/index'
     container.append($(element.element))
   })
   container.append(stateBar)
+  // Create container for plain comments
   const plainCommentsContainer = $('<div id="comment_list_plain" style="margin-top:2rem;"></div>')
+
+  // Only hide plain comments if the setting is enabled
   if (userSettings.hidePlainComments) {
     plainCommentsContainer.hide()
   }
+
+  // Add plain comments to the container
   plainCommentElements.forEach(function (element) {
     plainCommentsContainer.append($(element.element))
   })
@@ -108,6 +125,7 @@ import { quickSort } from './utils/index'
     )
   }
   $('#sortMethodSelect').val(sortModeData)
+  // Auto-expand plain comments if there are few featured comments and plain comments are hidden
   if (featuredCommentsCount < 10 && userSettings.hidePlainComments === true) {
     $('#toggleFilteredBtn').click()
   }
