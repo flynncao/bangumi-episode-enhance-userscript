@@ -11,6 +11,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
   padding: 30px;
+  padding-top: 0px;
   text-align: center;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   box-sizing: border-box;
@@ -22,7 +23,12 @@
   color: #fff;
 }
 
-.container-header {
+.padding-row{
+	width:100%;
+	height:40px;
+}
+
+.dropdown-group {
   display: flex;
   justify-content: space-between;
   align-items: center;

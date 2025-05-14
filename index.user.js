@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        bangumi-comment-enhance
-// @version     0.2.5.1
+// @version     0.2.5.2
 // @description Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @author      Flynn Cao
 // @updateURL   https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
@@ -88,8 +88,69 @@ class Storage {
   }
 }
 
+// create a noname header, emit a even to control the movement of whole setting dialog when dragging this header
+
+const createNonameHeader = () => {
+  const nonameHeader = document.createElement('div')
+  nonameHeader.className = 'padding-row'
+  nonameHeader.addEventListener('mousedown', (event) => {
+    event.preventDefault()
+
+    const container = event.target.parentElement
+
+    // Store initial positions
+    const startX = event.clientX
+    const startY = event.clientY
+    const startLeft = Number.parseInt(window.getComputedStyle(container).left) || 0
+    const startTop = Number.parseInt(window.getComputedStyle(container).top) || 0
+
+    // When we start dragging, remove the centering transform
+    if (container.style.transform.includes('translate')) {
+      const rect = container.getBoundingClientRect()
+      container.style.transform = 'none'
+      container.style.left = `${rect.left}px`
+      container.style.top = `${rect.top}px`
+    }
+
+    const handleMouseMove = (event) => {
+      // Calculate how far the mouse has moved
+      const deltaX = event.clientX - startX
+      const deltaY = event.clientY - startY
+
+      // Apply that delta to the original position
+      const newLeft = startLeft + deltaX
+      const newTop = startTop + deltaY
+
+      // Get container dimensions
+      const containerWidth = container.offsetWidth
+      const containerHeight = container.offsetHeight
+
+      // Check if new position would be outside viewport
+      if (
+        newLeft < containerWidth / 2 ||
+        newTop < containerHeight / 2 ||
+        newLeft + containerWidth / 2 > window.innerWidth ||
+        newTop + containerHeight / 2 > window.innerHeight
+      ) {
+        // Cancel the movement by not updating position
+        return
+      }
+
+      // If we get here, the position is safe, so update it
+      container.style.left = `${newLeft}px`
+      container.style.top = `${newTop}px`
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+    })
+  })
+  return nonameHeader
+}
+
 var styles =
-  '.fixed-container {\r\n  position: fixed;\r\n  z-index: 100;\r\n  width: calc(100vw - 50px);\r\n  max-width: 380px;\r\n  background-color: rgba(255, 255, 255, 0.8);\r\n  backdrop-filter: blur(8px);\r\n  left: 50%;\r\n  top: 50%;\r\n  transform: translate(-50%, -50%);\r\n  border-radius: 12px;\r\n  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);\r\n  padding: 30px;\r\n  text-align: center;\r\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;\r\n  box-sizing: border-box;\r\n  display: none;\r\n}\r\n\r\n[data-theme="dark"] .fixed-container {\r\n  background-color: rgba(30, 30, 30, 0.8);\r\n  color: #fff;\r\n}\r\n\r\n.container-header {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n}\r\n\r\n.dropdown-select {\r\n  padding: 8px;\r\n  padding-right: 16px;\r\n  border-radius: 6px;\r\n  border: 1px solid #e2e2e2;\r\n  background-color: #f5f5f5;\r\n  font-size: 14px;\r\n  width: 100%;\r\n}\r\n\r\n[data-theme="dark"] .dropdown-select {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.checkbox-container {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n  text-align: left;\r\n  font-size: 14px;\r\n}\r\n\r\n.checkbox-container input[type="checkbox"] {\r\n  margin-right: 12px;\r\n  transform: translateY(1.5px);\r\n}\r\n\r\n.input-group {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n  justify-content: flex-start;\r\n}\r\n\r\n.input-group label {\r\n  text-align: left;\r\n  font-size: 14px;\r\n  margin-right: 8px;\r\n}\r\n\r\n.input-group input {\r\n  max-width: 40px;\r\n  padding: 6px;\r\n  border-radius: 6px;\r\n  border: 1px solid #e2e2e2;\r\n  text-align: center;\r\n}\r\n\r\n[data-theme="dark"] .input-group input {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.button-group {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  gap: 12px;\r\n}\r\n\r\n.button-group button {\r\n  flex: 1;\r\n  padding: 10px;\r\n  border-radius: 6px;\r\n  border: none;\r\n  font-size: 16px;\r\n  cursor: pointer;\r\n}\r\n\r\n.cancel-btn {\r\n  background-color: white;\r\n  border: 1px solid #e2e2e2;\r\n}\r\n\r\n[data-theme="dark"] .cancel-btn {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.save-btn {\r\n  background-color: #333;\r\n  color: white;\r\n}\r\n\r\n[data-theme="dark"] .save-btn {\r\n  background-color: #555;\r\n}\r\n\r\nbutton:hover {\r\n  filter: brightness(1.5);\r\n  transition: all 0.3s;\r\n}\r\n\r\nstrong svg {\r\n  max-width: 21px;\r\n  max-height: 21px;\r\n  transform: translateY(2px);\r\n  margin-right: 10px;\r\n}\r\n\r\n[data-theme="dark"] strong svg {\r\n  filter: invert(1);\r\n}\r\n\r\ninput[type="checkbox"] {\r\n  width: 20px;\r\n  height: 20px;\r\n  margin: 0;\r\n  cursor: pointer;\r\n}\r\n'
+  '.fixed-container {\r\n  position: fixed;\r\n  z-index: 100;\r\n  width: calc(100vw - 50px);\r\n  max-width: 380px;\r\n  background-color: rgba(255, 255, 255, 0.8);\r\n  backdrop-filter: blur(8px);\r\n  left: 50%;\r\n  top: 50%;\r\n  transform: translate(-50%, -50%);\r\n  border-radius: 12px;\r\n  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);\r\n  padding: 30px;\r\n  padding-top: 0px;\r\n  text-align: center;\r\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;\r\n  box-sizing: border-box;\r\n  display: none;\r\n}\r\n\r\n[data-theme="dark"] .fixed-container {\r\n  background-color: rgba(30, 30, 30, 0.8);\r\n  color: #fff;\r\n}\r\n\r\n.padding-row{\r\n\twidth:100%;\r\n\theight:40px;\r\n}\r\n\r\n.dropdown-group {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n}\r\n\r\n.dropdown-select {\r\n  padding: 8px;\r\n  padding-right: 16px;\r\n  border-radius: 6px;\r\n  border: 1px solid #e2e2e2;\r\n  background-color: #f5f5f5;\r\n  font-size: 14px;\r\n  width: 100%;\r\n}\r\n\r\n[data-theme="dark"] .dropdown-select {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.checkbox-container {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n  text-align: left;\r\n  font-size: 14px;\r\n}\r\n\r\n.checkbox-container input[type="checkbox"] {\r\n  margin-right: 12px;\r\n  transform: translateY(1.5px);\r\n}\r\n\r\n.input-group {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n  justify-content: flex-start;\r\n}\r\n\r\n.input-group label {\r\n  text-align: left;\r\n  font-size: 14px;\r\n  margin-right: 8px;\r\n}\r\n\r\n.input-group input {\r\n  max-width: 40px;\r\n  padding: 6px;\r\n  border-radius: 6px;\r\n  border: 1px solid #e2e2e2;\r\n  text-align: center;\r\n}\r\n\r\n[data-theme="dark"] .input-group input {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.button-group {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  gap: 12px;\r\n}\r\n\r\n.button-group button {\r\n  flex: 1;\r\n  padding: 10px;\r\n  border-radius: 6px;\r\n  border: none;\r\n  font-size: 16px;\r\n  cursor: pointer;\r\n}\r\n\r\n.cancel-btn {\r\n  background-color: white;\r\n  border: 1px solid #e2e2e2;\r\n}\r\n\r\n[data-theme="dark"] .cancel-btn {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.save-btn {\r\n  background-color: #333;\r\n  color: white;\r\n}\r\n\r\n[data-theme="dark"] .save-btn {\r\n  background-color: #555;\r\n}\r\n\r\nbutton:hover {\r\n  filter: brightness(1.5);\r\n  transition: all 0.3s;\r\n}\r\n\r\nstrong svg {\r\n  max-width: 21px;\r\n  max-height: 21px;\r\n  transform: translateY(2px);\r\n  margin-right: 10px;\r\n}\r\n\r\n[data-theme="dark"] strong svg {\r\n  filter: invert(1);\r\n}\r\n\r\ninput[type="checkbox"] {\r\n  width: 20px;\r\n  height: 20px;\r\n  margin: 0;\r\n  cursor: pointer;\r\n}\r\n'
 
 function createSettingMenu(userSettings, episodeMode = false) {
   const injectStyles = () => {
@@ -99,48 +160,41 @@ function createSettingMenu(userSettings, episodeMode = false) {
   }
 
   const createSettingsDialog = () => {
-    // Create container
     const container = document.createElement('div')
     container.className = 'fixed-container'
+    // const nonameHeader = document.createElement('div')
+    // nonameHeader.className = 'padding-row'
+    const nonameHeader = createNonameHeader()
 
-    // Create header with dropdown
-    const header = document.createElement('div')
-    header.className = 'container-header'
-
+    const dropdownContainer = document.createElement('div')
+    dropdownContainer.className = 'dropdown-group'
     const spacerLeft = document.createElement('div')
     spacerLeft.style.width = '24px'
-
     const dropdown = document.createElement('select')
     dropdown.className = 'dropdown-select'
 
-    const optionHot = document.createElement('option')
-    optionHot.value = 'reactionCount'
-    optionHot.textContent = '按热度(贴贴数)排序'
+    const options = [
+      { value: 'reactionCount', text: '按热度(贴贴数)排序' },
+      { value: 'newFirst', text: '按时间排序(最新在前)' },
+      { value: 'oldFirst', text: '按时间排序(最旧在前)' },
+      { value: 'replyCount', text: '按评论数排序' },
+    ]
 
-    const optionReply = document.createElement('option')
-    optionReply.value = 'replyCount'
-    optionReply.textContent = '按评论数排序'
-
-    const optionRecent = document.createElement('option')
-    optionRecent.value = 'newFirst'
-    optionRecent.textContent = '按时间排序(最新在前)'
-
-    const optionOld = document.createElement('option')
-    optionOld.value = 'oldFirst'
-    optionOld.textContent = '按时间排序(最旧在前)'
-
-    dropdown.append(optionHot)
-    dropdown.append(optionRecent)
-    dropdown.append(optionOld)
-    dropdown.append(optionReply)
+    dropdown.append(
+      ...options.map((opt) => {
+        const option = document.createElement('option')
+        option.value = opt.value
+        option.textContent = opt.text
+        return option
+      }),
+    )
     dropdown.value = userSettings.sortMode || 'reactionCount'
-
     const spacerRight = document.createElement('div')
     spacerRight.style.width = '24px'
 
-    header.append($('<strong></strong>').html(Icons.sorting)[0])
-    header.append(dropdown)
-    header.append(spacerRight)
+    dropdownContainer.append($('<strong></strong>').html(Icons.sorting)[0])
+    dropdownContainer.append(dropdown)
+    dropdownContainer.append(spacerRight)
 
     // Create checkbox
     const checkboxContainers = []
@@ -226,7 +280,8 @@ function createSettingMenu(userSettings, episodeMode = false) {
     buttonGroup.append(saveBtn)
 
     // Assemble everything
-    container.append(header)
+    container.append(nonameHeader)
+    container.append(dropdownContainer)
     container.append(minEffGroup)
     container.append(maxPostsGroup)
     container.append(...checkboxContainers)
@@ -351,6 +406,15 @@ function createSettingMenu(userSettings, episodeMode = false) {
     // Setup event listeners
     elements.saveBtn.addEventListener('click', () => saveSettings(elements))
     elements.cancelBtn.addEventListener('click', () => hideDialog(elements.container))
+
+    // // Add window resize handler to center the dialog when window is resized
+    // window.addEventListener('resize', () => {
+    //   if (elements.container.style.display === 'block') {
+    //     elements.container.style.left = '50%'
+    //     elements.container.style.top = '50%'
+    //     elements.container.style.transform = 'translate(-50%, -50%)'
+    //   }
+    // })
 
     // Expose API
     window.settingsDialog = {
