@@ -35,7 +35,7 @@ import { quickSort } from './utils/index'
     container,
     plainCommentElements,
     featuredCommentElements,
-    conservedRow,
+    preservedRow,
   } = processComments(userSettings)
   let stateBar = container.find('.row_state.clearit')
   if (stateBar.length === 0) {
@@ -116,13 +116,10 @@ import { quickSort } from './utils/index'
 
   container.append(plainCommentsContainer)
   // Scroll to conserved row if exists
-  if (conservedRow) {
-    $('html, body').animate(
-      {
-        scrollTop: $(conservedRow).offset().top,
-      },
-      2000,
-    )
+  if (preservedRow) {
+    $('html, body').animate({
+      scrollTop: $(preservedRow).offset().top,
+    })
   }
   $('#sortMethodSelect').val(sortModeData)
   // Auto-expand plain comments if there are few featured comments and plain comments are hidden

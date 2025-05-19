@@ -479,7 +479,7 @@ function processComments(userSettings) {
   const username = $('.idBadgerNeue .avatar').attr('href')
     ? $('.idBadgerNeue .avatar').attr('href').split('/user/')[1]
     : ''
-  const conservedPostID =
+  const preservedPostID =
     $(location).attr('href').split('#').length > 1 ? $(location).attr('href').split('#')[1] : null
   const allCommentRows = $('.row.row_reply.clearit')
   let plainCommentsCount = 0
@@ -489,7 +489,7 @@ function processComments(userSettings) {
   const container = $('#comment_list')
   const plainCommentElements = []
   const featuredCommentElements = []
-  let conservedRow = null
+  let preservedRow = null
 
   // Get first broadcast time for episode pages
   let firstBroadcastDate = null
@@ -573,9 +573,9 @@ function processComments(userSettings) {
     that.find('span.num').each(function (index, element) {
       commentScore += Number.parseInt($(element).text())
     })
-    const hasConservedReply = conservedPostID && that.find(`#${conservedPostID}`).length > 0
-    if (hasConservedReply) conservedRow = row
-    if (!hasConservedReply) subReplyContent.hide()
+    const hasPreservedReply = preservedPostID && that.find(`#${preservedPostID}`).length > 0
+    if (hasPreservedReply) preservedRow = row
+    if (!hasPreservedReply) subReplyContent.hide()
     const timestampArea = that.find('.action').first()
     if (commentsCount !== 0) {
       const a = $(
@@ -596,7 +596,7 @@ function processComments(userSettings) {
       isFeatured = false
     }
     // conserved reply must be fixed
-    if (hasConservedReply || important) {
+    if (hasPreservedReply || important) {
       isFeatured = true
     }
 
@@ -645,7 +645,7 @@ function processComments(userSettings) {
     container,
     plainCommentElements,
     featuredCommentElements,
-    conservedRow,
+    preservedRow,
   }
 }
 
@@ -680,7 +680,7 @@ function processComments(userSettings) {
     container,
     plainCommentElements,
     featuredCommentElements,
-    conservedRow,
+    preservedRow,
   } = processComments(userSettings)
   let stateBar = container.find('.row_state.clearit')
   if (stateBar.length === 0) {
@@ -761,13 +761,10 @@ function processComments(userSettings) {
 
   container.append(plainCommentsContainer)
   // Scroll to conserved row if exists
-  if (conservedRow) {
-    $('html, body').animate(
-      {
-        scrollTop: $(conservedRow).offset().top,
-      },
-      2000,
-    )
+  if (preservedRow) {
+    $('html, body').animate({
+      scrollTop: $(preservedRow).offset().top,
+    })
   }
   $('#sortMethodSelect').val(sortModeData)
   // Auto-expand plain comments if there are few featured comments and plain comments are hidden
