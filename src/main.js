@@ -16,6 +16,7 @@ import { quickSort } from './utils/index'
     stickyMentioned: false,
     hidePremature: false,
   })
+  window.BCE = window.BCE || {}
 
   const userSettings = {
     hidePlainComments: Storage.get('hidePlainComments'),
@@ -35,7 +36,8 @@ import { quickSort } from './utils/index'
     container,
     plainCommentElements,
     featuredCommentElements,
-    conservedRow,
+    preservedRow,
+    lastRow,
   } = processComments(userSettings)
   let stateBar = container.find('.row_state.clearit')
   if (stateBar.length === 0) {
@@ -46,35 +48,70 @@ import { quickSort } from './utils/index'
     ? `点击展开剩余${plainCommentsCount}条普通评论`
     : `点击折叠${plainCommentsCount}条普通评论`
 
+  const toggleHiddenCommentsInfoText = () => {
+    const curText = $(hiddenCommentsInfo).text()
+    if (curText.includes('展开')) {
+      hiddenCommentsInfo.text(`点击折叠${plainCommentsCount}条普通评论`)
+    } else {
+      hiddenCommentsInfo.text(`点击展开剩余${plainCommentsCount}条普通评论`)
+    }
+  }
+
   const hiddenCommentsInfo = $(
     `<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">${toggleButtonText}</div>`,
   ).click(function () {
-    $('#comment_list_plain').slideToggle()
-    // Update button text when toggled
-    const isHidden = $('#comment_list_plain').is(':hidden')
-    $(this).text(
-      isHidden
-        ? `点击展开剩余${plainCommentsCount}条普通评论`
-        : `点击折叠${plainCommentsCount}条普通评论`,
-    )
+    const commentList = $('#comment_list_plain')
+    commentList.slideToggle()
+    toggleHiddenCommentsInfoText()
   })
+
   stateBar.append(hiddenCommentsInfo)
   container.find('.row').detach()
+  const menuBarCSSProperties = {
+    display: 'inline-block',
+    width: '20px',
+    height: '20px',
+    transform: 'translate(0, -3px)',
+    margin: '0 0 0 5px',
+    cursor: 'pointer',
+  }
   const settingBtn = $('<strong></strong>')
-    .css({
-      display: 'inline-block',
-      width: '20px',
-      height: '20px',
-      transform: 'translate(4px, -3px)',
-      cursor: 'pointer',
-    })
+    .css(menuBarCSSProperties)
     .html(Icons.gear)
-    .click(() => window.settingsDialog.show())
-  container.append(
-    $(
-      '<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>',
-    ).append(settingBtn),
+    .click(() => window.BCE.settingsDialog.show())
+  console.log('lastRow', lastRow)
+  const jumpToNewestBtn = $('<strong></strong>')
+    .css(menuBarCSSProperties)
+    .html(Icons.newest)
+    .click(() => {
+      $('#comment_list_plain').slideDown()
+      // set text to "点击折叠剩余普通评论"
+      hiddenCommentsInfo.text(`点击折叠${plainCommentsCount}条普通评论`)
+      // Scroll to last row when user clicks the jump to newest button
+      $('html, body').animate({
+        scrollTop: $(lastRow).offset().top,
+      })
+      const hash = lastRow.id
+      if (window.history.pushState && window.history.replaceState && window.history.state) {
+        window.history.replaceState(null, null, `#${hash}`)
+      }
+    })
+
+  const menuBar = $(
+    '<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>',
   )
+    .append(settingBtn)
+    .append(jumpToNewestBtn)
+  if (BGM_EP_REGEX.test(location.href)) {
+    const showPrematureBtn = $('<strong></strong>')
+      .css(menuBarCSSProperties)
+      .html(Icons.eyeOpen)
+      .click(() => {
+        $('.premature-comment').toggle()
+      })
+    menuBar.append(showPrematureBtn)
+  }
+  container.append(menuBar)
 
   const trinity = {
     reactionCount() {
@@ -116,13 +153,10 @@ import { quickSort } from './utils/index'
 
   container.append(plainCommentsContainer)
   // Scroll to conserved row if exists
-  if (conservedRow) {
-    $('html, body').animate(
-      {
-        scrollTop: $(conservedRow).offset().top,
-      },
-      2000,
-    )
+  if (preservedRow) {
+    $('html, body').animate({
+      scrollTop: $(preservedRow).offset().top,
+    })
   }
   $('#sortMethodSelect').val(sortModeData)
   // Auto-expand plain comments if there are few featured comments and plain comments are hidden

@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        bangumi-comment-enhance
-// @version     0.2.5.1
+// @version     0.2.6
 // @description Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @author      Flynn Cao
 // @updateURL   https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
@@ -56,6 +56,10 @@ class CustomCheckboxContainer {
 
 // https://www.iconfont.cn/collections/detail?spm=a313x.user_detail.i1.dc64b3430.57e63a81itWm4A&cid=12086
 const Icons = {
+  eyeOpen:
+    '<svg t="1747629142037" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1338" width="256" height="256"><path d="M947.6 477.1c-131.1-163.4-276.3-245-435.6-245s-304.5 81.7-435.6 245c-16.4 20.5-16.4 49.7 0 70.1 131.1 163.4 276.3 245 435.6 245s304.5-81.7 435.6-245c16.4-20.4 16.4-49.6 0-70.1zM512 720c-130.6 0-251.1-67.8-363.5-207.8 112.4-140 232.9-207.8 363.5-207.8s251.1 67.8 363.5 207.8C763.1 652.2 642.6 720 512 720z" fill="#333333" p-id="1339"></path><path d="M512 592c44.1 0 79.8-35.7 79.8-79.8 0-44.1-35.7-79.8-79.8-79.8-44.1 0-79.8 35.7-79.8 79.8-0.1 44.1 35.7 79.8 79.8 79.8z m0 72c-83.8 0-151.8-68-151.8-151.8 0-83.8 68-151.8 151.8-151.8 83.8 0 151.8 68 151.8 151.8 0 83.8-68 151.8-151.8 151.8z m0 0" fill="#333333" p-id="1340"></path></svg>',
+  newest:
+    '<svg t="1747628315444" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1861" width="256" height="256"><path d="M512.736 992a483.648 483.648 0 0 1-164.672-28.8 36.88 36.88 0 1 1 25.104-69.36 407.456 407.456 0 1 0-184.608-136.512A36.912 36.912 0 0 1 129.488 801.6a473.424 473.424 0 0 1-97.472-290A480 480 0 1 1 512.736 992z" fill="#5F5F5F" p-id="1862"></path><path d="M685.6 638.592a32 32 0 0 1-14.032-2.96l-178.048-73.888a36.8 36.8 0 0 1-22.912-34.016V236.672a36.944 36.944 0 1 1 73.888 0v266.72l155.2 64.272a36.336 36.336 0 0 1 19.952 48 37.616 37.616 0 0 1-34.048 22.928z" fill="#5F5F5F" p-id="1863"></path></svg>',
   answerSheet:
     '<svg t="1741855047626" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2040" width="256" height="256"><path d="M188.8 135.7c-29.7 0-53.8 24.1-53.8 53.7v644.7c0 29.7 24.1 53.7 53.8 53.7h645.4c29.7 0 53.8-24.1 53.8-53.7V189.4c0-29.7-24.1-53.7-53.8-53.7H188.8z m-13-71.1h671.5c61.8 0 111.9 50.1 111.9 111.8v670.8c0 61.7-50.1 111.8-111.9 111.8H175.8C114 959 63.9 909 63.9 847.2V176.4c0-61.8 50.1-111.8 111.9-111.8z m0 0" fill="#333333" p-id="2041"></path><path d="M328 328h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM556 332h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM784 332h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36z" fill="#333333" p-id="2042"></path><path d="M328 546h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM556 550h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM784 550h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36z" fill="#333333" p-id="2043"></path><path d="M328 764h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM556 768h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM784 768h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36z" fill="#333333" p-id="2044"></path></svg>',
   sorting:
@@ -88,8 +92,69 @@ class Storage {
   }
 }
 
+// create a noname header, emit a even to control the movement of whole setting dialog when dragging this header
+
+const createNonameHeader = () => {
+  const nonameHeader = document.createElement('div')
+  nonameHeader.className = 'padding-row'
+  nonameHeader.addEventListener('mousedown', (event) => {
+    event.preventDefault()
+
+    const container = event.target.parentElement
+
+    // Store initial positions
+    const startX = event.clientX
+    const startY = event.clientY
+    const startLeft = Number.parseInt(window.getComputedStyle(container).left) || 0
+    const startTop = Number.parseInt(window.getComputedStyle(container).top) || 0
+
+    // When we start dragging, remove the centering transform
+    if (container.style.transform.includes('translate')) {
+      const rect = container.getBoundingClientRect()
+      container.style.transform = 'none'
+      container.style.left = `${rect.left}px`
+      container.style.top = `${rect.top}px`
+    }
+
+    const handleMouseMove = (event) => {
+      // Calculate how far the mouse has moved
+      const deltaX = event.clientX - startX
+      const deltaY = event.clientY - startY
+
+      // Apply that delta to the original position
+      const newLeft = startLeft + deltaX
+      const newTop = startTop + deltaY
+
+      // Get container dimensions
+      const containerWidth = container.offsetWidth
+      const containerHeight = container.offsetHeight
+
+      // Check if new position would be outside viewport
+      if (
+        newLeft < containerWidth / 2 ||
+        newTop < containerHeight / 2 ||
+        newLeft + containerWidth / 2 > window.innerWidth ||
+        newTop + containerHeight / 2 > window.innerHeight
+      ) {
+        // Cancel the movement by not updating position
+        return
+      }
+
+      // If we get here, the position is safe, so update it
+      container.style.left = `${newLeft}px`
+      container.style.top = `${newTop}px`
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+    })
+  })
+  return nonameHeader
+}
+
 var styles =
-  '.fixed-container {\r\n  position: fixed;\r\n  z-index: 100;\r\n  width: calc(100vw - 50px);\r\n  max-width: 380px;\r\n  background-color: rgba(255, 255, 255, 0.8);\r\n  backdrop-filter: blur(8px);\r\n  left: 50%;\r\n  top: 50%;\r\n  transform: translate(-50%, -50%);\r\n  border-radius: 12px;\r\n  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);\r\n  padding: 30px;\r\n  text-align: center;\r\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;\r\n  box-sizing: border-box;\r\n  display: none;\r\n}\r\n\r\n[data-theme="dark"] .fixed-container {\r\n  background-color: rgba(30, 30, 30, 0.8);\r\n  color: #fff;\r\n}\r\n\r\n.container-header {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n}\r\n\r\n.dropdown-select {\r\n  padding: 8px;\r\n  padding-right: 16px;\r\n  border-radius: 6px;\r\n  border: 1px solid #e2e2e2;\r\n  background-color: #f5f5f5;\r\n  font-size: 14px;\r\n  width: 100%;\r\n}\r\n\r\n[data-theme="dark"] .dropdown-select {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.checkbox-container {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n  text-align: left;\r\n  font-size: 14px;\r\n}\r\n\r\n.checkbox-container input[type="checkbox"] {\r\n  margin-right: 12px;\r\n  transform: translateY(1.5px);\r\n}\r\n\r\n.input-group {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n  justify-content: flex-start;\r\n}\r\n\r\n.input-group label {\r\n  text-align: left;\r\n  font-size: 14px;\r\n  margin-right: 8px;\r\n}\r\n\r\n.input-group input {\r\n  max-width: 40px;\r\n  padding: 6px;\r\n  border-radius: 6px;\r\n  border: 1px solid #e2e2e2;\r\n  text-align: center;\r\n}\r\n\r\n[data-theme="dark"] .input-group input {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.button-group {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  gap: 12px;\r\n}\r\n\r\n.button-group button {\r\n  flex: 1;\r\n  padding: 10px;\r\n  border-radius: 6px;\r\n  border: none;\r\n  font-size: 16px;\r\n  cursor: pointer;\r\n}\r\n\r\n.cancel-btn {\r\n  background-color: white;\r\n  border: 1px solid #e2e2e2;\r\n}\r\n\r\n[data-theme="dark"] .cancel-btn {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.save-btn {\r\n  background-color: #333;\r\n  color: white;\r\n}\r\n\r\n[data-theme="dark"] .save-btn {\r\n  background-color: #555;\r\n}\r\n\r\nbutton:hover {\r\n  filter: brightness(1.5);\r\n  transition: all 0.3s;\r\n}\r\n\r\nstrong svg {\r\n  max-width: 21px;\r\n  max-height: 21px;\r\n  transform: translateY(2px);\r\n  margin-right: 10px;\r\n}\r\n\r\n[data-theme="dark"] strong svg {\r\n  filter: invert(1);\r\n}\r\n\r\ninput[type="checkbox"] {\r\n  width: 20px;\r\n  height: 20px;\r\n  margin: 0;\r\n  cursor: pointer;\r\n}\r\n'
+  '.fixed-container {\r\n  position: fixed;\r\n  z-index: 100;\r\n  width: calc(100vw - 50px);\r\n  max-width: 380px;\r\n  background-color: rgba(255, 255, 255, 0.8);\r\n  backdrop-filter: blur(8px);\r\n  left: 50%;\r\n  top: 50%;\r\n  transform: translate(-50%, -50%);\r\n  border-radius: 12px;\r\n  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);\r\n  padding: 30px;\r\n  padding-top: 0px;\r\n  text-align: center;\r\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;\r\n  box-sizing: border-box;\r\n  display: none;\r\n}\r\n\r\n[data-theme="dark"] .fixed-container {\r\n  background-color: rgba(30, 30, 30, 0.8);\r\n  color: #fff;\r\n}\r\n\r\n.padding-row{\r\n\twidth:100%;\r\n\theight:40px;\r\n}\r\n\r\n.dropdown-group {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n}\r\n\r\n.dropdown-select {\r\n  padding: 8px;\r\n  padding-right: 16px;\r\n  border-radius: 6px;\r\n  border: 1px solid #e2e2e2;\r\n  background-color: #f5f5f5;\r\n  font-size: 14px;\r\n  width: 100%;\r\n}\r\n\r\n[data-theme="dark"] .dropdown-select {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.checkbox-container {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n  text-align: left;\r\n  font-size: 14px;\r\n}\r\n\r\n.checkbox-container input[type="checkbox"] {\r\n  margin-right: 12px;\r\n  transform: translateY(1.5px);\r\n}\r\n\r\n.input-group {\r\n  display: flex;\r\n  align-items: center;\r\n  margin-bottom: 16px;\r\n  justify-content: flex-start;\r\n}\r\n\r\n.input-group label {\r\n  text-align: left;\r\n  font-size: 14px;\r\n  margin-right: 8px;\r\n}\r\n\r\n.input-group input {\r\n  max-width: 40px;\r\n  padding: 6px;\r\n  border-radius: 6px;\r\n  border: 1px solid #e2e2e2;\r\n  text-align: center;\r\n}\r\n\r\n[data-theme="dark"] .input-group input {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.button-group {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  gap: 12px;\r\n}\r\n\r\n.button-group button {\r\n  flex: 1;\r\n  padding: 10px;\r\n  border-radius: 6px;\r\n  border: none;\r\n  font-size: 16px;\r\n  cursor: pointer;\r\n}\r\n\r\n.cancel-btn {\r\n  background-color: white;\r\n  border: 1px solid #e2e2e2;\r\n}\r\n\r\n[data-theme="dark"] .cancel-btn {\r\n  background-color: #333;\r\n  border-color: #555;\r\n  color: #fff;\r\n}\r\n\r\n.save-btn {\r\n  background-color: #333;\r\n  color: white;\r\n}\r\n\r\n[data-theme="dark"] .save-btn {\r\n  background-color: #555;\r\n}\r\n\r\nbutton:hover {\r\n  filter: brightness(1.5);\r\n  transition: all 0.3s;\r\n}\r\n\r\nstrong svg {\r\n  max-width: 21px;\r\n  max-height: 21px;\r\n  transform: translateY(2px);\r\n  margin-right: 10px;\r\n}\r\n\r\n[data-theme="dark"] strong svg {\r\n  filter: invert(1);\r\n}\r\n\r\ninput[type="checkbox"] {\r\n  width: 20px;\r\n  height: 20px;\r\n  margin: 0;\r\n  cursor: pointer;\r\n}\r\n'
 
 function createSettingMenu(userSettings, episodeMode = false) {
   const injectStyles = () => {
@@ -99,48 +164,41 @@ function createSettingMenu(userSettings, episodeMode = false) {
   }
 
   const createSettingsDialog = () => {
-    // Create container
     const container = document.createElement('div')
     container.className = 'fixed-container'
+    // const nonameHeader = document.createElement('div')
+    // nonameHeader.className = 'padding-row'
+    const nonameHeader = createNonameHeader()
 
-    // Create header with dropdown
-    const header = document.createElement('div')
-    header.className = 'container-header'
-
+    const dropdownContainer = document.createElement('div')
+    dropdownContainer.className = 'dropdown-group'
     const spacerLeft = document.createElement('div')
     spacerLeft.style.width = '24px'
-
     const dropdown = document.createElement('select')
     dropdown.className = 'dropdown-select'
 
-    const optionHot = document.createElement('option')
-    optionHot.value = 'reactionCount'
-    optionHot.textContent = '按热度(贴贴数)排序'
+    const options = [
+      { value: 'reactionCount', text: '按热度(贴贴数)排序' },
+      { value: 'newFirst', text: '按时间排序(最新在前)' },
+      { value: 'oldFirst', text: '按时间排序(最旧在前)' },
+      { value: 'replyCount', text: '按评论数排序' },
+    ]
 
-    const optionReply = document.createElement('option')
-    optionReply.value = 'replyCount'
-    optionReply.textContent = '按评论数排序'
-
-    const optionRecent = document.createElement('option')
-    optionRecent.value = 'newFirst'
-    optionRecent.textContent = '按时间排序(最新在前)'
-
-    const optionOld = document.createElement('option')
-    optionOld.value = 'oldFirst'
-    optionOld.textContent = '按时间排序(最旧在前)'
-
-    dropdown.append(optionHot)
-    dropdown.append(optionRecent)
-    dropdown.append(optionOld)
-    dropdown.append(optionReply)
+    dropdown.append(
+      ...options.map((opt) => {
+        const option = document.createElement('option')
+        option.value = opt.value
+        option.textContent = opt.text
+        return option
+      }),
+    )
     dropdown.value = userSettings.sortMode || 'reactionCount'
-
     const spacerRight = document.createElement('div')
     spacerRight.style.width = '24px'
 
-    header.append($('<strong></strong>').html(Icons.sorting)[0])
-    header.append(dropdown)
-    header.append(spacerRight)
+    dropdownContainer.append($('<strong></strong>').html(Icons.sorting)[0])
+    dropdownContainer.append(dropdown)
+    dropdownContainer.append(spacerRight)
 
     // Create checkbox
     const checkboxContainers = []
@@ -226,7 +284,8 @@ function createSettingMenu(userSettings, episodeMode = false) {
     buttonGroup.append(saveBtn)
 
     // Assemble everything
-    container.append(header)
+    container.append(nonameHeader)
+    container.append(dropdownContainer)
     container.append(minEffGroup)
     container.append(maxPostsGroup)
     container.append(...checkboxContainers)
@@ -352,8 +411,17 @@ function createSettingMenu(userSettings, episodeMode = false) {
     elements.saveBtn.addEventListener('click', () => saveSettings(elements))
     elements.cancelBtn.addEventListener('click', () => hideDialog(elements.container))
 
+    // // Add window resize handler to center the dialog when window is resized
+    // window.addEventListener('resize', () => {
+    //   if (elements.container.style.display === 'block') {
+    //     elements.container.style.left = '50%'
+    //     elements.container.style.top = '50%'
+    //     elements.container.style.transform = 'translate(-50%, -50%)'
+    //   }
+    // })
+
     // Expose API
-    window.settingsDialog = {
+    window.BCE.settingsDialog = {
       show: () => showDialog(elements.container),
       hide: () => hideDialog(elements.container),
       save: () => saveSettings(elements),
@@ -415,7 +483,7 @@ function processComments(userSettings) {
   const username = $('.idBadgerNeue .avatar').attr('href')
     ? $('.idBadgerNeue .avatar').attr('href').split('/user/')[1]
     : ''
-  const conservedPostID =
+  const preservedPostID =
     $(location).attr('href').split('#').length > 1 ? $(location).attr('href').split('#')[1] : null
   const allCommentRows = $('.row.row_reply.clearit')
   let plainCommentsCount = 0
@@ -425,7 +493,8 @@ function processComments(userSettings) {
   const container = $('#comment_list')
   const plainCommentElements = []
   const featuredCommentElements = []
-  let conservedRow = null
+  const lastRow = allCommentRows.last()
+  let preservedRow = null
 
   // Get first broadcast time for episode pages
   let firstBroadcastDate = null
@@ -509,9 +578,9 @@ function processComments(userSettings) {
     that.find('span.num').each(function (index, element) {
       commentScore += Number.parseInt($(element).text())
     })
-    const hasConservedReply = conservedPostID && that.find(`#${conservedPostID}`).length > 0
-    if (hasConservedReply) conservedRow = row
-    if (!hasConservedReply) subReplyContent.hide()
+    const hasPreservedReply = preservedPostID && that.find(`#${preservedPostID}`).length > 0
+    if (hasPreservedReply) preservedRow = row
+    if (!hasPreservedReply) subReplyContent.hide()
     const timestampArea = that.find('.action').first()
     if (commentsCount !== 0) {
       const a = $(
@@ -532,7 +601,7 @@ function processComments(userSettings) {
       isFeatured = false
     }
     // conserved reply must be fixed
-    if (hasConservedReply || important) {
+    if (hasPreservedReply || important) {
       isFeatured = true
     }
 
@@ -548,10 +617,8 @@ function processComments(userSettings) {
           .text()
       : $(row).find('small').text().trim()
 
-    // Skip premature comments if hidePremature is enabled
     if (isBeforeBroadcast && userSettings.hidePremature) {
-      // Still count the comment but don't add it to either array
-      return
+      $(row).addClass('premature-comment').hide()
     }
 
     if (isFeatured) {
@@ -581,7 +648,8 @@ function processComments(userSettings) {
     container,
     plainCommentElements,
     featuredCommentElements,
-    conservedRow,
+    preservedRow,
+    lastRow,
   }
 }
 
@@ -597,6 +665,7 @@ function processComments(userSettings) {
     stickyMentioned: false,
     hidePremature: false,
   })
+  window.BCE = window.BCE || {}
 
   const userSettings = {
     hidePlainComments: Storage.get('hidePlainComments'),
@@ -616,7 +685,8 @@ function processComments(userSettings) {
     container,
     plainCommentElements,
     featuredCommentElements,
-    conservedRow,
+    preservedRow,
+    lastRow,
   } = processComments(userSettings)
   let stateBar = container.find('.row_state.clearit')
   if (stateBar.length === 0) {
@@ -627,35 +697,69 @@ function processComments(userSettings) {
     ? `点击展开剩余${plainCommentsCount}条普通评论`
     : `点击折叠${plainCommentsCount}条普通评论`
 
+  const toggleHiddenCommentsInfoText = () => {
+    const curText = $(hiddenCommentsInfo).text()
+    if (curText.includes('展开')) {
+      hiddenCommentsInfo.text(`点击折叠${plainCommentsCount}条普通评论`)
+    } else {
+      hiddenCommentsInfo.text(`点击展开剩余${plainCommentsCount}条普通评论`)
+    }
+  }
+
   const hiddenCommentsInfo = $(
     `<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">${toggleButtonText}</div>`,
   ).click(function () {
-    $('#comment_list_plain').slideToggle()
-    // Update button text when toggled
-    const isHidden = $('#comment_list_plain').is(':hidden')
-    $(this).text(
-      isHidden
-        ? `点击展开剩余${plainCommentsCount}条普通评论`
-        : `点击折叠${plainCommentsCount}条普通评论`,
-    )
+    const commentList = $('#comment_list_plain')
+    commentList.slideToggle()
+    toggleHiddenCommentsInfoText()
   })
+
   stateBar.append(hiddenCommentsInfo)
   container.find('.row').detach()
+  const menuBarCSSProperties = {
+    display: 'inline-block',
+    width: '20px',
+    height: '20px',
+    transform: 'translate(0, -3px)',
+    margin: '0 0 0 5px',
+    cursor: 'pointer',
+  }
   const settingBtn = $('<strong></strong>')
-    .css({
-      display: 'inline-block',
-      width: '20px',
-      height: '20px',
-      transform: 'translate(4px, -3px)',
-      cursor: 'pointer',
-    })
+    .css(menuBarCSSProperties)
     .html(Icons.gear)
-    .click(() => window.settingsDialog.show())
-  container.append(
-    $(
-      '<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>',
-    ).append(settingBtn),
+    .click(() => window.BCE.settingsDialog.show())
+  const jumpToNewestBtn = $('<strong></strong>')
+    .css(menuBarCSSProperties)
+    .html(Icons.newest)
+    .click(() => {
+      $('#comment_list_plain').slideDown()
+      // set text to "点击折叠剩余普通评论"
+      hiddenCommentsInfo.text(`点击折叠${plainCommentsCount}条普通评论`)
+      // Scroll to last row when user clicks the jump to newest button
+      $('html, body').animate({
+        scrollTop: $(lastRow).offset().top,
+      })
+      const hash = lastRow.id
+      if (window.history.pushState && window.history.replaceState && window.history.state) {
+        window.history.replaceState(null, null, `#${hash}`)
+      }
+    })
+
+  const menuBar = $(
+    '<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>',
   )
+    .append(settingBtn)
+    .append(jumpToNewestBtn)
+  if (BGM_EP_REGEX.test(location.href)) {
+    const showPrematureBtn = $('<strong></strong>')
+      .css(menuBarCSSProperties)
+      .html(Icons.eyeOpen)
+      .click(() => {
+        $('.premature-comment').toggle()
+      })
+    menuBar.append(showPrematureBtn)
+  }
+  container.append(menuBar)
 
   const trinity = {
     reactionCount() {
@@ -697,13 +801,10 @@ function processComments(userSettings) {
 
   container.append(plainCommentsContainer)
   // Scroll to conserved row if exists
-  if (conservedRow) {
-    $('html, body').animate(
-      {
-        scrollTop: $(conservedRow).offset().top,
-      },
-      2000,
-    )
+  if (preservedRow) {
+    $('html, body').animate({
+      scrollTop: $(preservedRow).offset().top,
+    })
   }
   $('#sortMethodSelect').val(sortModeData)
   // Auto-expand plain comments if there are few featured comments and plain comments are hidden

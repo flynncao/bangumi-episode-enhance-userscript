@@ -1,6 +1,7 @@
 import { CustomCheckboxContainer } from '../../../classes/checkbox'
 import Icons from '../../../static/svg/index'
 import Storage from '../../../storage/index'
+import { createNonameHeader } from './header'
 import styles from './styles.css'
 
 export function createSettingMenu(userSettings, episodeMode = false) {
@@ -11,48 +12,41 @@ export function createSettingMenu(userSettings, episodeMode = false) {
   }
 
   const createSettingsDialog = () => {
-    // Create container
     const container = document.createElement('div')
     container.className = 'fixed-container'
+    // const nonameHeader = document.createElement('div')
+    // nonameHeader.className = 'padding-row'
+    const nonameHeader = createNonameHeader()
 
-    // Create header with dropdown
-    const header = document.createElement('div')
-    header.className = 'container-header'
-
+    const dropdownContainer = document.createElement('div')
+    dropdownContainer.className = 'dropdown-group'
     const spacerLeft = document.createElement('div')
     spacerLeft.style.width = '24px'
-
     const dropdown = document.createElement('select')
     dropdown.className = 'dropdown-select'
 
-    const optionHot = document.createElement('option')
-    optionHot.value = 'reactionCount'
-    optionHot.textContent = '按热度(贴贴数)排序'
+    const options = [
+      { value: 'reactionCount', text: '按热度(贴贴数)排序' },
+      { value: 'newFirst', text: '按时间排序(最新在前)' },
+      { value: 'oldFirst', text: '按时间排序(最旧在前)' },
+      { value: 'replyCount', text: '按评论数排序' },
+    ]
 
-    const optionReply = document.createElement('option')
-    optionReply.value = 'replyCount'
-    optionReply.textContent = '按评论数排序'
-
-    const optionRecent = document.createElement('option')
-    optionRecent.value = 'newFirst'
-    optionRecent.textContent = '按时间排序(最新在前)'
-
-    const optionOld = document.createElement('option')
-    optionOld.value = 'oldFirst'
-    optionOld.textContent = '按时间排序(最旧在前)'
-
-    dropdown.append(optionHot)
-    dropdown.append(optionRecent)
-    dropdown.append(optionOld)
-    dropdown.append(optionReply)
+    dropdown.append(
+      ...options.map((opt) => {
+        const option = document.createElement('option')
+        option.value = opt.value
+        option.textContent = opt.text
+        return option
+      }),
+    )
     dropdown.value = userSettings.sortMode || 'reactionCount'
-
     const spacerRight = document.createElement('div')
     spacerRight.style.width = '24px'
 
-    header.append($('<strong></strong>').html(Icons.sorting)[0])
-    header.append(dropdown)
-    header.append(spacerRight)
+    dropdownContainer.append($('<strong></strong>').html(Icons.sorting)[0])
+    dropdownContainer.append(dropdown)
+    dropdownContainer.append(spacerRight)
 
     // Create checkbox
     const checkboxContainers = []
@@ -138,7 +132,8 @@ export function createSettingMenu(userSettings, episodeMode = false) {
     buttonGroup.append(saveBtn)
 
     // Assemble everything
-    container.append(header)
+    container.append(nonameHeader)
+    container.append(dropdownContainer)
     container.append(minEffGroup)
     container.append(maxPostsGroup)
     container.append(...checkboxContainers)
@@ -264,8 +259,17 @@ export function createSettingMenu(userSettings, episodeMode = false) {
     elements.saveBtn.addEventListener('click', () => saveSettings(elements))
     elements.cancelBtn.addEventListener('click', () => hideDialog(elements.container))
 
+    // // Add window resize handler to center the dialog when window is resized
+    // window.addEventListener('resize', () => {
+    //   if (elements.container.style.display === 'block') {
+    //     elements.container.style.left = '50%'
+    //     elements.container.style.top = '50%'
+    //     elements.container.style.transform = 'translate(-50%, -50%)'
+    //   }
+    // })
+
     // Expose API
-    window.settingsDialog = {
+    window.BCE.settingsDialog = {
       show: () => showDialog(elements.container),
       hide: () => hideDialog(elements.container),
       save: () => saveSettings(elements),

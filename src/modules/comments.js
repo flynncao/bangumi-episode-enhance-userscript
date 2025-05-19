@@ -5,7 +5,7 @@ export default function processComments(userSettings) {
   const username = $('.idBadgerNeue .avatar').attr('href')
     ? $('.idBadgerNeue .avatar').attr('href').split('/user/')[1]
     : ''
-  const conservedPostID =
+  const preservedPostID =
     $(location).attr('href').split('#').length > 1 ? $(location).attr('href').split('#')[1] : null
   const allCommentRows = $('.row.row_reply.clearit')
   let plainCommentsCount = 0
@@ -15,7 +15,8 @@ export default function processComments(userSettings) {
   const container = $('#comment_list')
   const plainCommentElements = []
   const featuredCommentElements = []
-  let conservedRow = null
+  const lastRow = allCommentRows.last()
+  let preservedRow = null
 
   // Get first broadcast time for episode pages
   let firstBroadcastDate = null
@@ -99,9 +100,9 @@ export default function processComments(userSettings) {
     that.find('span.num').each(function (index, element) {
       commentScore += Number.parseInt($(element).text())
     })
-    const hasConservedReply = conservedPostID && that.find(`#${conservedPostID}`).length > 0
-    if (hasConservedReply) conservedRow = row
-    if (!hasConservedReply) subReplyContent.hide()
+    const hasPreservedReply = preservedPostID && that.find(`#${preservedPostID}`).length > 0
+    if (hasPreservedReply) preservedRow = row
+    if (!hasPreservedReply) subReplyContent.hide()
     const timestampArea = that.find('.action').first()
     if (commentsCount !== 0) {
       const a = $(
@@ -122,7 +123,7 @@ export default function processComments(userSettings) {
       isFeatured = false
     }
     // conserved reply must be fixed
-    if (hasConservedReply || important) {
+    if (hasPreservedReply || important) {
       isFeatured = true
     }
 
@@ -138,10 +139,8 @@ export default function processComments(userSettings) {
           .text()
       : $(row).find('small').text().trim()
 
-    // Skip premature comments if hidePremature is enabled
     if (isBeforeBroadcast && userSettings.hidePremature) {
-      // Still count the comment but don't add it to either array
-      return
+      $(row).addClass('premature-comment').hide()
     }
 
     if (isFeatured) {
@@ -171,6 +170,7 @@ export default function processComments(userSettings) {
     container,
     plainCommentElements,
     featuredCommentElements,
-    conservedRow,
+    preservedRow,
+    lastRow,
   }
 }
