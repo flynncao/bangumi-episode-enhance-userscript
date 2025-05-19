@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        bangumi-comment-enhance
-// @version     0.2.5.2
+// @version     0.2.6
 // @description Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @author      Flynn Cao
 // @updateURL   https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
@@ -617,10 +617,8 @@ function processComments(userSettings) {
           .text()
       : $(row).find('small').text().trim()
 
-    // Skip premature comments if hidePremature is enabled
     if (isBeforeBroadcast && userSettings.hidePremature) {
-      // Still count the comment but don't add it to either array
-      return
+      $(row).addClass('premature-comment').hide()
     }
 
     if (isFeatured) {
@@ -699,18 +697,23 @@ function processComments(userSettings) {
     ? `点击展开剩余${plainCommentsCount}条普通评论`
     : `点击折叠${plainCommentsCount}条普通评论`
 
+  const toggleHiddenCommentsInfoText = () => {
+    const curText = $(hiddenCommentsInfo).text()
+    if (curText.includes('展开')) {
+      hiddenCommentsInfo.text(`点击折叠${plainCommentsCount}条普通评论`)
+    } else {
+      hiddenCommentsInfo.text(`点击展开剩余${plainCommentsCount}条普通评论`)
+    }
+  }
+
   const hiddenCommentsInfo = $(
     `<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">${toggleButtonText}</div>`,
   ).click(function () {
-    $('#comment_list_plain').slideToggle()
-    // Update button text when toggled
-    const isHidden = $('#comment_list_plain').is(':hidden')
-    $(this).text(
-      isHidden
-        ? `点击展开剩余${plainCommentsCount}条普通评论`
-        : `点击折叠${plainCommentsCount}条普通评论`,
-    )
+    const commentList = $('#comment_list_plain')
+    commentList.slideToggle()
+    toggleHiddenCommentsInfoText()
   })
+
   stateBar.append(hiddenCommentsInfo)
   container.find('.row').detach()
   const menuBarCSSProperties = {
@@ -725,14 +728,14 @@ function processComments(userSettings) {
     .css(menuBarCSSProperties)
     .html(Icons.gear)
     .click(() => window.BCE.settingsDialog.show())
-
-  console.log('lastRow', lastRow)
   const jumpToNewestBtn = $('<strong></strong>')
     .css(menuBarCSSProperties)
     .html(Icons.newest)
     .click(() => {
+      $('#comment_list_plain').slideDown()
+      // set text to "点击折叠剩余普通评论"
+      hiddenCommentsInfo.text(`点击折叠${plainCommentsCount}条普通评论`)
       // Scroll to last row when user clicks the jump to newest button
-      $('#toggleFilteredBtn').click()
       $('html, body').animate({
         scrollTop: $(lastRow).offset().top,
       })
@@ -741,16 +744,22 @@ function processComments(userSettings) {
         window.history.replaceState(null, null, `#${hash}`)
       }
     })
-  const showPrematureBtn = $('<strong></strong>')
-    .css(menuBarCSSProperties)
-    .html(Icons.eyeOpen)
-    .click(() => window.BCE.settingsDialog.show())
-  container.append(
-    $('<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>')
-      .append(settingBtn)
-      .append(showPrematureBtn)
-      .append(jumpToNewestBtn),
+
+  const menuBar = $(
+    '<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>',
   )
+    .append(settingBtn)
+    .append(jumpToNewestBtn)
+  if (BGM_EP_REGEX.test(location.href)) {
+    const showPrematureBtn = $('<strong></strong>')
+      .css(menuBarCSSProperties)
+      .html(Icons.eyeOpen)
+      .click(() => {
+        $('.premature-comment').toggle()
+      })
+    menuBar.append(showPrematureBtn)
+  }
+  container.append(menuBar)
 
   const trinity = {
     reactionCount() {

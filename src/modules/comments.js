@@ -139,10 +139,8 @@ export default function processComments(userSettings) {
           .text()
       : $(row).find('small').text().trim()
 
-    // Skip premature comments if hidePremature is enabled
     if (isBeforeBroadcast && userSettings.hidePremature) {
-      // Still count the comment but don't add it to either array
-      return
+      $(row).addClass('premature-comment').hide()
     }
 
     if (isFeatured) {
