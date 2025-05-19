@@ -15,6 +15,7 @@ export default function processComments(userSettings) {
   const container = $('#comment_list')
   const plainCommentElements = []
   const featuredCommentElements = []
+  const lastRow = allCommentRows.last()
   let preservedRow = null
 
   // Get first broadcast time for episode pages
@@ -172,5 +173,6 @@ export default function processComments(userSettings) {
     plainCommentElements,
     featuredCommentElements,
     preservedRow,
+    lastRow,
   }
 }

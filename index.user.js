@@ -56,6 +56,10 @@ class CustomCheckboxContainer {
 
 // https://www.iconfont.cn/collections/detail?spm=a313x.user_detail.i1.dc64b3430.57e63a81itWm4A&cid=12086
 const Icons = {
+  eyeOpen:
+    '<svg t="1747629142037" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1338" width="256" height="256"><path d="M947.6 477.1c-131.1-163.4-276.3-245-435.6-245s-304.5 81.7-435.6 245c-16.4 20.5-16.4 49.7 0 70.1 131.1 163.4 276.3 245 435.6 245s304.5-81.7 435.6-245c16.4-20.4 16.4-49.6 0-70.1zM512 720c-130.6 0-251.1-67.8-363.5-207.8 112.4-140 232.9-207.8 363.5-207.8s251.1 67.8 363.5 207.8C763.1 652.2 642.6 720 512 720z" fill="#333333" p-id="1339"></path><path d="M512 592c44.1 0 79.8-35.7 79.8-79.8 0-44.1-35.7-79.8-79.8-79.8-44.1 0-79.8 35.7-79.8 79.8-0.1 44.1 35.7 79.8 79.8 79.8z m0 72c-83.8 0-151.8-68-151.8-151.8 0-83.8 68-151.8 151.8-151.8 83.8 0 151.8 68 151.8 151.8 0 83.8-68 151.8-151.8 151.8z m0 0" fill="#333333" p-id="1340"></path></svg>',
+  newest:
+    '<svg t="1747628315444" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1861" width="256" height="256"><path d="M512.736 992a483.648 483.648 0 0 1-164.672-28.8 36.88 36.88 0 1 1 25.104-69.36 407.456 407.456 0 1 0-184.608-136.512A36.912 36.912 0 0 1 129.488 801.6a473.424 473.424 0 0 1-97.472-290A480 480 0 1 1 512.736 992z" fill="#5F5F5F" p-id="1862"></path><path d="M685.6 638.592a32 32 0 0 1-14.032-2.96l-178.048-73.888a36.8 36.8 0 0 1-22.912-34.016V236.672a36.944 36.944 0 1 1 73.888 0v266.72l155.2 64.272a36.336 36.336 0 0 1 19.952 48 37.616 37.616 0 0 1-34.048 22.928z" fill="#5F5F5F" p-id="1863"></path></svg>',
   answerSheet:
     '<svg t="1741855047626" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2040" width="256" height="256"><path d="M188.8 135.7c-29.7 0-53.8 24.1-53.8 53.7v644.7c0 29.7 24.1 53.7 53.8 53.7h645.4c29.7 0 53.8-24.1 53.8-53.7V189.4c0-29.7-24.1-53.7-53.8-53.7H188.8z m-13-71.1h671.5c61.8 0 111.9 50.1 111.9 111.8v670.8c0 61.7-50.1 111.8-111.9 111.8H175.8C114 959 63.9 909 63.9 847.2V176.4c0-61.8 50.1-111.8 111.9-111.8z m0 0" fill="#333333" p-id="2041"></path><path d="M328 328h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM556 332h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM784 332h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36z" fill="#333333" p-id="2042"></path><path d="M328 546h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM556 550h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM784 550h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36z" fill="#333333" p-id="2043"></path><path d="M328 764h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM556 768h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM784 768h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36z" fill="#333333" p-id="2044"></path></svg>',
   sorting:
@@ -417,7 +421,7 @@ function createSettingMenu(userSettings, episodeMode = false) {
     // })
 
     // Expose API
-    window.settingsDialog = {
+    window.BCE.settingsDialog = {
       show: () => showDialog(elements.container),
       hide: () => hideDialog(elements.container),
       save: () => saveSettings(elements),
@@ -489,6 +493,7 @@ function processComments(userSettings) {
   const container = $('#comment_list')
   const plainCommentElements = []
   const featuredCommentElements = []
+  const lastRow = allCommentRows.last()
   let preservedRow = null
 
   // Get first broadcast time for episode pages
@@ -646,6 +651,7 @@ function processComments(userSettings) {
     plainCommentElements,
     featuredCommentElements,
     preservedRow,
+    lastRow,
   }
 }
 
@@ -661,6 +667,7 @@ function processComments(userSettings) {
     stickyMentioned: false,
     hidePremature: false,
   })
+  window.BCE = window.BCE || {}
 
   const userSettings = {
     hidePlainComments: Storage.get('hidePlainComments'),
@@ -681,6 +688,7 @@ function processComments(userSettings) {
     plainCommentElements,
     featuredCommentElements,
     preservedRow,
+    lastRow,
   } = processComments(userSettings)
   let stateBar = container.find('.row_state.clearit')
   if (stateBar.length === 0) {
@@ -705,20 +713,43 @@ function processComments(userSettings) {
   })
   stateBar.append(hiddenCommentsInfo)
   container.find('.row').detach()
+  const menuBarCSSProperties = {
+    display: 'inline-block',
+    width: '20px',
+    height: '20px',
+    transform: 'translate(0, -3px)',
+    margin: '0 0 0 5px',
+    cursor: 'pointer',
+  }
   const settingBtn = $('<strong></strong>')
-    .css({
-      display: 'inline-block',
-      width: '20px',
-      height: '20px',
-      transform: 'translate(4px, -3px)',
-      cursor: 'pointer',
-    })
+    .css(menuBarCSSProperties)
     .html(Icons.gear)
-    .click(() => window.settingsDialog.show())
+    .click(() => window.BCE.settingsDialog.show())
+
+  console.log('lastRow', lastRow)
+  const jumpToNewestBtn = $('<strong></strong>')
+    .css(menuBarCSSProperties)
+    .html(Icons.newest)
+    .click(() => {
+      // Scroll to last row when user clicks the jump to newest button
+      $('#toggleFilteredBtn').click()
+      $('html, body').animate({
+        scrollTop: $(lastRow).offset().top,
+      })
+      const hash = lastRow.id
+      if (window.history.pushState && window.history.replaceState && window.history.state) {
+        window.history.replaceState(null, null, `#${hash}`)
+      }
+    })
+  const showPrematureBtn = $('<strong></strong>')
+    .css(menuBarCSSProperties)
+    .html(Icons.eyeOpen)
+    .click(() => window.BCE.settingsDialog.show())
   container.append(
-    $(
-      '<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>',
-    ).append(settingBtn),
+    $('<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>')
+      .append(settingBtn)
+      .append(showPrematureBtn)
+      .append(jumpToNewestBtn),
   )
 
   const trinity = {

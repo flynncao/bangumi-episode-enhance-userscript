@@ -16,6 +16,7 @@ import { quickSort } from './utils/index'
     stickyMentioned: false,
     hidePremature: false,
   })
+  window.BCE = window.BCE || {}
 
   const userSettings = {
     hidePlainComments: Storage.get('hidePlainComments'),
@@ -36,6 +37,7 @@ import { quickSort } from './utils/index'
     plainCommentElements,
     featuredCommentElements,
     preservedRow,
+    lastRow,
   } = processComments(userSettings)
   let stateBar = container.find('.row_state.clearit')
   if (stateBar.length === 0) {
@@ -60,20 +62,43 @@ import { quickSort } from './utils/index'
   })
   stateBar.append(hiddenCommentsInfo)
   container.find('.row').detach()
+  const menuBarCSSProperties = {
+    display: 'inline-block',
+    width: '20px',
+    height: '20px',
+    transform: 'translate(0, -3px)',
+    margin: '0 0 0 5px',
+    cursor: 'pointer',
+  }
   const settingBtn = $('<strong></strong>')
-    .css({
-      display: 'inline-block',
-      width: '20px',
-      height: '20px',
-      transform: 'translate(4px, -3px)',
-      cursor: 'pointer',
-    })
+    .css(menuBarCSSProperties)
     .html(Icons.gear)
-    .click(() => window.settingsDialog.show())
+    .click(() => window.BCE.settingsDialog.show())
+
+  console.log('lastRow', lastRow)
+  const jumpToNewestBtn = $('<strong></strong>')
+    .css(menuBarCSSProperties)
+    .html(Icons.newest)
+    .click(() => {
+      // Scroll to last row when user clicks the jump to newest button
+      $('#toggleFilteredBtn').click()
+      $('html, body').animate({
+        scrollTop: $(lastRow).offset().top,
+      })
+      const hash = lastRow.id
+      if (window.history.pushState && window.history.replaceState && window.history.state) {
+        window.history.replaceState(null, null, `#${hash}`)
+      }
+    })
+  const showPrematureBtn = $('<strong></strong>')
+    .css(menuBarCSSProperties)
+    .html(Icons.eyeOpen)
+    .click(() => {})
   container.append(
-    $(
-      '<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>',
-    ).append(settingBtn),
+    $('<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>')
+      .append(settingBtn)
+      .append(showPrematureBtn)
+      .append(jumpToNewestBtn),
   )
 
   const trinity = {

@@ -269,7 +269,7 @@ export function createSettingMenu(userSettings, episodeMode = false) {
     // })
 
     // Expose API
-    window.settingsDialog = {
+    window.BCE.settingsDialog = {
       show: () => showDialog(elements.container),
       hide: () => hideDialog(elements.container),
       save: () => saveSettings(elements),
