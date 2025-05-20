@@ -1,0 +1,37 @@
+{
+  "name": "bangumi-plugin-boilerplate",
+  "version": "1.0.0",
+  "description": "A boilerplate for Bangumi plugins.",
+  "type": "module",
+  "keywords": [
+    "bangumi",
+    "anime"
+  ],
+  "license": "ISC",
+  "author": "Flynn Cao",
+  "main": "index.user.js",
+  "scripts": {
+    "dev": "rollup -c -w --environment BUILD:development",
+    "build": "rollup -c --environment BUILD:production",
+    "format": "prettier --write *.js",
+    "lint": "eslint --fix ."
+  },
+  "devDependencies": {
+    "@rollup/plugin-strip": "^3.0.4",
+    "@sxzz/eslint-config": "^6.0.2",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.22.0",
+    "lint-staged": "^15.2.7",
+    "prettier": "^3.3.3",
+    "rollup": "^4.34.8",
+    "rollup-plugin-import-css": "^3.5.8",
+    "rollup-plugin-userscript-metadata": "^2.0.1",
+    "simple-git-hooks": "^2.11.1"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npm run lint-staged"
+  },
+  "lint-staged": {
+    "*.js": "npm run lint"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "bangumi-copy-title",
+  "version": "0.0.1",
+  "description": "Copy bangumi title to clipboard",
+  "author": "Flynn Cao",
+  "updateURL": "https://github.com/flynncao/bangumi-plugin-boilerplate/raw/main/index.user.js",
+  "downloadURL": "https://github.com/flynncao/bangumi-plugin-boilerplate/raw/main/index.user.js",
+  "namespace": "https://flynncao.uk/",
+  "match": ["https://bangumi.tv/*", "https://chii.in/*", "https://bgm.tv/*"],
+  "include": ["/^https?:\\/\\/(((fast\\.)?bgm\\.tv)|chii\\.in|bangumi\\.tv)*/"],
+  "license": "MIT"
+}
