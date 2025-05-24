@@ -38,7 +38,10 @@ import { quickSort } from './utils/index'
     featuredCommentElements,
     preservedRow,
     lastRow,
+    isLastRowFeatured,
   } = processComments(userSettings)
+  console.log('lastRow', lastRow)
+  console.log('isLastRowFeatured', isLastRowFeatured)
   let stateBar = container.find('.row_state.clearit')
   if (stateBar.length === 0) {
     stateBar = $(`<div id class="row_state clearit"></div>`)
@@ -79,22 +82,31 @@ import { quickSort } from './utils/index'
     .css(menuBarCSSProperties)
     .html(Icons.gear)
     .click(() => window.BCE.settingsDialog.show())
-  console.log('lastRow', lastRow)
+
   const jumpToNewestBtn = $('<strong></strong>')
     .css(menuBarCSSProperties)
     .html(Icons.newest)
     .click(() => {
       $('#comment_list_plain').slideDown()
-      // set text to "点击折叠剩余普通评论"
       hiddenCommentsInfo.text(`点击折叠${plainCommentsCount}条普通评论`)
-      // Scroll to last row when user clicks the jump to newest button
+      // get the target element with the same id as lastRow inside the FeatureElements
+      const targetId = lastRow[0].id
+      console.log('targetId', targetId)
+      console.log('featuredCommentElements', featuredCommentElements)
+      const targetItem = isLastRowFeatured
+        ? featuredCommentElements.find((item) => item.element.id === targetId)
+        : plainCommentElements.at(-1)
+      console.log('targetItem', targetItem)
       $('html, body').animate({
-        scrollTop: $(lastRow).offset().top,
+        scrollTop: $(targetItem.element).offset().top,
       })
-      const hash = lastRow.id
-      if (window.history.pushState && window.history.replaceState && window.history.state) {
-        window.history.replaceState(null, null, `#${hash}`)
-      }
+      $(lastRow).css({
+        'background-color': '#ffd966',
+        transition: 'background-color 0.5s ease-in-out',
+      })
+      setTimeout(() => {
+        $(lastRow).css('background-color', '')
+      }, 750)
     })
 
   const menuBar = $(
@@ -112,19 +124,20 @@ import { quickSort } from './utils/index'
     menuBar.append(showPrematureBtn)
   }
   container.append(menuBar)
-
+  const isLastRowFeaturedResult = isLastRowFeatured ? lastRow[0] : null
+  console.log('isLastRowFeaturedResult', isLastRowFeaturedResult)
   const trinity = {
     reactionCount() {
-      featuredCommentElements = quickSort(featuredCommentElements, 'score')
+      featuredCommentElements = quickSort(featuredCommentElements, 'reactionCount', false)
     },
     replyCount() {
-      featuredCommentElements = quickSort(featuredCommentElements, 'commentsCount')
+      featuredCommentElements = quickSort(featuredCommentElements, 'replyCount', false)
     },
     oldFirst() {
       featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber', true)
     },
     newFirst() {
-      featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber')
+      featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber', false)
     },
   }
   trinity[sortModeData]()

@@ -9,7 +9,7 @@ export default function processComments(userSettings) {
     $(location).attr('href').split('#').length > 1 ? $(location).attr('href').split('#')[1] : null
   const allCommentRows = $('.row.row_reply.clearit')
   let plainCommentsCount = 0
-  let featuredCommentsCount = 0
+  const featuredCommentsCount = 0
   let prematureCommentsCount = 0
   const minimumContentLength = userSettings.minimumFeaturedCommentLength
   const container = $('#comment_list')
@@ -17,6 +17,7 @@ export default function processComments(userSettings) {
   const featuredCommentElements = []
   const lastRow = allCommentRows.last()
   let preservedRow = null
+  let isLastRowFeatured = false
 
   // Get first broadcast time for episode pages
   let firstBroadcastDate = null
@@ -144,7 +145,12 @@ export default function processComments(userSettings) {
     }
 
     if (isFeatured) {
-      featuredCommentsCount++
+      // check if current row is the last row by comparing the id
+      console.log('row.id', row.id)
+      console.log('lastRow[0].id)', lastRow[0].id)
+      if (row.id === lastRow[0].id) {
+        isLastRowFeatured = true
+      }
       featuredCommentElements.push({
         element: row,
         score: commentScore,
@@ -172,5 +178,6 @@ export default function processComments(userSettings) {
     featuredCommentElements,
     preservedRow,
     lastRow,
+    isLastRowFeatured,
   }
 }

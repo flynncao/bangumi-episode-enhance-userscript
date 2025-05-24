@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        bangumi-comment-enhance
-// @version     0.2.6
+// @version     0.2.7
 // @description Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @author      Flynn Cao
 // @updateURL   https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
@@ -487,7 +487,7 @@ function processComments(userSettings) {
     $(location).attr('href').split('#').length > 1 ? $(location).attr('href').split('#')[1] : null
   const allCommentRows = $('.row.row_reply.clearit')
   let plainCommentsCount = 0
-  let featuredCommentsCount = 0
+  const featuredCommentsCount = 0
   let prematureCommentsCount = 0
   const minimumContentLength = userSettings.minimumFeaturedCommentLength
   const container = $('#comment_list')
@@ -495,6 +495,7 @@ function processComments(userSettings) {
   const featuredCommentElements = []
   const lastRow = allCommentRows.last()
   let preservedRow = null
+  let isLastRowFeatured = false
 
   // Get first broadcast time for episode pages
   let firstBroadcastDate = null
@@ -622,7 +623,10 @@ function processComments(userSettings) {
     }
 
     if (isFeatured) {
-      featuredCommentsCount++
+      // check if current row is the last row by comparing the id
+      if (row.id === lastRow[0].id) {
+        isLastRowFeatured = true
+      }
       featuredCommentElements.push({
         element: row,
         score: commentScore,
@@ -650,6 +654,7 @@ function processComments(userSettings) {
     featuredCommentElements,
     preservedRow,
     lastRow,
+    isLastRowFeatured,
   }
 }
 
@@ -681,12 +686,12 @@ function processComments(userSettings) {
    */
   let {
     plainCommentsCount,
-    featuredCommentsCount,
     container,
     plainCommentElements,
     featuredCommentElements,
     preservedRow,
     lastRow,
+    isLastRowFeatured,
   } = processComments(userSettings)
   let stateBar = container.find('.row_state.clearit')
   if (stateBar.length === 0) {
@@ -728,21 +733,28 @@ function processComments(userSettings) {
     .css(menuBarCSSProperties)
     .html(Icons.gear)
     .click(() => window.BCE.settingsDialog.show())
+
   const jumpToNewestBtn = $('<strong></strong>')
     .css(menuBarCSSProperties)
     .html(Icons.newest)
     .click(() => {
       $('#comment_list_plain').slideDown()
-      // set text to "点击折叠剩余普通评论"
       hiddenCommentsInfo.text(`点击折叠${plainCommentsCount}条普通评论`)
-      // Scroll to last row when user clicks the jump to newest button
+      // get the target element with the same id as lastRow inside the FeatureElements
+      const targetId = lastRow[0].id
+      const targetItem = isLastRowFeatured
+        ? featuredCommentElements.find((item) => item.element.id === targetId)
+        : plainCommentElements.at(-1)
       $('html, body').animate({
-        scrollTop: $(lastRow).offset().top,
+        scrollTop: $(targetItem.element).offset().top,
       })
-      const hash = lastRow.id
-      if (window.history.pushState && window.history.replaceState && window.history.state) {
-        window.history.replaceState(null, null, `#${hash}`)
-      }
+      $(lastRow).css({
+        'background-color': '#ffd966',
+        transition: 'background-color 0.5s ease-in-out',
+      })
+      setTimeout(() => {
+        $(lastRow).css('background-color', '')
+      }, 750)
     })
 
   const menuBar = $(
@@ -760,19 +772,18 @@ function processComments(userSettings) {
     menuBar.append(showPrematureBtn)
   }
   container.append(menuBar)
-
   const trinity = {
     reactionCount() {
-      featuredCommentElements = quickSort(featuredCommentElements, 'score')
+      featuredCommentElements = quickSort(featuredCommentElements, 'reactionCount', false)
     },
     replyCount() {
-      featuredCommentElements = quickSort(featuredCommentElements, 'commentsCount')
+      featuredCommentElements = quickSort(featuredCommentElements, 'replyCount', false)
     },
     oldFirst() {
       featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber', true)
     },
     newFirst() {
-      featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber')
+      featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber', false)
     },
   }
   trinity[sortModeData]()
@@ -808,7 +819,7 @@ function processComments(userSettings) {
   }
   $('#sortMethodSelect').val(sortModeData)
   // Auto-expand plain comments if there are few featured comments and plain comments are hidden
-  if (featuredCommentsCount < 10 && userSettings.hidePlainComments === true) {
+  if (userSettings.hidePlainComments === true) {
     $('#toggleFilteredBtn').click()
   }
   createSettingMenu(userSettings, BGM_EP_REGEX.test(location.href))
