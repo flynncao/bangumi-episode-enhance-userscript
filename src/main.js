@@ -28,7 +28,7 @@ import { quickSort } from './utils/index'
   }
   const sortModeData = userSettings.sortMode || 'reactionCount'
   /**
-   * Main
+   * Process comments and prepare the container
    */
   let {
     plainCommentsCount,
@@ -41,7 +41,7 @@ import { quickSort } from './utils/index'
     isLastRowFeatured,
   } = processComments(userSettings)
   console.log('lastRow', lastRow)
-  console.log('isLastRowFeatured', isLastRowFeatured)
+  console.log('featuredCommentElements', featuredCommentElements)
   let stateBar = container.find('.row_state.clearit')
   if (stateBar.length === 0) {
     stateBar = $(`<div id class="row_state clearit"></div>`)
@@ -78,25 +78,27 @@ import { quickSort } from './utils/index'
     margin: '0 0 0 5px',
     cursor: 'pointer',
   }
+  /**
+   * Button event handlers
+   */
   const settingBtn = $('<strong></strong>')
     .css(menuBarCSSProperties)
     .html(Icons.gear)
+    .attr('title', '设置')
     .click(() => window.BCE.settingsDialog.show())
 
   const jumpToNewestBtn = $('<strong></strong>')
     .css(menuBarCSSProperties)
     .html(Icons.newest)
+    .attr('title', '跳转到最新评论')
     .click(() => {
       $('#comment_list_plain').slideDown()
       hiddenCommentsInfo.text(`点击折叠${plainCommentsCount}条普通评论`)
       // get the target element with the same id as lastRow inside the FeatureElements
       const targetId = lastRow[0].id
-      console.log('targetId', targetId)
-      console.log('featuredCommentElements', featuredCommentElements)
       const targetItem = isLastRowFeatured
         ? featuredCommentElements.find((item) => item.element.id === targetId)
         : plainCommentElements.at(-1)
-      console.log('targetItem', targetItem)
       $('html, body').animate({
         scrollTop: $(targetItem.element).offset().top,
       })
@@ -112,23 +114,25 @@ import { quickSort } from './utils/index'
   const menuBar = $(
     '<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>',
   )
-    .append(settingBtn)
-    .append(jumpToNewestBtn)
+
   if (BGM_EP_REGEX.test(location.href)) {
     const showPrematureBtn = $('<strong></strong>')
       .css(menuBarCSSProperties)
       .html(Icons.eyeOpen)
+      .attr('title', '显示开播前发表的评论')
       .click(() => {
         $('.premature-comment').toggle()
       })
     menuBar.append(showPrematureBtn)
   }
+  menuBar.append(settingBtn)
+  menuBar.append(jumpToNewestBtn)
   container.append(menuBar)
   const isLastRowFeaturedResult = isLastRowFeatured ? lastRow[0] : null
   console.log('isLastRowFeaturedResult', isLastRowFeaturedResult)
   const trinity = {
     reactionCount() {
-      featuredCommentElements = quickSort(featuredCommentElements, 'reactionCount', false)
+      featuredCommentElements = quickSort(featuredCommentElements, 'score', false)
     },
     replyCount() {
       featuredCommentElements = quickSort(featuredCommentElements, 'replyCount', false)
