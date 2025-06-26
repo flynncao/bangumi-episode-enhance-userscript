@@ -36,6 +36,8 @@ export function purifiedDatetimeInMillionSeconds(timestamp) {
 }
 
 export function defaultSort(arr, sortKey, changeCompareDirection = false) {
+  console.log('sortKey', sortKey)
+  console.log('arr', arr)
   return arr.sort((a, b) => {
     const aImportant = a.important || false
     const bImportant = b.important || false

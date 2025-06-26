@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        bangumi-comment-enhance
-// @version     0.2.7
+// @version     0.2.7.1
 // @description Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @author      Flynn Cao
 // @updateURL   https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
@@ -555,7 +555,7 @@ function processComments(userSettings) {
     // prioritize @me comments on
     const highlightMentionedColor = '#ff8c00'
     const subReplyContent = that.find('.topic_sub_reply')
-    const commentsCount = subReplyContent.find('.sub_reply_bg').length
+    const replyCount = subReplyContent.find('.sub_reply_bg').length
     const mentionedInMainComment =
       userSettings.stickyMentioned &&
       that.find('.avatar').attr('href').split('/user/')[1] === username
@@ -583,9 +583,9 @@ function processComments(userSettings) {
     if (hasPreservedReply) preservedRow = row
     if (!hasPreservedReply) subReplyContent.hide()
     const timestampArea = that.find('.action').first()
-    if (commentsCount !== 0) {
+    if (replyCount !== 0) {
       const a = $(
-        `<a class="expand_all" href="javascript:void(0)" style="margin:0 3px 0 5px;"><span class="ico ico_reply">展开(+${commentsCount})</span></a>`,
+        `<a class="expand_all" href="javascript:void(0)" style="margin:0 3px 0 5px;"><span class="ico ico_reply">展开(+${replyCount})</span></a>`,
       )
       mentionedInSubReply && a.css('color', highlightMentionedColor)
       a.on('click', function () {
@@ -596,8 +596,7 @@ function processComments(userSettings) {
     }
     // check if this comment meets the requirement of minimumContentLength
     const isShortReply = content.trim().length < minimumContentLength
-    let isFeatured =
-      userSettings.sortMode === 'reactionCount' ? commentScore >= 1 : commentsCount >= 1
+    let isFeatured = userSettings.sortMode === 'reactionCount' ? commentScore >= 1 : replyCount >= 1
     if (isShortReply || featuredCommentsCount >= userSettings.maxFeaturedComments) {
       isFeatured = false
     }
@@ -630,7 +629,7 @@ function processComments(userSettings) {
       featuredCommentElements.push({
         element: row,
         score: commentScore,
-        commentsCount,
+        replyCount,
         timestampNumber: purifiedDatetimeInMillionSeconds(timestamp),
         important,
       })
@@ -682,7 +681,7 @@ function processComments(userSettings) {
   }
   const sortModeData = userSettings.sortMode || 'reactionCount'
   /**
-   * Main
+   * Process comments and prepare the container
    */
   let {
     plainCommentsCount,
@@ -729,14 +728,19 @@ function processComments(userSettings) {
     margin: '0 0 0 5px',
     cursor: 'pointer',
   }
+  /**
+   * Button event handlers
+   */
   const settingBtn = $('<strong></strong>')
     .css(menuBarCSSProperties)
     .html(Icons.gear)
+    .attr('title', '设置')
     .click(() => window.BCE.settingsDialog.show())
 
   const jumpToNewestBtn = $('<strong></strong>')
     .css(menuBarCSSProperties)
     .html(Icons.newest)
+    .attr('title', '跳转到最新评论')
     .click(() => {
       $('#comment_list_plain').slideDown()
       hiddenCommentsInfo.text(`点击折叠${plainCommentsCount}条普通评论`)
@@ -760,21 +764,23 @@ function processComments(userSettings) {
   const menuBar = $(
     '<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>',
   )
-    .append(settingBtn)
-    .append(jumpToNewestBtn)
+
   if (BGM_EP_REGEX.test(location.href)) {
     const showPrematureBtn = $('<strong></strong>')
       .css(menuBarCSSProperties)
       .html(Icons.eyeOpen)
+      .attr('title', '显示开播前发表的评论')
       .click(() => {
         $('.premature-comment').toggle()
       })
     menuBar.append(showPrematureBtn)
   }
+  menuBar.append(settingBtn)
+  menuBar.append(jumpToNewestBtn)
   container.append(menuBar)
   const trinity = {
     reactionCount() {
-      featuredCommentElements = quickSort(featuredCommentElements, 'reactionCount', false)
+      featuredCommentElements = quickSort(featuredCommentElements, 'score', false)
     },
     replyCount() {
       featuredCommentElements = quickSort(featuredCommentElements, 'replyCount', false)

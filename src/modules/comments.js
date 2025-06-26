@@ -77,7 +77,7 @@ export default function processComments(userSettings) {
     // prioritize @me comments on
     const highlightMentionedColor = '#ff8c00'
     const subReplyContent = that.find('.topic_sub_reply')
-    const commentsCount = subReplyContent.find('.sub_reply_bg').length
+    const replyCount = subReplyContent.find('.sub_reply_bg').length
     const mentionedInMainComment =
       userSettings.stickyMentioned &&
       that.find('.avatar').attr('href').split('/user/')[1] === username
@@ -105,9 +105,9 @@ export default function processComments(userSettings) {
     if (hasPreservedReply) preservedRow = row
     if (!hasPreservedReply) subReplyContent.hide()
     const timestampArea = that.find('.action').first()
-    if (commentsCount !== 0) {
+    if (replyCount !== 0) {
       const a = $(
-        `<a class="expand_all" href="javascript:void(0)" style="margin:0 3px 0 5px;"><span class="ico ico_reply">展开(+${commentsCount})</span></a>`,
+        `<a class="expand_all" href="javascript:void(0)" style="margin:0 3px 0 5px;"><span class="ico ico_reply">展开(+${replyCount})</span></a>`,
       )
       mentionedInSubReply && a.css('color', highlightMentionedColor)
       a.on('click', function () {
@@ -118,8 +118,7 @@ export default function processComments(userSettings) {
     }
     // check if this comment meets the requirement of minimumContentLength
     const isShortReply = content.trim().length < minimumContentLength
-    let isFeatured =
-      userSettings.sortMode === 'reactionCount' ? commentScore >= 1 : commentsCount >= 1
+    let isFeatured = userSettings.sortMode === 'reactionCount' ? commentScore >= 1 : replyCount >= 1
     if (isShortReply || featuredCommentsCount >= userSettings.maxFeaturedComments) {
       isFeatured = false
     }
@@ -146,15 +145,13 @@ export default function processComments(userSettings) {
 
     if (isFeatured) {
       // check if current row is the last row by comparing the id
-      console.log('row.id', row.id)
-      console.log('lastRow[0].id)', lastRow[0].id)
       if (row.id === lastRow[0].id) {
         isLastRowFeatured = true
       }
       featuredCommentElements.push({
         element: row,
         score: commentScore,
-        commentsCount,
+        replyCount,
         timestampNumber: purifiedDatetimeInMillionSeconds(timestamp),
         important,
       })
