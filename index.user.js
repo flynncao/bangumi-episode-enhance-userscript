@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        bangumi-comment-enhance
-// @version     0.2.7
+// @version     0.2.7.1
 // @description Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @author      Flynn Cao
 // @updateURL   https://github.com/flynncao/bangumi-episode-enhance-userscript/raw/main/index.user.js
@@ -692,8 +692,6 @@ function processComments(userSettings) {
     lastRow,
     isLastRowFeatured,
   } = processComments(userSettings)
-  console.log('lastRow', lastRow)
-  console.log('featuredCommentElements', featuredCommentElements)
   let stateBar = container.find('.row_state.clearit')
   if (stateBar.length === 0) {
     stateBar = $(`<div id class="row_state clearit"></div>`)
@@ -780,8 +778,6 @@ function processComments(userSettings) {
   menuBar.append(settingBtn)
   menuBar.append(jumpToNewestBtn)
   container.append(menuBar)
-  const isLastRowFeaturedResult = isLastRowFeatured ? lastRow[0] : null
-  console.log('isLastRowFeaturedResult', isLastRowFeaturedResult)
   const trinity = {
     reactionCount() {
       featuredCommentElements = quickSort(featuredCommentElements, 'score', false)

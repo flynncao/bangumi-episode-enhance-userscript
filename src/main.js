@@ -128,8 +128,6 @@ import { quickSort } from './utils/index'
   menuBar.append(settingBtn)
   menuBar.append(jumpToNewestBtn)
   container.append(menuBar)
-  const isLastRowFeaturedResult = isLastRowFeatured ? lastRow[0] : null
-  console.log('isLastRowFeaturedResult', isLastRowFeaturedResult)
   const trinity = {
     reactionCount() {
       featuredCommentElements = quickSort(featuredCommentElements, 'score', false)
