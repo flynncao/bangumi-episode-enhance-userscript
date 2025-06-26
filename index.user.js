@@ -1,7 +1,7 @@
 
 // ==UserScript==
 // @name        bangumi-copy-title
-// @version     0.0.1
+// @version     0.0.2
 // @description Copy bangumi title to clipboard
 // @author      Flynn Cao
 // @updateURL   https://github.com/flynncao/bangumi-plugin-boilerplate/raw/main/index.user.js
@@ -41,12 +41,45 @@ function createButton(
   return button
 }
 
+function createCheckbox(
+  { id, label, className, onChange, checked, disabled = false },
+  userSettings = {},
+) {
+  // Create the checkbox container
+  const labelEl = document.createElement('label');
+  labelEl.className = className;
+
+  // Create the checkbox input
+  const inputEl = document.createElement('input');
+  inputEl.type = 'checkbox';
+  inputEl.id = id;
+  inputEl.checked = checked;
+
+  // Create the custom checkmark span
+  const checkmarkEl = document.createElement('span');
+  checkmarkEl.className = 'bct-checkmark';
+
+  // Create the label text span
+  const textSpan = document.createElement('span');
+  textSpan.textContent = label;
+
+  // Append elements to the label
+  labelEl.append(inputEl);
+  labelEl.append(checkmarkEl);
+  labelEl.append(textSpan);
+
+  inputEl.addEventListener('change', onChange);
+  inputEl.disabled = disabled;
+
+  return labelEl
+}
+
 const BGM_SUBJECT_REGEX =
   /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/subject\/\d+/;
 
 const STORAGE_NAMESPACE = 'BangumiCopyTitle';
 
-var styles = "\n\n.bct-button {\n  /* --button-size: 2rem;\n  width: var(--button-size);\n  height: var(--button-size); */\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  color: #000;\n  transform: translateY(4px);\n  padding: 2px 5px;\n  border: 1px solid transparent;\n}\n\n[data-theme=\"dark\"] .bct-button {\n\tcolor: #f5f5f5;\n} \n\n.bct-button:hover {\n\tborder: 1px solid lightgray;\n\tborder-radius: 4px;\n\ttransition: all 0.2s ease-in-out;\n}\n\n.bct-button svg {\n  width: 100%;\n  height: 100%;\n  /* Let the button control the size */\n  flex: 1;\n}\n\n.bct-button svg {\n  max-width: 21px;\n  max-height: 21px;\n}\n\n\n.bct-button span{\n\tfont-size: 12px!important;\n\tfont-weight: normal!important;\n\tpadding-right: 4px!important;\n}\n[data-theme=\"dark\"] .bct-button svg {\n\tfilter:invert(1)\n}\n";
+var styles = "\n\n.bct-button {\n  /* --button-size: 2rem;\n  width: var(--button-size);\n  height: var(--button-size); */\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  color: #000;\n  transform: translateY(4px);\n  padding: 2px 5px;\n  border: 1px solid transparent;\n}\n\n[data-theme=\"dark\"] .bct-button {\n\tcolor: #f5f5f5;\n} \n\n.bct-button:hover {\n\tborder: 1px solid lightgray;\n\tborder-radius: 4px;\n\ttransition: all 0.2s ease-in-out;\n}\n\n.bct-button svg {\n  width: 100%;\n  height: 100%;\n  /* Let the button control the size */\n  flex: 1;\n}\n\n.bct-button svg {\n  max-width: 21px;\n  max-height: 21px;\n}\n\n\n.bct-button span{\n\tfont-size: 12px!important;\n\tfont-weight: normal!important;\n\tpadding-right: 4px!important;\n}\n[data-theme=\"dark\"] .bct-button svg {\n\tfilter:invert(1)\n}\n\n.bct-checkbox {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  position: relative;\n  height: 20px;\n  cursor: pointer;\n}\n\n.bct-checkbox .bct-checkmark {\n  /* You had no styles for this in the original, but leave this as a placeholder */\n\n}\n\n\n.bct-checkbox span:last-child {\n\tmargin-left: 2px;\n}\n";
 
 // https://www.iconfont.cn/collections/detail?spm=a313x.user_detail.i1.dc64b3430.2d233a81lHbKxM&cid=7077
 const Icons = {
@@ -80,15 +113,19 @@ class Storage {
   if (!BGM_SUBJECT_REGEX.test(location.href)) {
     return
   }
-  // // Initiate the storage
+
+  // Storage
   Storage.init({
-    showText: false,
+    copyJapaneseTitle: false,
+    showText: true,
   });
 
   const userSettings = {
-    showText: Storage.get('hidePlainComments') || true,
+    copyJapaneseTitle: Storage.get('copyJapaneseTitle') || false,
+    showText: Storage.get('showText') || true,
   };
 
+  // Layout and Events
   const injectStyles = () => {
     const styleEl = document.createElement('style');
     styleEl.textContent = styles;
@@ -96,7 +133,6 @@ class Storage {
   };
   injectStyles();
 
-  // Create a button to copy the title using jQuery
   $('h1.nameSingle').append(
     createButton(
       {
@@ -105,17 +141,32 @@ class Storage {
         icon: Icons.copy,
         className: 'bct-button',
         onClick: () => {
-          const title = $('h1.nameSingle').find('a').attr('title');
+          const title = userSettings.copyJapaneseTitle
+            ? $('h1.nameSingle').find('a').text().trim()
+            : $('h1.nameSingle').find('a').attr('title');
           navigator.clipboard.writeText(title);
-          alert('复制番剧名成功！');
+          // eslint-disable-next-line no-alert
+          alert(`已复制${userSettings.copyJapaneseTitle ? '日文标题' : '标题'}到剪切板！`);
         },
       },
       userSettings,
     ),
   );
 
-  // // Trigger the settings saved event
-  // $(document).on('settingsSaved', () => {
-  //   location.reload()
-  // })
+  $('h1.nameSingle').append(
+    createCheckbox(
+      {
+        id: 'bct-hide-plain-comments',
+        label: '日文名',
+        className: 'bct-checkbox',
+        onChange: (e) => {
+          userSettings.copyJapaneseTitle = e.target.checked;
+          Storage.set('copyJapaneseTitle', userSettings.copyJapaneseTitle);
+        },
+        checked: userSettings.copyJapaneseTitle,
+        disabled: false,
+      },
+      userSettings,
+    ),
+  );
 })();

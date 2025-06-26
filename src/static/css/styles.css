@@ -45,3 +45,22 @@
 [data-theme="dark"] .bct-button svg {
 	filter:invert(1)
 }
+
+.bct-checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 20px;
+  cursor: pointer;
+}
+
+.bct-checkbox .bct-checkmark {
+  /* You had no styles for this in the original, but leave this as a placeholder */
+
+}
+
+
+.bct-checkbox span:last-child {
+	margin-left: 2px;
+}

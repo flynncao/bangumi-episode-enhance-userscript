@@ -1,6 +1,6 @@
 {
   "name": "bangumi-copy-title",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Copy bangumi title to clipboard",
   "author": "Flynn Cao",
   "updateURL": "https://github.com/flynncao/bangumi-plugin-boilerplate/raw/main/index.user.js",

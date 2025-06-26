@@ -1,4 +1,5 @@
-import { createButton } from './components/layouts/button/index'
+import { createButton } from './components/layouts/button'
+import { createCheckbox } from './components/layouts/checkbox'
 import { BGM_SUBJECT_REGEX } from './constants/index'
 import styles from './static/css/styles.css'
 import Icons from './static/svg/index'
@@ -8,15 +9,19 @@ import Storage from './storage/index'
   if (!BGM_SUBJECT_REGEX.test(location.href)) {
     return
   }
-  // // Initiate the storage
+
+  // Storage
   Storage.init({
-    showText: false,
+    copyJapaneseTitle: false,
+    showText: true,
   })
 
   const userSettings = {
-    showText: Storage.get('hidePlainComments') || true,
+    copyJapaneseTitle: Storage.get('copyJapaneseTitle') || false,
+    showText: Storage.get('showText') || true,
   }
 
+  // Layout and Events
   const injectStyles = () => {
     const styleEl = document.createElement('style')
     styleEl.textContent = styles
@@ -24,7 +29,6 @@ import Storage from './storage/index'
   }
   injectStyles()
 
-  // Create a button to copy the title using jQuery
   $('h1.nameSingle').append(
     createButton(
       {
@@ -33,17 +37,32 @@ import Storage from './storage/index'
         icon: Icons.copy,
         className: 'bct-button',
         onClick: () => {
-          const title = $('h1.nameSingle').find('a').attr('title')
+          const title = userSettings.copyJapaneseTitle
+            ? $('h1.nameSingle').find('a').text().trim()
+            : $('h1.nameSingle').find('a').attr('title')
           navigator.clipboard.writeText(title)
-          alert('复制番剧名成功！')
+          // eslint-disable-next-line no-alert
+          alert(`已复制${userSettings.copyJapaneseTitle ? '日文标题' : '标题'}到剪切板！`)
         },
       },
       userSettings,
     ),
   )
 
-  // // Trigger the settings saved event
-  // $(document).on('settingsSaved', () => {
-  //   location.reload()
-  // })
+  $('h1.nameSingle').append(
+    createCheckbox(
+      {
+        id: 'bct-hide-plain-comments',
+        label: '日文名',
+        className: 'bct-checkbox',
+        onChange: (e) => {
+          userSettings.copyJapaneseTitle = e.target.checked
+          Storage.set('copyJapaneseTitle', userSettings.copyJapaneseTitle)
+        },
+        checked: userSettings.copyJapaneseTitle,
+        disabled: false,
+      },
+      userSettings,
+    ),
+  )
 })()
