@@ -16,21 +16,23 @@ jobs:
         node-version: ['22.x']
 
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-
-    - run: npm ci  
-    - run: npm run build --if-present
-    - run: npm test --if-present
-
-    # Only deploy if Node version is one (to avoid duplicate deploys in matrix)
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.FINEGRAINED_GITHUB_TOKEN }}
-        publish_dir: ./dist  # Adjust this to match your build output folder
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with: 
+          version: 8
+      - name: Use Node.js Active LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'pnpm'
+      - name: Install dependencies (yarn)
+        run: pnpm i
+      - name: Build assets
+        run: pnpm build
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.FINEGRAINED_GITHUB_TOKEN }}
+          publish_dir: ./dist  # Adjust this to match your build output folder
