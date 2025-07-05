@@ -36,3 +36,5 @@ jobs:
         with:
           github_token: ${{ secrets.FINEGRAINED_GITHUB_TOKEN }}
           publish_dir: ./dist  # Adjust this to match your build output folder
+          user_name: 'github-actions[bot]'
+          user_email: '41898282+github-actions[bot]@users.noreply.github.com'
