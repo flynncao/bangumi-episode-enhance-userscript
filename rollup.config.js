@@ -6,7 +6,7 @@ export default {
   input: 'src/main.js',
   output: [
     {
-      file: 'index.user.js',
+      file: 'dist/index.user.js',
       format: 'cjs',
     },
   ],
