@@ -1,7 +1,9 @@
 import { createButton } from './components/layouts/button'
 import { createCheckbox } from './components/layouts/checkbox'
 import { BGM_SUBJECT_REGEX } from './constants/index'
+import butterupStyles from './static/css/butterup.css'
 import styles from './static/css/styles.css'
+import butterup from './static/js/butterup'
 import Icons from './static/svg/index'
 import Storage from './storage/index'
 ;(async function () {
@@ -26,8 +28,13 @@ import Storage from './storage/index'
     const styleEl = document.createElement('style')
     styleEl.textContent = styles
     document.head.append(styleEl)
+    const butterupStyleEl = document.createElement('style')
+    butterupStyleEl.textContent = butterupStyles
+    document.head.append(butterupStyleEl)
   }
   injectStyles()
+  // Render a toast notification in the top-right corner of the screen
+  console.log('butterup', butterup)
 
   $('h1.nameSingle').append(
     createButton(
@@ -41,8 +48,15 @@ import Storage from './storage/index'
             ? $('h1.nameSingle').find('a').text().trim()
             : $('h1.nameSingle').find('a').attr('title')
           navigator.clipboard.writeText(title)
-          // eslint-disable-next-line no-alert
-          alert(`已复制${userSettings.copyJapaneseTitle ? '日文标题' : '标题'}到剪切板！`)
+
+          butterup.toast({
+            title: `已复制${userSettings.copyJapaneseTitle ? '日文名' : '中文名'}到剪切板！`,
+            location: 'top-right',
+            dismissable: false,
+            type: 'success',
+            duration: 2500,
+            icon: true,
+          })
         },
       },
       userSettings,
