@@ -11,9 +11,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      pages: write
-      id-token: write
+      contents: write
     concurrency:
       group: 'pages'
     steps:
@@ -22,7 +20,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with: 
-          version: 8
+          version: 9
       - name: Use Node.js Active LTS
         uses: actions/setup-node@v4
         with:
@@ -32,13 +30,10 @@ jobs:
         run: pnpm i
       - name: Build assets
         run: pnpm build
-      - name: Upload artifacts
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
         with:
-           name: 'github-pages'
-           path: dist
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
-        with: 
-          token: ${{ secrets.GITHUB_TOKEN }}
-          artifact_name: 'github-pages'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          user_name: 'github-actions[bot]'
+          user_email: '41898282+github-actions[bot]@users.noreply.github.com'
