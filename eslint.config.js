@@ -20,6 +20,7 @@ export default sxzz(
         'unicorn/no-static-only-class': 'warn',
         'unicorn/prefer-array-some': 'off',
         'vars-on-top': 'off',
+        'import/no-default-export': 'off',
       },
     },
   ],
