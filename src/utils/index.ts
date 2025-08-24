@@ -1,23 +1,29 @@
+import type { CommentElement } from '../types/index'
+
 // quickSort is not strictly needed cause JavaScript has built-in sort method based on quicksort/selection algorithm
-export function quickSort(arr, sortKey, changeCompareDirection = false) {
+export function quickSort(
+  arr: CommentElement[],
+  sortKey: keyof CommentElement,
+  changeCompareDirection = false,
+): CommentElement[] {
   if (arr.length <= 1) {
     return arr
   }
-  const pivot = arr[0]
-  const left = []
-  const right = []
+  const pivot = arr[0]!
+  const left: CommentElement[] = []
+  const right: CommentElement[] = []
   for (let i = 1; i < arr.length; i++) {
-    const element = arr[i]
+    const element = arr[i]!
     const elementImportant = element.important || false
     const pivotImportant = pivot.important || false
-    let compareResult
+    let compareResult: boolean
 
     if (elementImportant !== pivotImportant) {
       compareResult = elementImportant // true if element is important and pivot is not
     } else if (changeCompareDirection) {
-      compareResult = element[sortKey] < pivot[sortKey]
+      compareResult = (element[sortKey] as number) < (pivot[sortKey] as number)
     } else {
-      compareResult = element[sortKey] > pivot[sortKey]
+      compareResult = (element[sortKey] as number) > (pivot[sortKey] as number)
     }
 
     if (compareResult) {
@@ -26,16 +32,22 @@ export function quickSort(arr, sortKey, changeCompareDirection = false) {
       right.push(element)
     }
   }
-  return quickSort(left, sortKey, changeCompareDirection).concat(
+  return [
+    ...quickSort(left, sortKey, changeCompareDirection),
     pivot,
-    quickSort(right, sortKey, changeCompareDirection),
-  )
+    ...quickSort(right, sortKey, changeCompareDirection),
+  ]
 }
-export function purifiedDatetimeInMillionSeconds(timestamp) {
+
+export function purifiedDatetimeInMillionSeconds(timestamp: string) {
   return new Date(timestamp.trim().replace('- ', '')).getTime()
 }
 
-export function defaultSort(arr, sortKey, changeCompareDirection = false) {
+export function defaultSort(
+  arr: CommentElement[],
+  sortKey: keyof CommentElement,
+  changeCompareDirection = false,
+) {
   console.log('sortKey', sortKey)
   console.log('arr', arr)
   return arr.sort((a, b) => {
@@ -45,8 +57,8 @@ export function defaultSort(arr, sortKey, changeCompareDirection = false) {
       return aImportant ? -1 : 1
     }
     if (changeCompareDirection) {
-      return a[sortKey] - b[sortKey]
+      return (a[sortKey] as number) - (b[sortKey] as number)
     }
-    return b[sortKey] - a[sortKey]
+    return (b[sortKey] as number) - (a[sortKey] as number)
   })
 }

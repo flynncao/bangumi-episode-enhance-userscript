@@ -1,5 +1,10 @@
 // https://www.iconfont.cn/collections/detail?spm=a313x.user_detail.i1.dc64b3430.57e63a81itWm4A&cid=12086
-const Icons = {
+interface IconsType {
+  [key: string]: string
+}
+
+const Icons: IconsType = {
+  // https://www.iconfont.cn/collections/detail?spm=a313x.user_detail.i1.dc64b3430.57e63a81itWm4A&cid=12086
   eyeOpen:
     '<svg t="1747629142037" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1338" width="256" height="256"><path d="M947.6 477.1c-131.1-163.4-276.3-245-435.6-245s-304.5 81.7-435.6 245c-16.4 20.5-16.4 49.7 0 70.1 131.1 163.4 276.3 245 435.6 245s304.5-81.7 435.6-245c16.4-20.4 16.4-49.6 0-70.1zM512 720c-130.6 0-251.1-67.8-363.5-207.8 112.4-140 232.9-207.8 363.5-207.8s251.1 67.8 363.5 207.8C763.1 652.2 642.6 720 512 720z" fill="#333333" p-id="1339"></path><path d="M512 592c44.1 0 79.8-35.7 79.8-79.8 0-44.1-35.7-79.8-79.8-79.8-44.1 0-79.8 35.7-79.8 79.8-0.1 44.1 35.7 79.8 79.8 79.8z m0 72c-83.8 0-151.8-68-151.8-151.8 0-83.8 68-151.8 151.8-151.8 83.8 0 151.8 68 151.8 151.8 0 83.8-68 151.8-151.8 151.8z m0 0" fill="#333333" p-id="1340"></path></svg>',
   newest:

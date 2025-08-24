@@ -4,6 +4,7 @@ import processComments from './modules/comments'
 import Icons from './static/svg/index'
 import Storage from './storage/index'
 import { quickSort } from './utils/index'
+import type { CommentElement, UserSettings } from './types/index'
 ;(async function () {
   if (!BGM_EP_REGEX.test(location.href) && !BGM_GROUP_REGEX.test(location.href)) {
     return
@@ -18,7 +19,7 @@ import { quickSort } from './utils/index'
   })
   window.BCE = window.BCE || {}
 
-  const userSettings = {
+  const userSettings: UserSettings = {
     hidePlainComments: Storage.get('hidePlainComments'),
     minimumFeaturedCommentLength: Storage.get('minimumFeaturedCommentLength'),
     maxFeaturedComments: Storage.get('maxFeaturedComments'),
@@ -42,7 +43,7 @@ import { quickSort } from './utils/index'
   } = processComments(userSettings)
   console.log('lastRow', lastRow)
   console.log('featuredCommentElements', featuredCommentElements)
-  let stateBar = container.find('.row_state.clearit')
+  let stateBar = container.find('.row_state.clearit') as JQuery<HTMLElement>
   if (stateBar.length === 0) {
     stateBar = $(`<div id class="row_state clearit"></div>`)
   }
@@ -70,7 +71,7 @@ import { quickSort } from './utils/index'
 
   stateBar.append(hiddenCommentsInfo)
   container.find('.row').detach()
-  const menuBarCSSProperties = {
+  const menuBarCSSProperties: JQuery.PlainObject = {
     display: 'inline-block',
     width: '20px',
     height: '20px',
@@ -83,25 +84,27 @@ import { quickSort } from './utils/index'
    */
   const settingBtn = $('<strong></strong>')
     .css(menuBarCSSProperties)
-    .html(Icons.gear)
+    .html(Icons.gear || '')
     .attr('title', '设置')
-    .click(() => window.BCE.settingsDialog.show())
+    .click(() => window.BCE!.settingsDialog!.show())
 
   const jumpToNewestBtn = $('<strong></strong>')
     .css(menuBarCSSProperties)
-    .html(Icons.newest)
+    .html(Icons.newest || '')
     .attr('title', '跳转到最新评论')
     .click(() => {
       $('#comment_list_plain').slideDown()
       hiddenCommentsInfo.text(`点击折叠${plainCommentsCount}条普通评论`)
       // get the target element with the same id as lastRow inside the FeatureElements
-      const targetId = lastRow[0].id
+      const targetId = lastRow[0]?.id
       const targetItem = isLastRowFeatured
         ? featuredCommentElements.find((item) => item.element.id === targetId)
         : plainCommentElements.at(-1)
-      $('html, body').animate({
-        scrollTop: $(targetItem.element).offset().top,
-      })
+      if (targetItem) {
+        $('html, body').animate({
+          scrollTop: $(targetItem.element).offset()!.top,
+        })
+      }
       $(lastRow).css({
         'background-color': '#ffd966',
         transition: 'background-color 0.5s ease-in-out',
@@ -118,7 +121,7 @@ import { quickSort } from './utils/index'
   if (BGM_EP_REGEX.test(location.href)) {
     const showPrematureBtn = $('<strong></strong>')
       .css(menuBarCSSProperties)
-      .html(Icons.eyeOpen)
+      .html(Icons.eyeOpen || '')
       .attr('title', '显示开播前发表的评论')
       .click(() => {
         $('.premature-comment').toggle()
@@ -128,7 +131,7 @@ import { quickSort } from './utils/index'
   menuBar.append(settingBtn)
   menuBar.append(jumpToNewestBtn)
   container.append(menuBar)
-  const trinity = {
+  const trinity: { [key: string]: () => void } = {
     reactionCount() {
       featuredCommentElements = quickSort(featuredCommentElements, 'score', false)
     },
@@ -142,14 +145,17 @@ import { quickSort } from './utils/index'
       featuredCommentElements = quickSort(featuredCommentElements, 'timestampNumber', false)
     },
   }
-  trinity[sortModeData]()
+  const sortFn = trinity[sortModeData]
+  if (sortFn) {
+    sortFn()
+  }
   /**
    * Append components
    */
-  featuredCommentElements.forEach(function (element) {
+  featuredCommentElements.forEach(function (element: CommentElement) {
     container.append($(element.element))
   })
-  plainCommentElements.forEach(function (element) {
+  plainCommentElements.forEach(function (element: CommentElement) {
     container.append($(element.element))
   })
   container.append(stateBar)
@@ -162,7 +168,7 @@ import { quickSort } from './utils/index'
   }
 
   // Add plain comments to the container
-  plainCommentElements.forEach(function (element) {
+  plainCommentElements.forEach(function (element: CommentElement) {
     plainCommentsContainer.append($(element.element))
   })
 
@@ -170,7 +176,7 @@ import { quickSort } from './utils/index'
   // Scroll to conserved row if exists
   if (preservedRow) {
     $('html, body').animate({
-      scrollTop: $(preservedRow).offset().top,
+      scrollTop: $(preservedRow).offset()!.top,
     })
   }
   $('#sortMethodSelect').val(sortModeData)

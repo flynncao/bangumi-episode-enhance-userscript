@@ -1,10 +1,24 @@
 import { CustomCheckboxContainer } from '../../../classes/checkbox'
 import Icons from '../../../static/svg/index'
 import Storage from '../../../storage/index'
+import type { UserSettings } from '../../../types/index'
 import { createNonameHeader } from './header'
+// @ts-ignore
 import styles from './styles.css'
 
-export function createSettingMenu(userSettings, episodeMode = false) {
+interface SettingsElements {
+  container: HTMLDivElement
+  dropdown: HTMLSelectElement
+  pinMyCommentsCheckboxContainer: CustomCheckboxContainer
+  hidePlainCommentsCheckboxContainer: CustomCheckboxContainer
+  hidePrematureCommentsCheckboxContainer: CustomCheckboxContainer
+  minEffInput: HTMLInputElement
+  maxPostsInput: HTMLInputElement
+  cancelBtn: HTMLButtonElement
+  saveBtn: HTMLButtonElement
+}
+
+export function createSettingMenu(userSettings: UserSettings, episodeMode = false) {
   const injectStyles = () => {
     const styleEl = document.createElement('style')
     styleEl.textContent = styles
@@ -14,8 +28,6 @@ export function createSettingMenu(userSettings, episodeMode = false) {
   const createSettingsDialog = () => {
     const container = document.createElement('div')
     container.className = 'fixed-container'
-    // const nonameHeader = document.createElement('div')
-    // nonameHeader.className = 'padding-row'
     const nonameHeader = createNonameHeader()
 
     const dropdownContainer = document.createElement('div')
@@ -44,12 +56,15 @@ export function createSettingMenu(userSettings, episodeMode = false) {
     const spacerRight = document.createElement('div')
     spacerRight.style.width = '24px'
 
-    dropdownContainer.append($('<strong></strong>').html(Icons.sorting)[0])
+    const sortingIcon = $('<strong></strong>').html(Icons.sorting || '')[0]
+    if (sortingIcon) {
+      dropdownContainer.append(sortingIcon)
+    }
     dropdownContainer.append(dropdown)
     dropdownContainer.append(spacerRight)
 
     // Create checkbox
-    const checkboxContainers = []
+    const checkboxContainers: HTMLElement[] = []
 
     const hidePlainCommentsCheckboxContainer = new CustomCheckboxContainer(
       'hidePlainComments',
@@ -89,9 +104,12 @@ export function createSettingMenu(userSettings, episodeMode = false) {
     const minEffInput = document.createElement('input')
     minEffInput.type = 'number'
     minEffInput.id = 'minEffectiveNumber'
-    minEffInput.value = userSettings.minimumFeaturedCommentLength || 0
+    minEffInput.value = (userSettings.minimumFeaturedCommentLength || 0).toString()
 
-    minEffGroup.append($('<strong></strong>').html(Icons.font)[0])
+    const fontIcon = $('<strong></strong>').html(Icons.font || '')[0]
+    if (fontIcon) {
+      minEffGroup.append(fontIcon)
+    }
     minEffGroup.append(minEffLabel)
     minEffGroup.append(minEffInput)
 
@@ -106,9 +124,12 @@ export function createSettingMenu(userSettings, episodeMode = false) {
     const maxPostsInput = document.createElement('input')
     maxPostsInput.type = 'number'
     maxPostsInput.id = 'maxSelectedPosts'
-    maxPostsInput.value = userSettings.maxFeaturedComments || 1
+    maxPostsInput.value = (userSettings.maxFeaturedComments || 1).toString()
 
-    maxPostsGroup.append($('<strong></strong>').html(Icons.answerSheet)[0])
+    const answerSheetIcon = $('<strong></strong>').html(Icons.answerSheet || '')[0]
+    if (answerSheetIcon) {
+      maxPostsGroup.append(answerSheetIcon)
+    }
     maxPostsGroup.append(maxPostsLabel)
     maxPostsGroup.append(maxPostsInput)
 
@@ -155,8 +176,9 @@ export function createSettingMenu(userSettings, episodeMode = false) {
       saveBtn,
     }
   }
+
   // Initialize settings from localStorage
-  const initSettings = (elements) => {
+  const initSettings = (elements: SettingsElements) => {
     const {
       dropdown,
       pinMyCommentsCheckboxContainer,
@@ -167,35 +189,35 @@ export function createSettingMenu(userSettings, episodeMode = false) {
     } = elements
 
     if (localStorage.getItem('sortBy')) {
-      dropdown.value = localStorage.getItem('sortBy')
+      dropdown.value = localStorage.getItem('sortBy')!
     }
 
     if (localStorage.getItem('showMine') !== null) {
-      pinMyCommentsCheckboxContainer.getInput().checked =
+      pinMyCommentsCheckboxContainer.getInput()!.checked =
         localStorage.getItem('showMine') === 'true'
     }
 
     if (localStorage.getItem('hidePremature') !== null) {
-      hidePrematureCommentsCheckboxContainer.getInput().checked =
+      hidePrematureCommentsCheckboxContainer.getInput()!.checked =
         localStorage.getItem('hidePremature') === 'true'
     }
 
     if (localStorage.getItem('hidePlainComments') !== null) {
-      hidePlainCommentsCheckboxContainer.getInput().checked =
+      hidePlainCommentsCheckboxContainer.getInput()!.checked =
         localStorage.getItem('hidePlainComments') === 'true'
     }
 
     if (localStorage.getItem('minEffectiveNumber')) {
-      minEffInput.value = localStorage.getItem('minEffectiveNumber')
+      minEffInput.value = localStorage.getItem('minEffectiveNumber')!
     }
 
     if (localStorage.getItem('maxSelectedPosts')) {
-      maxPostsInput.value = localStorage.getItem('maxSelectedPosts')
+      maxPostsInput.value = localStorage.getItem('maxSelectedPosts')!
     }
   }
 
   // Save settings
-  const saveSettings = (elements) => {
+  const saveSettings = (elements: SettingsElements) => {
     const {
       container,
       dropdown,
@@ -215,13 +237,13 @@ export function createSettingMenu(userSettings, episodeMode = false) {
       Number.parseInt(maxPostsInput.value) > 0 ? Number.parseInt(maxPostsInput.value) : 1,
     )
 
-    Storage.set('hidePlainComments', hidePlainCommentsCheckboxContainer.getInput().checked)
-    Storage.set('stickyMentioned', pinMyCommentsCheckboxContainer.getInput().checked)
+    Storage.set('hidePlainComments', hidePlainCommentsCheckboxContainer.getInput()!.checked)
+    Storage.set('stickyMentioned', pinMyCommentsCheckboxContainer.getInput()!.checked)
     Storage.set('sortMode', dropdown.value)
-    Storage.set('stickyMentioned', pinMyCommentsCheckboxContainer.getInput().checked)
+    Storage.set('stickyMentioned', pinMyCommentsCheckboxContainer.getInput()!.checked)
 
     if (episodeMode) {
-      Storage.set('hidePremature', hidePrematureCommentsCheckboxContainer.getInput().checked)
+      Storage.set('hidePremature', hidePrematureCommentsCheckboxContainer.getInput()!.checked)
     }
 
     // Trigger custom event
@@ -229,7 +251,9 @@ export function createSettingMenu(userSettings, episodeMode = false) {
     document.dispatchEvent(event)
 
     // jQuery compatibility
+    // @ts-ignore
     if (window.jQuery) {
+      // @ts-ignore
       jQuery(document).trigger('settingsSaved')
     }
 
@@ -237,12 +261,12 @@ export function createSettingMenu(userSettings, episodeMode = false) {
   }
 
   // Show dialog
-  const showDialog = (container) => {
+  const showDialog = (container: HTMLDivElement) => {
     container.style.display = 'block'
   }
 
   // Hide dialog
-  const hideDialog = (container) => {
+  const hideDialog = (container: HTMLDivElement) => {
     container.style.display = 'none'
   }
 
@@ -251,7 +275,7 @@ export function createSettingMenu(userSettings, episodeMode = false) {
     // Inject the styles
     injectStyles()
     // Create the dialog
-    const elements = createSettingsDialog()
+    const elements: SettingsElements = createSettingsDialog()
     // Initialize settings
     initSettings(elements)
 
@@ -259,16 +283,8 @@ export function createSettingMenu(userSettings, episodeMode = false) {
     elements.saveBtn.addEventListener('click', () => saveSettings(elements))
     elements.cancelBtn.addEventListener('click', () => hideDialog(elements.container))
 
-    // // Add window resize handler to center the dialog when window is resized
-    // window.addEventListener('resize', () => {
-    //   if (elements.container.style.display === 'block') {
-    //     elements.container.style.left = '50%'
-    //     elements.container.style.top = '50%'
-    //     elements.container.style.transform = 'translate(-50%, -50%)'
-    //   }
-    // })
-
     // Expose API
+    window.BCE = window.BCE || {}
     window.BCE.settingsDialog = {
       show: () => showDialog(elements.container),
       hide: () => hideDialog(elements.container),

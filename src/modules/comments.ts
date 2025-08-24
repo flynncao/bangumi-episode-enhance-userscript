@@ -1,22 +1,24 @@
 import { BGM_EP_REGEX } from '../constants/index'
 import { purifiedDatetimeInMillionSeconds } from '../utils/index'
-export default function processComments(userSettings) {
+import type { CommentElement, UserSettings } from '../types/index'
+
+export default function processComments(userSettings: UserSettings) {
   // check if the target element is valid
   const username = $('.idBadgerNeue .avatar').attr('href')
-    ? $('.idBadgerNeue .avatar').attr('href').split('/user/')[1]
+    ? $('.idBadgerNeue .avatar').attr('href')!.split('/user/')[1]
     : ''
   const preservedPostID =
-    $(location).attr('href').split('#').length > 1 ? $(location).attr('href').split('#')[1] : null
+    $(location).attr('href')!.split('#').length > 1 ? $(location).attr('href')!.split('#')[1] : null
   const allCommentRows = $('.row.row_reply.clearit')
   let plainCommentsCount = 0
-  const featuredCommentsCount = 0
+  let featuredCommentsCount = 0
   let prematureCommentsCount = 0
   const minimumContentLength = userSettings.minimumFeaturedCommentLength
   const container = $('#comment_list')
-  const plainCommentElements = []
-  const featuredCommentElements = []
+  const plainCommentElements: CommentElement[] = []
+  const featuredCommentElements: CommentElement[] = []
   const lastRow = allCommentRows.last()
-  let preservedRow = null
+  let preservedRow: HTMLElement | null = null
   let isLastRowFeatured = false
 
   // Get first broadcast time for episode pages
@@ -24,14 +26,14 @@ export default function processComments(userSettings) {
   if (BGM_EP_REGEX.test(location.href) && userSettings.hidePremature) {
     try {
       const broadcastTimeMatch = document
-        .querySelectorAll('.tip')[0]
+        .querySelectorAll('.tip')[0]!
         .innerHTML.match(/\d{4}-\d{1,2}-\d{1,2}/)
       if (broadcastTimeMatch && broadcastTimeMatch[0]) {
         const dateParts = broadcastTimeMatch[0].split('-')
         firstBroadcastDate = new Date(
-          Number.parseInt(dateParts[0]),
-          Number.parseInt(dateParts[1]) - 1, // Month is 0-indexed in JS
-          Number.parseInt(dateParts[2]),
+          Number.parseInt(dateParts[0] ?? ''),
+          Number.parseInt(dateParts[1] ?? '') - 1, // Month is 0-indexed in JS
+          Number.parseInt(dateParts[2] ?? ''),
         )
         firstBroadcastDate.setHours(0, 0, 0, 0) // Set to beginning of the day
       }
@@ -57,9 +59,9 @@ export default function processComments(userSettings) {
         if (postTimeMatch && postTimeMatch[0]) {
           const postDateParts = postTimeMatch[0].split('-')
           const postDate = new Date(
-            Number.parseInt(postDateParts[0]),
-            Number.parseInt(postDateParts[1]) - 1,
-            Number.parseInt(postDateParts[2]),
+            Number.parseInt(postDateParts[0] ?? ''),
+            Number.parseInt(postDateParts[1] ?? '') - 1,
+            Number.parseInt(postDateParts[2] ?? ''),
           )
           postDate.setHours(0, 0, 0, 0)
 
@@ -80,7 +82,7 @@ export default function processComments(userSettings) {
     const replyCount = subReplyContent.find('.sub_reply_bg').length
     const mentionedInMainComment =
       userSettings.stickyMentioned &&
-      that.find('.avatar').attr('href').split('/user/')[1] === username
+      that.find('.avatar').attr('href')?.split('/user/')[1] === username
     let mentionedInSubReply = false
     if (mentionedInMainComment) {
       that.css('border-color', highlightMentionedColor)
@@ -119,12 +121,17 @@ export default function processComments(userSettings) {
     // check if this comment meets the requirement of minimumContentLength
     const isShortReply = content.trim().length < minimumContentLength
     let isFeatured = userSettings.sortMode === 'reactionCount' ? commentScore >= 1 : replyCount >= 1
-    if (isShortReply || featuredCommentsCount >= userSettings.maxFeaturedComments) {
+    if (isShortReply || featuredCommentElements.length >= userSettings.maxFeaturedComments) {
       isFeatured = false
     }
     // conserved reply must be fixed
     if (hasPreservedReply || important) {
       isFeatured = true
+    }
+
+    // Increment featuredCommentsCount if this comment is featured
+    if (isFeatured) {
+      featuredCommentsCount++
     }
 
     const timestamp = isFeatured
@@ -145,7 +152,7 @@ export default function processComments(userSettings) {
 
     if (isFeatured) {
       // check if current row is the last row by comparing the id
-      if (row.id === lastRow[0].id) {
+      if (row.id === lastRow[0]?.id) {
         isLastRowFeatured = true
       }
       featuredCommentElements.push({
@@ -160,7 +167,6 @@ export default function processComments(userSettings) {
       plainCommentElements.push({
         element: row,
         score: commentScore,
-        timestamp,
         timestampNumber: purifiedDatetimeInMillionSeconds(timestamp),
       })
     }

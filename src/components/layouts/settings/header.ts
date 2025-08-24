@@ -3,26 +3,29 @@
 export const createNonameHeader = () => {
   const nonameHeader = document.createElement('div')
   nonameHeader.className = 'padding-row'
-  nonameHeader.addEventListener('mousedown', (event) => {
+  nonameHeader.addEventListener('mousedown', (event: MouseEvent) => {
     event.preventDefault()
 
-    const container = event.target.parentElement
+    const container = event.target as HTMLElement
+    const parentContainer = container.parentElement
+
+    if (!parentContainer) return
 
     // Store initial positions
     const startX = event.clientX
     const startY = event.clientY
-    const startLeft = Number.parseInt(window.getComputedStyle(container).left) || 0
-    const startTop = Number.parseInt(window.getComputedStyle(container).top) || 0
+    const startLeft = Number.parseInt(window.getComputedStyle(parentContainer).left) || 0
+    const startTop = Number.parseInt(window.getComputedStyle(parentContainer).top) || 0
 
     // When we start dragging, remove the centering transform
-    if (container.style.transform.includes('translate')) {
-      const rect = container.getBoundingClientRect()
-      container.style.transform = 'none'
-      container.style.left = `${rect.left}px`
-      container.style.top = `${rect.top}px`
+    if (parentContainer.style.transform.includes('translate')) {
+      const rect = parentContainer.getBoundingClientRect()
+      parentContainer.style.transform = 'none'
+      parentContainer.style.left = `${rect.left}px`
+      parentContainer.style.top = `${rect.top}px`
     }
 
-    const handleMouseMove = (event) => {
+    const handleMouseMove = (event: MouseEvent) => {
       // Calculate how far the mouse has moved
       const deltaX = event.clientX - startX
       const deltaY = event.clientY - startY
@@ -32,8 +35,8 @@ export const createNonameHeader = () => {
       const newTop = startTop + deltaY
 
       // Get container dimensions
-      const containerWidth = container.offsetWidth
-      const containerHeight = container.offsetHeight
+      const containerWidth = parentContainer.offsetWidth
+      const containerHeight = parentContainer.offsetHeight
 
       // Check if new position would be outside viewport
       if (
@@ -47,14 +50,17 @@ export const createNonameHeader = () => {
       }
 
       // If we get here, the position is safe, so update it
-      container.style.left = `${newLeft}px`
-      container.style.top = `${newTop}px`
+      parentContainer.style.left = `${newLeft}px`
+      parentContainer.style.top = `${newTop}px`
+    }
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
     }
 
     document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-    })
+    document.addEventListener('mouseup', handleMouseUp)
   })
   return nonameHeader
 }

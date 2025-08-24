@@ -1,10 +1,64 @@
 // Forked from https://github.com/dgtlss/butterup
+
+interface ButterupOptions {
+  maxToasts: number
+  toastLife: number
+  currentToasts: number
+}
+
+interface ToastOptions {
+  title?: string
+  message?: string
+  type?: 'success' | 'error' | 'warning' | 'info'
+  location?:
+    | 'top-right'
+    | 'top-center'
+    | 'top-left'
+    | 'bottom-right'
+    | 'bottom-center'
+    | 'bottom-left'
+  icon?: boolean
+  theme?: string
+  customIcon?: string
+  dismissable?: boolean
+  onClick?: (event: Event) => void
+  onRender?: (toast: HTMLElement) => void
+  onTimeout?: (toast: HTMLElement) => void
+  customHTML?: string
+  primaryButton?: {
+    text: string
+    onClick: (event: Event) => void
+  }
+  secondaryButton?: {
+    text: string
+    onClick: (event: Event) => void
+  }
+  maxToasts?: number
+  duration?: number
+}
+
+interface PromiseToastOptions {
+  promise: Promise<any>
+  loadingMessage?: string
+  successMessage?: string
+  errorMessage?: string
+  location?:
+    | 'top-right'
+    | 'top-center'
+    | 'top-left'
+    | 'bottom-right'
+    | 'bottom-center'
+    | 'bottom-left'
+  theme?: string
+}
+
 const butterup = {
   options: {
-    maxToasts: 5, // Max number of toasts that can be on the screen at once
-    toastLife: 5000, // How long a toast will stay on the screen before fading away
-    currentToasts: 0, // Current number of toasts on the screen
-  },
+    maxToasts: 5,
+    toastLife: 5000,
+    currentToasts: 0,
+  } satisfies ButterupOptions,
+
   toast({
     title,
     message,
@@ -22,9 +76,9 @@ const butterup = {
     secondaryButton,
     maxToasts,
     duration,
-  }) {
+  }: ToastOptions) {
     /* Check if the toaster exists. If it doesn't, create it. If it does, check if there are too many toasts on the screen.
-			If there are too many, delete the oldest one and create a new one. If there aren't too many, create a new one. */
+        If there are too many, delete the oldest one and create a new one. If there aren't too many, create a new one. */
     if (document.querySelector('#toaster') === null) {
       // toaster doesn't exist, create it
       const toaster = document.createElement('div')
@@ -46,7 +100,7 @@ const butterup = {
         toaster.append(rack)
       }
     } else {
-      const toaster = document.querySelector('#toaster')
+      const toaster = document.querySelector('#toaster') as HTMLElement
       // check what location the toaster is in
       toaster.classList.forEach(function (item) {
         // remove any location classes from the toaster
@@ -66,7 +120,7 @@ const butterup = {
       } else {
         toaster.className = `toaster ${location}`
       }
-      const rack = document.querySelector('#butterupRack')
+      document.querySelector('#butterupRack')
     }
     // Load Custom Options
     if (maxToasts != null) {
@@ -78,7 +132,7 @@ const butterup = {
     // Check if there are too many toasts on the screen
     if (butterup.options.currentToasts >= butterup.options.maxToasts) {
       // there are too many toasts on the screen, delete the oldest one
-      var oldestToast = document.querySelector('#butterupRack').firstChild
+      const oldestToast = document.querySelector('#butterupRack')!.firstChild as HTMLElement
       oldestToast.remove()
       butterup.options.currentToasts--
     }
@@ -91,16 +145,16 @@ const butterup = {
     toast.className += ' toast-enter'
     // if the toast class contains a top or bottom location, add the appropriate class to the toast
     if (
-      toaster.className.includes('top-right') ||
-      toaster.className.includes('top-center') ||
-      toaster.className.includes('top-left')
+      document.querySelector('#toaster')!.className.includes('top-right') ||
+      document.querySelector('#toaster')!.className.includes('top-center') ||
+      document.querySelector('#toaster')!.className.includes('top-left')
     ) {
       toast.className += ' toastDown'
     }
     if (
-      toaster.className.includes('bottom-right') ||
-      toaster.className.includes('bottom-center') ||
-      toaster.className.includes('bottom-left')
+      document.querySelector('#toaster')!.className.includes('bottom-right') ||
+      document.querySelector('#toaster')!.className.includes('bottom-center') ||
+      document.querySelector('#toaster')!.className.includes('bottom-left')
     ) {
       toast.className += ' toastUp'
     }
@@ -114,7 +168,7 @@ const butterup = {
     }
 
     // Add the toast to the rack
-    document.querySelector('#butterupRack').append(toast)
+    document.querySelector('#butterupRack')!.append(toast)
 
     // check if the user wants an icon
     if (icon != null && icon === true) {
@@ -254,8 +308,9 @@ const butterup = {
       butterup.despawnToast(toast.id)
     }, butterup.options.toastLife)
   },
-  despawnToast(toastId, onClosed) {
-    var toast = document.querySelector(`#${toastId}`)
+
+  despawnToast(toastId: string, onClosed?: (toast: HTMLElement) => void) {
+    const toast = document.querySelector(`#${toastId}`) as HTMLElement
     if (toast != null) {
       toast.classList.add('toast-exit')
       setTimeout(function () {
@@ -270,20 +325,34 @@ const butterup = {
         }
         // if this was the last toast on the screen, remove the toaster
         if (butterup.options.currentToasts === 0) {
-          var toaster = document.querySelector('#toaster')
+          const toaster = document.querySelector('#toaster') as HTMLElement
           toaster.remove()
         }
       }, 300) // Adjust timing to match your CSS animation duration
     }
   },
-  promise({ promise, loadingMessage, successMessage, errorMessage, location, theme }) {
+
+  promise({
+    promise,
+    loadingMessage,
+    successMessage,
+    errorMessage,
+    location,
+    theme,
+  }: PromiseToastOptions) {
     const toastId = `butterupToast-${butterup.options.currentToasts + 1}`
 
     // Create initial loading toast
     this.toast({
       message: loadingMessage || 'Loading...',
-      location,
-      theme,
+      location: location as
+        | 'top-right'
+        | 'top-center'
+        | 'top-left'
+        | 'bottom-right'
+        | 'bottom-center'
+        | 'bottom-left',
+      theme: theme || 'light',
       icon: true,
       customIcon:
         '<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>',
@@ -310,30 +379,37 @@ const butterup = {
       },
     )
   },
-  updatePromiseToast(toastId, { type, message, icon }) {
-    const toast = document.querySelector(`#${toastId}`)
+
+  updatePromiseToast(
+    toastId: string,
+    { type, message, icon }: { type: string; message: string; icon: boolean },
+  ) {
+    const toast = document.querySelector(`#${toastId}`) as HTMLElement
     if (toast) {
       toast.className = toast.className.replaceAll(/success|error|warning|info/g, '')
       toast.classList.add(type)
 
-      const messageEl = toast.querySelector('.message')
+      const messageEl = toast.querySelector('.message') as HTMLElement
       if (messageEl) {
         messageEl.textContent = message
       }
 
-      const iconEl = toast.querySelector('.icon')
+      const iconEl = toast.querySelector('.icon') as HTMLElement
       if (iconEl && icon) {
         iconEl.innerHTML = this.getIconForType(type)
       }
 
       // Reset the toast lifetime
+      // @ts-ignore
       clearTimeout(toast.timeoutId)
+      // @ts-ignore
       toast.timeoutId = setTimeout(() => {
         this.despawnToast(toastId)
       }, this.options.toastLife)
     }
   },
-  getIconForType(type) {
+
+  getIconForType(type: string) {
     switch (type) {
       case 'success':
         return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>'
