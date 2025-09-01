@@ -1,6 +1,9 @@
 import { createSettingMenu } from './components/layouts/settings/index'
 import { BGM_EP_REGEX, BGM_GROUP_REGEX } from './constants/index'
 import processComments from './modules/comments'
+import butterupStyles from './static/css/butterup.css'
+import styles from './static/css/styles.css'
+import butterup from './static/js/butterup'
 import Icons from './static/svg/index'
 import Storage from './storage/index'
 import { quickSort } from './utils/index'
@@ -28,6 +31,15 @@ import type { CommentElement, UserSettings } from './types/index'
     hidePremature: Storage.get('hidePremature'),
   }
   const sortModeData = userSettings.sortMode || 'reactionCount'
+  ;(() => {
+    const butterupStyleEl = document.createElement('style')
+    butterupStyleEl.textContent = String(butterupStyles)
+    document.head.append(butterupStyleEl)
+    const styleEl = document.createElement('style')
+    styleEl.textContent = String(styles)
+    document.head.append(styleEl)
+  })()
+
   /**
    * Process comments and prepare the container
    */
@@ -124,7 +136,17 @@ import type { CommentElement, UserSettings } from './types/index'
       .html(Icons.eyeOpen || '')
       .attr('title', '显示开播前发表的评论')
       .click(() => {
-        $('.premature-comment').toggle()
+        const hideStatus: boolean = $('.premature-comment').is(':visible')
+        butterup.toast({
+          title: `开播前发表的评论已${hideStatus ? '隐藏' : '显示'}`,
+          location: 'top-right',
+          dismissable: false,
+          type: 'success',
+          duration: 2000,
+          icon: true,
+        })
+        // $('.premature-comment').css('border', '1px dashed #E62727')
+        $('.premature-comment').slideToggle()
       })
     menuBar.append(showPrematureBtn)
   }
@@ -187,6 +209,16 @@ import type { CommentElement, UserSettings } from './types/index'
   createSettingMenu(userSettings, BGM_EP_REGEX.test(location.href))
   // control center
   $(document).on('settingsSaved', () => {
-    location.reload()
+    butterup.toast({
+      title: '设置已保存',
+      location: 'top-right',
+      dismissable: false,
+      type: 'success',
+      duration: 1500,
+      icon: true,
+      onTimeout: () => {
+        location.reload()
+      },
+    })
   })
 })()

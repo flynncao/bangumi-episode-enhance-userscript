@@ -123,10 +123,10 @@ const butterup = {
       document.querySelector('#butterupRack')
     }
     // Load Custom Options
-    if (maxToasts != null) {
+    if (maxToasts) {
       butterup.options.maxToasts = maxToasts
     }
-    if (duration != null) {
+    if (duration) {
       butterup.options.toastLife = duration
     }
     // Check if there are too many toasts on the screen
@@ -159,11 +159,11 @@ const butterup = {
       toast.className += ' toastUp'
     }
     toast.id = `butterupToast-${butterup.options.currentToasts}`
-    if (type != null) {
+    if (type) {
       toast.className += ` ${type}`
     }
 
-    if (theme != null) {
+    if (theme) {
       toast.className += ` ${theme}`
     }
 
@@ -171,7 +171,8 @@ const butterup = {
     document.querySelector('#butterupRack')!.append(toast)
 
     // check if the user wants an icon
-    if (icon != null && icon === true) {
+    if (icon === true) {
+      // print all useful infos
       // add a div inside the toast with a class of icon
       const toastIcon = document.createElement('div')
       toastIcon.className = 'icon'
@@ -180,7 +181,7 @@ const butterup = {
       if (customIcon) {
         toastIcon.innerHTML = customIcon
       }
-      if (type != null && customIcon === null) {
+      if (type && !customIcon) {
         // add the type class to the toast
         toast.className += ` ${type}`
         if (type === 'success') {
@@ -198,7 +199,7 @@ const butterup = {
         if (type === 'warning') {
           toastIcon.innerHTML =
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">' +
-            '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />' +
+            '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" />' +
             '</svg>'
         }
         if (type === 'info') {
@@ -208,6 +209,8 @@ const butterup = {
             '</svg>'
         }
       }
+
+      console.log('toastIcon', toastIcon)
     }
 
     // add a div inside the toast with a class of notif
@@ -221,14 +224,14 @@ const butterup = {
     toastNotif.append(toastDesc)
 
     // check if the user added a title
-    if (title != null) {
+    if (title) {
       const toastTitle = document.createElement('div')
       toastTitle.className = 'title'
       toastTitle.innerHTML = title
       toastDesc.append(toastTitle)
     }
 
-    if (customHTML != null) {
+    if (customHTML) {
       const toastHTML = document.createElement('div')
       toastHTML.className = 'message'
       toastHTML.innerHTML = customHTML
@@ -236,7 +239,7 @@ const butterup = {
     }
 
     // check if the user added a message
-    if (message != null) {
+    if (message) {
       const toastMessage = document.createElement('div')
       toastMessage.className = 'message'
       toastMessage.innerHTML = message
@@ -286,7 +289,7 @@ const butterup = {
       onRender(toast)
     }
 
-    if (dismissable != null && dismissable === true) {
+    if (dismissable && dismissable === true) {
       // Add a class to the toast to make it dismissable
       toast.className += ' dismissable'
       // when the item is clicked on, remove it from the DOM
@@ -311,7 +314,7 @@ const butterup = {
 
   despawnToast(toastId: string, onClosed?: (toast: HTMLElement) => void) {
     const toast = document.querySelector(`#${toastId}`) as HTMLElement
-    if (toast != null) {
+    if (toast) {
       toast.classList.add('toast-exit')
       setTimeout(function () {
         try {

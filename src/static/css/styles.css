@@ -64,3 +64,8 @@
 .bct-checkbox span:last-child {
 	margin-left: 2px;
 }
+
+
+.premature-comment{
+  border: 1px dashed #E62727;
+}

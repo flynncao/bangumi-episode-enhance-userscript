@@ -23,7 +23,7 @@ export default function processComments(userSettings: UserSettings) {
 
   // Get first broadcast time for episode pages
   let firstBroadcastDate = null
-  if (BGM_EP_REGEX.test(location.href) && userSettings.hidePremature) {
+  if (BGM_EP_REGEX.test(location.href)) {
     try {
       const broadcastTimeMatch = document
         .querySelectorAll('.tip')[0]!
@@ -50,7 +50,7 @@ export default function processComments(userSettings: UserSettings) {
 
     // Check if comment is before broadcast date
     let isBeforeBroadcast = false
-    if (firstBroadcastDate && BGM_EP_REGEX.test(location.href) && userSettings.hidePremature) {
+    if (firstBroadcastDate && BGM_EP_REGEX.test(location.href)) {
       try {
         const postTimeMatch = that
           .find('.re_info')
@@ -146,8 +146,21 @@ export default function processComments(userSettings: UserSettings) {
           .text()
       : $(row).find('small').text().trim()
 
-    if (isBeforeBroadcast && userSettings.hidePremature) {
-      $(row).addClass('premature-comment').hide()
+    if (isBeforeBroadcast) {
+      console.log('Checking premature comment:', {
+        row,
+        hidePrematureSetting: userSettings.hidePremature,
+        rowDisplay: $(row).css('display'),
+      })
+      $(row).addClass('premature-comment')
+
+      if (userSettings.hidePremature) {
+        $(row).hide()
+        console.log(
+          'Attempted to hide premature comment. New display state:',
+          $(row).css('display'),
+        )
+      }
     }
 
     if (isFeatured) {
