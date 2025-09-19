@@ -36,3 +36,14 @@ jobs:
           publish_dir: ./dist
           user_name: 'github-actions[bot]'
           user_email: '41898282+github-actions[bot]@users.noreply.github.com'
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          if: github.ref_type == 'tag'
+          tag: ${{ github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: Release ${{ github.ref_name }}
+          body: 
+            ${{ github.event.head_commit.message }}
+          artifact: dist/index.user.js
+
