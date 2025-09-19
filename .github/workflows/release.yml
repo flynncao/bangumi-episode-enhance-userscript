@@ -11,11 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    concurrency:
-      group: pages
     steps:  
       - name: Release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ github.ref_name }}
