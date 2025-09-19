@@ -20,4 +20,4 @@ jobs:
         name: Release ${{ github.ref_name }}
         body: 
           ${{ github.event.head_commit.message }}
-        artifact: dist/index.user.js
+        artifacts: dist/index.user.js
