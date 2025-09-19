@@ -40,7 +40,7 @@ jobs:
           user_email: '41898282+github-actions[bot]@users.noreply.github.com'
       - name: Release
         # only trigger if the ref_name is a tag
-        if: startsWith(github.ref, 'refs/tags/')
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ github.ref_name }}
