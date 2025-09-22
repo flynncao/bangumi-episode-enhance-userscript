@@ -57,5 +57,41 @@ declare global {
   }
 }
 
+interface GeneralConfigRadioParams {
+  title: string
+  name: string
+  type: 'radio'
+  defaultValue: string
+  getCurrentValue: () => void
+  onChange: (value: string) => void
+  options: { value: string; label: string }[]
+}
+
+type GeneralConfigParams = GeneralConfigRadioParams
+
+interface PanelTabOptionsParams {
+  type: 'options'
+  tab: string
+  label: string
+  config: GeneralConfigParams[]
+}
+
+interface PanelTabCustomParams {
+  type: 'custom'
+  tab: string
+  label: string
+  customContent: () => string
+}
+
+type PanelTabParams = PanelTabOptionsParams | PanelTabCustomParams
+
 // Export interfaces for use in other files
-export type { BCE, CommentElement, StorageManager, UserSettings }
+export type {
+  BCE,
+  CommentElement,
+  PanelTabCustomParams,
+  PanelTabOptionsParams,
+  PanelTabParams,
+  StorageManager,
+  UserSettings,
+}

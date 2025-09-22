@@ -21,6 +21,7 @@
     "@rollup/plugin-typescript": "^11.1.6",
     "@sxzz/eslint-config": "^6.0.2",
     "@types/jquery": "^3.5.32",
+    "@types/jquery.cookie": "^1.4.36",
     "@types/node": "^24.2.1",
     "concurrently": "^9.1.2",
     "eslint": "^9.22.0",

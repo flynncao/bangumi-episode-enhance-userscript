@@ -5,10 +5,15 @@ import metadata from 'rollup-plugin-userscript-metadata'
 
 export default {
   input: 'src/main.ts',
+  external: ['$', 'chiiLib'],
   output: [
     {
       file: 'dist/index.user.js',
       format: 'cjs',
+      globals: {
+        $: '$',
+        chiiLib: 'chiiLib',
+      },
     },
   ],
   plugins: [

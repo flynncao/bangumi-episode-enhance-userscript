@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@types/jquery.cookie':
+        specifier: ^1.4.36
+        version: 1.4.36
     devDependencies:
       '@rollup/plugin-strip':
         specifier: ^3.0.4
@@ -329,6 +333,9 @@ packages:
 
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
+
+  '@types/jquery.cookie@1.4.36':
+    resolution: {integrity: sha512-qtTnH4jHqFWyYX4deNBklWoaK5myKm0WtKf7LbGQB7DUKt6tdAVWfYQ4Kl8Hw/7eNth864Jjts5rBsHjNveR4Q==}
 
   '@types/jquery@3.5.32':
     resolution: {integrity: sha512-b9Xbf4CkMqS02YH8zACqN1xzdxc3cO735Qe5AbSUFmyOiaWAbcpqh9Wna+Uk0vgACvoQHpWDg2rGdHkYPLmCiQ==}
@@ -1960,6 +1967,10 @@ snapshots:
       '@types/json-schema': 7.0.15
 
   '@types/estree@1.0.6': {}
+
+  '@types/jquery.cookie@1.4.36':
+    dependencies:
+      '@types/jquery': 3.5.32
 
   '@types/jquery@3.5.32':
     dependencies:
