@@ -1,7 +1,7 @@
 
 // ==UserScript==
 // @name        bangumi-comment-enhance
-// @version     0.2.10.a
+// @version     0.2.9.2
 // @description Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @author      Flynn Cao
 // @updateURL   https://flynncao.github.io/bangumi-episode-enhance-userscript/index.user.js
@@ -443,7 +443,7 @@ function processComments(userSettings) {
             subReplyContent.hide();
         const timestampArea = that.find('.action').first();
         if (replyCount !== 0) {
-            const a = $(`<a class="expand_all" href="javascript:void(0)" style="margin:0 3px 0 5px;"><span class="ico ico_reply">展开(+${replyCount})</span></a>`);
+            const a = $(`<a class="expand_all" href="javascript:void(0)" ><span>展开(+${replyCount})</span></a>`);
             mentionedInSubReply && a.css('color', highlightMentionedColor);
             a.on('click', function () {
                 subReplyContent.slideToggle();
