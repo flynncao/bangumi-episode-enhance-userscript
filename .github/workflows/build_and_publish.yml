@@ -39,13 +39,13 @@ jobs:
           user_name: 'github-actions[bot]'
           user_email: '41898282+github-actions[bot]@users.noreply.github.com'
       - name: Release
-        # only trigger if the ref_name is a tag
-        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
+          if: github.ref_type == 'tag'
           tag: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
           name: Release ${{ github.ref_name }}
           body: 
             ${{ github.event.head_commit.message }}
-          artifacts: dist/index.user.js
+          artifact: dist/index.user.js
+
