@@ -109,7 +109,7 @@ export default function processComments(userSettings: UserSettings) {
     const timestampArea = that.find('.action').first()
     if (replyCount !== 0) {
       const a = $(
-        `<a class="expand_all" href="javascript:void(0)" style="margin:0 3px 0 5px;"><span class="ico ico_reply">展开(+${replyCount})</span></a>`,
+        `<a class="expand_all" href="javascript:void(0)" ><span>展开(+${replyCount})</span></a>`,
       )
       mentionedInSubReply && a.css('color', highlightMentionedColor)
       a.on('click', function () {
