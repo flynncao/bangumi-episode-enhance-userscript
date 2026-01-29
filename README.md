@@ -21,7 +21,7 @@ https://bgm.tv/group/topic/399446
 
 ## 视频预览
 
-https://youtu.be/_ImSpa0Ef-8?si=oj9GQi7PACpE3PV5
+https://www.youtube.com/watch?v=_ImSpa0Ef-8
 
 ## 寄语
 
