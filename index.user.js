@@ -86,7 +86,7 @@ class Storage {
     }
 }
 
-const createNonameHeader = () => {
+function createNonameHeader() {
     const nonameHeader = document.createElement('div');
     nonameHeader.className = 'padding-row';
     nonameHeader.addEventListener('mousedown', (event) => {
@@ -112,10 +112,10 @@ const createNonameHeader = () => {
             const newTop = startTop + deltaY;
             const containerWidth = parentContainer.offsetWidth;
             const containerHeight = parentContainer.offsetHeight;
-            if (newLeft < containerWidth / 2 ||
-                newTop < containerHeight / 2 ||
-                newLeft + containerWidth / 2 > window.innerWidth ||
-                newTop + containerHeight / 2 > window.innerHeight) {
+            if (newLeft < containerWidth / 2
+                || newTop < containerHeight / 2
+                || newLeft + containerWidth / 2 > window.innerWidth
+                || newTop + containerHeight / 2 > window.innerHeight) {
                 return;
             }
             parentContainer.style.left = `${newLeft}px`;
@@ -129,7 +129,7 @@ const createNonameHeader = () => {
         document.addEventListener('mouseup', handleMouseUp);
     });
     return nonameHeader;
-};
+}
 
 var styles$1 = ".fixed-container {\n  position: fixed;\n  z-index: 100;\n  width: calc(100vw - 50px);\n  max-width: 380px;\n  background-color: rgba(255, 255, 255, 0.8);\n  backdrop-filter: blur(8px);\n  left: 50%;\n  top: 50%;\n  transform: translate(-50%, -50%);\n  border-radius: 12px;\n  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);\n  padding: 30px;\n  padding-top: 0px;\n  text-align: center;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif;\n  box-sizing: border-box;\n  display: none;\n}\n\n[data-theme=\"dark\"] .fixed-container {\n  background-color: rgba(30, 30, 30, 0.8);\n  color: #fff;\n}\n\n.padding-row{\n\twidth:100%;\n\theight:40px;\n}\n\n.dropdown-group {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 16px;\n}\n\n.dropdown-select {\n  padding: 8px;\n  padding-right: 16px;\n  border-radius: 6px;\n  border: 1px solid #e2e2e2;\n  background-color: #f5f5f5;\n  font-size: 14px;\n  width: 100%;\n}\n\n[data-theme=\"dark\"] .dropdown-select {\n  background-color: #333;\n  border-color: #555;\n  color: #fff;\n}\n\n.checkbox-container {\n  display: flex;\n  align-items: center;\n  margin-bottom: 16px;\n  text-align: left;\n  font-size: 14px;\n}\n\n.checkbox-container input[type=\"checkbox\"] {\n  margin-right: 12px;\n  transform: translateY(1.5px);\n}\n\n.input-group {\n  display: flex;\n  align-items: center;\n  margin-bottom: 16px;\n  justify-content: flex-start;\n}\n\n.input-group label {\n  text-align: left;\n  font-size: 14px;\n  margin-right: 8px;\n}\n\n.input-group input {\n  max-width: 40px;\n  padding: 6px;\n  border-radius: 6px;\n  border: 1px solid #e2e2e2;\n  text-align: center;\n}\n\n[data-theme=\"dark\"] .input-group input {\n  background-color: #333;\n  border-color: #555;\n  color: #fff;\n}\n\n.button-group {\n  display: flex;\n  justify-content: space-between;\n  gap: 12px;\n}\n\n.button-group button {\n  flex: 1;\n  padding: 10px;\n  border-radius: 6px;\n  border: none;\n  font-size: 16px;\n  cursor: pointer;\n}\n\n.cancel-btn {\n  background-color: white;\n  border: 1px solid #e2e2e2;\n}\n\n[data-theme=\"dark\"] .cancel-btn {\n  background-color: #333;\n  border-color: #555;\n  color: #fff;\n}\n\n.save-btn {\n  background-color: #333;\n  color: white;\n}\n\n[data-theme=\"dark\"] .save-btn {\n  background-color: #555;\n}\n\nbutton:hover {\n  filter: brightness(1.5);\n  transition: all 0.3s;\n}\n\nstrong svg {\n  max-width: 21px;\n  max-height: 21px;\n  transform: translateY(2px);\n  margin-right: 10px;\n}\n\n[data-theme=\"dark\"] strong svg {\n  filter: invert(1);\n}\n\ninput[type=\"checkbox\"] {\n  width: 20px;\n  height: 20px;\n  margin: 0;\n  cursor: pointer;\n}\n";
 
@@ -247,16 +247,16 @@ function createSettingMenu(userSettings, episodeMode = false) {
             dropdown.value = localStorage.getItem('sortBy');
         }
         if (localStorage.getItem('showMine') !== null) {
-            pinMyCommentsCheckboxContainer.getInput().checked =
-                localStorage.getItem('showMine') === 'true';
+            pinMyCommentsCheckboxContainer.getInput().checked
+                = localStorage.getItem('showMine') === 'true';
         }
         if (localStorage.getItem('hidePremature') !== null) {
-            hidePrematureCommentsCheckboxContainer.getInput().checked =
-                localStorage.getItem('hidePremature') === 'true';
+            hidePrematureCommentsCheckboxContainer.getInput().checked
+                = localStorage.getItem('hidePremature') === 'true';
         }
         if (localStorage.getItem('hidePlainComments') !== null) {
-            hidePlainCommentsCheckboxContainer.getInput().checked =
-                localStorage.getItem('hidePlainComments') === 'true';
+            hidePlainCommentsCheckboxContainer.getInput().checked
+                = localStorage.getItem('hidePlainComments') === 'true';
         }
         if (localStorage.getItem('minEffectiveNumber')) {
             minEffInput.value = localStorage.getItem('minEffectiveNumber');
@@ -373,7 +373,8 @@ function processComments(userSettings) {
         try {
             const broadcastTimeMatch = document
                 .querySelectorAll('.tip')[0]
-                .innerHTML.match(/\d{4}-\d{1,2}-\d{1,2}/);
+                .innerHTML
+                .match(/\d{4}-\d{1,2}-\d{1,2}/);
             if (broadcastTimeMatch && broadcastTimeMatch[0]) {
                 const dateParts = broadcastTimeMatch[0].split('-');
                 firstBroadcastDate = new Date(Number.parseInt(dateParts[0] ?? ''), Number.parseInt(dateParts[1] ?? '') - 1, Number.parseInt(dateParts[2] ?? ''));
@@ -414,8 +415,8 @@ function processComments(userSettings) {
         const highlightMentionedColor = '#ff8c00';
         const subReplyContent = that.find('.topic_sub_reply');
         const replyCount = subReplyContent.find('.sub_reply_bg').length;
-        const mentionedInMainComment = userSettings.stickyMentioned &&
-            that.find('.avatar').attr('href')?.split('/user/')[1] === username;
+        const mentionedInMainComment = userSettings.stickyMentioned
+            && that.find('.avatar').attr('href')?.split('/user/')[1] === username;
         let mentionedInSubReply = false;
         if (mentionedInMainComment) {
             that.css('border-color', highlightMentionedColor);
@@ -423,7 +424,7 @@ function processComments(userSettings) {
             that.css('border-style', 'dashed');
             commentScore += 10000;
         }
-        that.find(`.topic_sub_reply .sub_reply_bg.clearit`).each(function (index, element) {
+        that.find(`.topic_sub_reply .sub_reply_bg.clearit`).each((index, element) => {
             if (userSettings.stickyMentioned && $(element).attr('data-item-user') === username) {
                 $(element).css('border-color', highlightMentionedColor);
                 $(element).css('border-width', '1px');
@@ -433,7 +434,7 @@ function processComments(userSettings) {
             }
         });
         const important = mentionedInMainComment || mentionedInSubReply;
-        that.find('span.num').each(function (index, element) {
+        that.find('span.num').each((index, element) => {
             commentScore += Number.parseInt($(element).text());
         });
         const hasPreservedReply = preservedPostID && that.find(`#${preservedPostID}`).length > 0;
@@ -445,7 +446,7 @@ function processComments(userSettings) {
         if (replyCount !== 0) {
             const a = $(`<a class="expand_all" href="javascript:void(0)" ><span>展开(+${replyCount})</span></a>`);
             mentionedInSubReply && a.css('color', highlightMentionedColor);
-            a.on('click', function () {
+            a.on('click', () => {
                 subReplyContent.slideToggle();
             });
             const el = $(`<div class="action"></div>`).append(a);
@@ -549,13 +550,13 @@ const butterup = {
         }
         else {
             const toaster = document.querySelector('#toaster');
-            toaster.classList.forEach(function (item) {
-                if (item.includes('top-right') ||
-                    item.includes('top-center') ||
-                    item.includes('top-left') ||
-                    item.includes('bottom-right') ||
-                    item.includes('bottom-center') ||
-                    item.includes('bottom-left')) {
+            toaster.classList.forEach((item) => {
+                if (item.includes('top-right')
+                    || item.includes('top-center')
+                    || item.includes('top-left')
+                    || item.includes('bottom-right')
+                    || item.includes('bottom-center')
+                    || item.includes('bottom-left')) {
                     toaster.classList.remove(item);
                 }
             });
@@ -582,14 +583,14 @@ const butterup = {
         butterup.options.currentToasts++;
         toast.className = 'butteruptoast';
         toast.className += ' toast-enter';
-        if (document.querySelector('#toaster').className.includes('top-right') ||
-            document.querySelector('#toaster').className.includes('top-center') ||
-            document.querySelector('#toaster').className.includes('top-left')) {
+        if (document.querySelector('#toaster').className.includes('top-right')
+            || document.querySelector('#toaster').className.includes('top-center')
+            || document.querySelector('#toaster').className.includes('top-left')) {
             toast.className += ' toastDown';
         }
-        if (document.querySelector('#toaster').className.includes('bottom-right') ||
-            document.querySelector('#toaster').className.includes('bottom-center') ||
-            document.querySelector('#toaster').className.includes('bottom-left')) {
+        if (document.querySelector('#toaster').className.includes('bottom-right')
+            || document.querySelector('#toaster').className.includes('bottom-center')
+            || document.querySelector('#toaster').className.includes('bottom-left')) {
             toast.className += ' toastUp';
         }
         toast.id = `butterupToast-${butterup.options.currentToasts}`;
@@ -610,28 +611,28 @@ const butterup = {
             if (type && !customIcon) {
                 toast.className += ` ${type}`;
                 if (type === 'success') {
-                    toastIcon.innerHTML =
-                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">' +
-                            '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />' +
-                            '</svg>';
+                    toastIcon.innerHTML
+                        = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">'
+                            + '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />'
+                            + '</svg>';
                 }
                 if (type === 'error') {
-                    toastIcon.innerHTML =
-                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">' +
-                            '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />' +
-                            '</svg>';
+                    toastIcon.innerHTML
+                        = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">'
+                            + '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />'
+                            + '</svg>';
                 }
                 if (type === 'warning') {
-                    toastIcon.innerHTML =
-                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">' +
-                            '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" />' +
-                            '</svg>';
+                    toastIcon.innerHTML
+                        = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">'
+                            + '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" />'
+                            + '</svg>';
                 }
                 if (type === 'info') {
-                    toastIcon.innerHTML =
-                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">' +
-                            '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" />' +
-                            '</svg>';
+                    toastIcon.innerHTML
+                        = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">'
+                            + '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" />'
+                            + '</svg>';
                 }
             }
             console.log('toastIcon', toastIcon);
@@ -668,7 +669,7 @@ const butterup = {
                 const primaryBtn = document.createElement('button');
                 primaryBtn.className = 'toast-button primary';
                 primaryBtn.textContent = primaryButton.text;
-                primaryBtn.addEventListener('click', function (event) {
+                primaryBtn.addEventListener('click', (event) => {
                     event.stopPropagation();
                     primaryButton.onClick(event);
                 });
@@ -678,7 +679,7 @@ const butterup = {
                 const secondaryBtn = document.createElement('button');
                 secondaryBtn.className = 'toast-button secondary';
                 secondaryBtn.textContent = secondaryButton.text;
-                secondaryBtn.addEventListener('click', function (event) {
+                secondaryBtn.addEventListener('click', (event) => {
                     event.stopPropagation();
                     secondaryButton.onClick(event);
                 });
@@ -686,7 +687,7 @@ const butterup = {
             }
         }
         if (onClick && typeof onClick === 'function') {
-            toast.addEventListener('click', function (event) {
+            toast.addEventListener('click', (event) => {
                 event.stopPropagation();
                 onClick(event);
             });
@@ -696,14 +697,14 @@ const butterup = {
         }
         if (dismissable && dismissable === true) {
             toast.className += ' dismissable';
-            toast.addEventListener('click', function () {
+            toast.addEventListener('click', () => {
                 butterup.despawnToast(toast.id);
             });
         }
-        setTimeout(function () {
+        setTimeout(() => {
             toast.classList.remove('toast-enter');
         }, 300);
-        setTimeout(function () {
+        setTimeout(() => {
             if (onTimeout && typeof onTimeout === 'function') {
                 onTimeout(toast);
             }
@@ -714,7 +715,7 @@ const butterup = {
         const toast = document.querySelector(`#${toastId}`);
         if (toast) {
             toast.classList.add('toast-exit');
-            setTimeout(function () {
+            setTimeout(() => {
                 try {
                     toast.remove();
                     butterup.options.currentToasts--;
@@ -841,7 +842,7 @@ const butterup = {
             hiddenCommentsInfo.text(`点击展开剩余${plainCommentsCount}条普通评论`);
         }
     };
-    const hiddenCommentsInfo = $(`<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">${toggleButtonText}</div>`).click(function () {
+    const hiddenCommentsInfo = $(`<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">${toggleButtonText}</div>`).click(() => {
         const commentList = $('#comment_list_plain');
         commentList.slideToggle();
         toggleHiddenCommentsInfoText();
@@ -870,7 +871,7 @@ const butterup = {
         hiddenCommentsInfo.text(`点击折叠${plainCommentsCount}条普通评论`);
         const targetId = lastRow[0]?.id;
         const targetItem = isLastRowFeatured
-            ? featuredCommentElements.find((item) => item.element.id === targetId)
+            ? featuredCommentElements.find(item => item.element.id === targetId)
             : plainCommentElements.at(-1);
         if (targetItem) {
             $('html, body').animate({
@@ -879,7 +880,7 @@ const butterup = {
         }
         $(lastRow).css({
             'background-color': '#ffd966',
-            transition: 'background-color 0.5s ease-in-out',
+            'transition': 'background-color 0.5s ease-in-out',
         });
         setTimeout(() => {
             $(lastRow).css('background-color', '');
@@ -926,10 +927,10 @@ const butterup = {
     if (sortFn) {
         sortFn();
     }
-    featuredCommentElements.forEach(function (element) {
+    featuredCommentElements.forEach((element) => {
         container.append($(element.element));
     });
-    plainCommentElements.forEach(function (element) {
+    plainCommentElements.forEach((element) => {
         container.append($(element.element));
     });
     container.append(stateBar);
@@ -937,7 +938,7 @@ const butterup = {
     if (userSettings.hidePlainComments) {
         plainCommentsContainer.hide();
     }
-    plainCommentElements.forEach(function (element) {
+    plainCommentElements.forEach((element) => {
         plainCommentsContainer.append($(element.element));
     });
     container.append(plainCommentsContainer);
