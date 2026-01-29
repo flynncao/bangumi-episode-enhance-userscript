@@ -1,29 +1,30 @@
 {
   "name": "bangumi-episode-enhance",
+  "type": "module",
   "version": "1.0.0",
   "description": "Enhance Bangumi episode page with more information and features",
-  "type": "module",
+  "author": "Flynn Cao",
+  "license": "ISC",
   "keywords": [
     "bangumi",
     "anime"
   ],
-  "license": "ISC",
-  "author": "Flynn Cao",
   "main": "index.user.js",
   "scripts": {
     "dev": "rollup -c -w --environment BUILD:development",
     "build": "rollup -c --environment BUILD:production",
     "format": "prettier --write .",
-    "lint": "eslint --fix ."
+    "lint": "eslint --fix .",
+    "bump-version": "node scripts/bump-version.js"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^7.2.0",
     "@rollup/plugin-strip": "^3.0.4",
     "@rollup/plugin-typescript": "^11.1.6",
-    "@sxzz/eslint-config": "^6.0.2",
     "@types/jquery": "^3.5.32",
     "@types/node": "^24.2.1",
     "concurrently": "^9.1.2",
-    "eslint": "^9.22.0",
+    "eslint": "^9.38.0",
     "lint-staged": "^15.2.7",
     "prettier": "^3.3.3",
     "rollup": "^4.34.8",
@@ -34,9 +35,12 @@
     "typescript": "^5.9.2"
   },
   "simple-git-hooks": {
-    "pre-commit": "npm run lint-staged"
+    "pre-commit": "npm run bump-version && npm run lint-staged"
   },
   "lint-staged": {
-    "*.{js,ts}": "npm run lint"
+    "*.{js,ts}": [
+      "npm run lint"
+    ],
+    "*.{json,css,md}": "npm run format"
   }
 }
