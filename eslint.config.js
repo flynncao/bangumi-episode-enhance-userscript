@@ -1,27 +1,17 @@
-import { sxzz } from '@sxzz/eslint-config'
+// eslint.config.js
+import antfu from '@antfu/eslint-config'
 
-export default sxzz(
+export default antfu(
+  {},
   {
-    prettier: true,
-    markdown: true,
-    vue: false, // auto detection
-    unocss: false, // auto detection
-  },
-  [
-    {
-      rules: {
-        'require-await': 'off',
-        'no-undef': 'off',
-        'no-console': 'off',
-        'node/prefer-global/process': 'off',
-        'regexp/no-unused-capturing-group': 'warn',
-        'unused-imports/no-unused-imports': 'warn',
-        'unused-imports/no-unused-vars': 'warn',
-        'unicorn/no-static-only-class': 'warn',
-        'unicorn/prefer-array-some': 'off',
-        'vars-on-top': 'off',
-        'import/no-default-export': 'off',
-      },
+    rules: {
+      'global': 'off',
+      'no-console': 'off',
+      'node/prefer-global/process': 'off',
+      'no-unused-vars': 'off',
+      'unused-imports/no-unused-vars': 'off',
+      'ts/ban-ts-comment': 'off',
+      'ts/no-use-before-define': 'warn',
     },
-  ],
+  },
 )
