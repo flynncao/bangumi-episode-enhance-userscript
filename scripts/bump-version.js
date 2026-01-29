@@ -34,7 +34,7 @@ function main() {
       `\u001B[32m✓\u001B[0m Bumped version: \u001B[33m${oldVersion}\u001B[0m → \u001B[36m${newVersion}\u001B[0m`,
     )
 
-    // Stage the changed file
+    // Stage the changed file BEFORE lint-staged runs
     execSync(`git add "${METADATA_PATH}"`, { stdio: 'inherit' })
     console.log(`\u001B[32m✓\u001B[0m Staged ${METADATA_PATH}`)
   }
