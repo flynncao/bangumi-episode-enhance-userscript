@@ -34,9 +34,21 @@ function main() {
       `\u001B[32m✓\u001B[0m Bumped version: \u001B[33m${oldVersion}\u001B[0m → \u001B[36m${newVersion}\u001B[0m`,
     )
 
-    // Stage the changed file BEFORE lint-staged runs
+    // Stage the changed file
     execSync(`git add "${METADATA_PATH}"`, { stdio: 'inherit' })
     console.log(`\u001B[32m✓\u001B[0m Staged ${METADATA_PATH}`)
+
+    // Commit with version bump message
+    const commitMessage = `chore(release): bump version to ${newVersion}`
+    execSync(`git commit -m "${commitMessage}"`, { stdio: 'inherit' })
+    console.log(`\u001B[32m✓\u001B[0m Committed: ${commitMessage}`)
+
+    // Create and push tag
+    execSync(`git tag v${newVersion}`, { stdio: 'inherit' })
+    console.log(`\u001B[32m✓\u001B[0m Created tag: v${newVersion}`)
+
+    execSync('git push --tags', { stdio: 'inherit' })
+    console.log(`\u001B[32m✓\u001B[0m Pushed tags to remote`)
   }
   catch (error) {
     console.error('\u001B[31m✗\u001B[0m Failed to bump version:', error.message)

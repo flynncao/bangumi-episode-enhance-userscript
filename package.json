@@ -16,7 +16,8 @@
     "format": "prettier --write",
     "lint": "eslint --fix",
     "bump-version": "node scripts/bump-version.js",
-    "cm": "npm run bump-version && git add . && git commit"
+    "cm": "npm run bump-version",
+    "lint-staged": "lint-staged"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^7.2.0",
