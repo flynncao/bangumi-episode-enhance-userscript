@@ -34,21 +34,22 @@ function main() {
       `\u001B[32m✓\u001B[0m Bumped version: \u001B[33m${oldVersion}\u001B[0m → \u001B[36m${newVersion}\u001B[0m`,
     )
 
-    // Stage the changed file
-    execSync(`git add "${METADATA_PATH}"`, { stdio: 'inherit' })
-    console.log(`\u001B[32m✓\u001B[0m Staged ${METADATA_PATH}`)
+    // Stage all changes (including user's staged files and metadata.json)
+    execSync('git add .', { stdio: 'inherit' })
+    console.log(`\u001B[32m✓\u001B[0m Staged all changes`)
 
     // Commit with version bump message
     const commitMessage = `chore(release): bump version to ${newVersion}`
     execSync(`git commit -m "${commitMessage}"`, { stdio: 'inherit' })
     console.log(`\u001B[32m✓\u001B[0m Committed: ${commitMessage}`)
 
-    // Create and push tag
+    // Create tag
     execSync(`git tag v${newVersion}`, { stdio: 'inherit' })
     console.log(`\u001B[32m✓\u001B[0m Created tag: v${newVersion}`)
 
-    execSync('git push --tags', { stdio: 'inherit' })
-    console.log(`\u001B[32m✓\u001B[0m Pushed tags to remote`)
+    // Push commit and tags together
+    execSync('git push && git push --tags', { stdio: 'inherit' })
+    console.log(`\u001B[32m✓\u001B[0m Pushed commit and tags to remote`)
   }
   catch (error) {
     console.error('\u001B[31m✗\u001B[0m Failed to bump version:', error.message)
