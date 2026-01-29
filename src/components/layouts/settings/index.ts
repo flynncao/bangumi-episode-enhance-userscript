@@ -1,7 +1,7 @@
+import type { UserSettings } from '../../../types/index'
 import { CustomCheckboxContainer } from '../../../classes/checkbox'
 import Icons from '../../../static/svg/index'
 import Storage from '../../../storage/index'
-import type { UserSettings } from '../../../types/index'
 import { createNonameHeader } from './header'
 // @ts-ignore
 import styles from './styles.css'
@@ -193,18 +193,18 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
     }
 
     if (localStorage.getItem('showMine') !== null) {
-      pinMyCommentsCheckboxContainer.getInput()!.checked =
-        localStorage.getItem('showMine') === 'true'
+      pinMyCommentsCheckboxContainer.getInput()!.checked
+        = localStorage.getItem('showMine') === 'true'
     }
 
     if (localStorage.getItem('hidePremature') !== null) {
-      hidePrematureCommentsCheckboxContainer.getInput()!.checked =
-        localStorage.getItem('hidePremature') === 'true'
+      hidePrematureCommentsCheckboxContainer.getInput()!.checked
+        = localStorage.getItem('hidePremature') === 'true'
     }
 
     if (localStorage.getItem('hidePlainComments') !== null) {
-      hidePlainCommentsCheckboxContainer.getInput()!.checked =
-        localStorage.getItem('hidePlainComments') === 'true'
+      hidePlainCommentsCheckboxContainer.getInput()!.checked
+        = localStorage.getItem('hidePlainComments') === 'true'
     }
 
     if (localStorage.getItem('minEffectiveNumber')) {
@@ -296,7 +296,8 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
   // Auto-initialize when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init)
-  } else {
+  }
+  else {
     init()
   }
 }

@@ -1,6 +1,6 @@
 // create a noname header, emit a even to control the movement of whole setting dialog when dragging this header
 
-export const createNonameHeader = () => {
+export function createNonameHeader() {
   const nonameHeader = document.createElement('div')
   nonameHeader.className = 'padding-row'
   nonameHeader.addEventListener('mousedown', (event: MouseEvent) => {
@@ -9,7 +9,8 @@ export const createNonameHeader = () => {
     const container = event.target as HTMLElement
     const parentContainer = container.parentElement
 
-    if (!parentContainer) return
+    if (!parentContainer)
+      return
 
     // Store initial positions
     const startX = event.clientX
@@ -40,10 +41,10 @@ export const createNonameHeader = () => {
 
       // Check if new position would be outside viewport
       if (
-        newLeft < containerWidth / 2 ||
-        newTop < containerHeight / 2 ||
-        newLeft + containerWidth / 2 > window.innerWidth ||
-        newTop + containerHeight / 2 > window.innerHeight
+        newLeft < containerWidth / 2
+        || newTop < containerHeight / 2
+        || newLeft + containerWidth / 2 > window.innerWidth
+        || newTop + containerHeight / 2 > window.innerHeight
       ) {
         // Cancel the movement by not updating position
         return

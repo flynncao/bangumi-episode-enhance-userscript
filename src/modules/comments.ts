@@ -1,14 +1,14 @@
+import type { CommentElement, UserSettings } from '../types/index'
 import { BGM_EP_REGEX } from '../constants/index'
 import { purifiedDatetimeInMillionSeconds } from '../utils/index'
-import type { CommentElement, UserSettings } from '../types/index'
 
 export default function processComments(userSettings: UserSettings) {
   // check if the target element is valid
   const username = $('.idBadgerNeue .avatar').attr('href')
     ? $('.idBadgerNeue .avatar').attr('href')!.split('/user/')[1]
     : ''
-  const preservedPostID =
-    $(location).attr('href')!.split('#').length > 1 ? $(location).attr('href')!.split('#')[1] : null
+  const preservedPostID
+    = $(location).attr('href')!.split('#').length > 1 ? $(location).attr('href')!.split('#')[1] : null
   const allCommentRows = $('.row.row_reply.clearit')
   let plainCommentsCount = 0
   let featuredCommentsCount = 0
@@ -27,7 +27,8 @@ export default function processComments(userSettings: UserSettings) {
     try {
       const broadcastTimeMatch = document
         .querySelectorAll('.tip')[0]!
-        .innerHTML.match(/\d{4}-\d{1,2}-\d{1,2}/)
+        .innerHTML
+        .match(/\d{4}-\d{1,2}-\d{1,2}/)
       if (broadcastTimeMatch && broadcastTimeMatch[0]) {
         const dateParts = broadcastTimeMatch[0].split('-')
         firstBroadcastDate = new Date(
@@ -37,7 +38,8 @@ export default function processComments(userSettings: UserSettings) {
         )
         firstBroadcastDate.setHours(0, 0, 0, 0) // Set to beginning of the day
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Error parsing broadcast date:', error)
     }
   }
@@ -70,7 +72,8 @@ export default function processComments(userSettings: UserSettings) {
             prematureCommentsCount++
           }
         }
-      } catch (error) {
+      }
+      catch (error) {
         console.error('Error parsing post date:', error)
       }
     }
@@ -80,9 +83,9 @@ export default function processComments(userSettings: UserSettings) {
     const highlightMentionedColor = '#ff8c00'
     const subReplyContent = that.find('.topic_sub_reply')
     const replyCount = subReplyContent.find('.sub_reply_bg').length
-    const mentionedInMainComment =
-      userSettings.stickyMentioned &&
-      that.find('.avatar').attr('href')?.split('/user/')[1] === username
+    const mentionedInMainComment
+      = userSettings.stickyMentioned
+        && that.find('.avatar').attr('href')?.split('/user/')[1] === username
     let mentionedInSubReply = false
     if (mentionedInMainComment) {
       that.css('border-color', highlightMentionedColor)
@@ -90,7 +93,7 @@ export default function processComments(userSettings: UserSettings) {
       that.css('border-style', 'dashed')
       commentScore += 10000
     }
-    that.find(`.topic_sub_reply .sub_reply_bg.clearit`).each(function (index, element) {
+    that.find(`.topic_sub_reply .sub_reply_bg.clearit`).each((index, element) => {
       if (userSettings.stickyMentioned && $(element).attr('data-item-user') === username) {
         $(element).css('border-color', highlightMentionedColor)
         $(element).css('border-width', '1px')
@@ -100,19 +103,21 @@ export default function processComments(userSettings: UserSettings) {
       }
     })
     const important = mentionedInMainComment || mentionedInSubReply
-    that.find('span.num').each(function (index, element) {
+    that.find('span.num').each((index, element) => {
       commentScore += Number.parseInt($(element).text())
     })
     const hasPreservedReply = preservedPostID && that.find(`#${preservedPostID}`).length > 0
-    if (hasPreservedReply) preservedRow = row
-    if (!hasPreservedReply) subReplyContent.hide()
+    if (hasPreservedReply)
+      preservedRow = row
+    if (!hasPreservedReply)
+      subReplyContent.hide()
     const timestampArea = that.find('.action').first()
     if (replyCount !== 0) {
       const a = $(
         `<a class="expand_all" href="javascript:void(0)" ><span>展开(+${replyCount})</span></a>`,
       )
       mentionedInSubReply && a.css('color', highlightMentionedColor)
-      a.on('click', function () {
+      a.on('click', () => {
         subReplyContent.slideToggle()
       })
       const el = $(`<div class="action"></div>`).append(a)
@@ -175,7 +180,8 @@ export default function processComments(userSettings: UserSettings) {
         timestampNumber: purifiedDatetimeInMillionSeconds(timestamp),
         important,
       })
-    } else {
+    }
+    else {
       plainCommentsCount++
       plainCommentElements.push({
         element: row,

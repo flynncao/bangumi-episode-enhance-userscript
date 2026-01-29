@@ -1,6 +1,5 @@
 const NAMESPACE = 'BangumiCommentEnhance'
 
-// eslint-disable-next-line unicorn/no-static-only-class
 export default class Storage {
   static set(key: string, value: any): void {
     localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value))

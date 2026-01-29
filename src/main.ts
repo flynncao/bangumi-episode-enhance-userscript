@@ -1,3 +1,5 @@
+import type { CommentElement, UserSettings } from './types/index'
+
 import { createSettingMenu } from './components/layouts/settings/index'
 import { BGM_EP_REGEX, BGM_GROUP_REGEX } from './constants/index'
 import processComments from './modules/comments'
@@ -6,9 +8,9 @@ import styles from './static/css/styles.css'
 import butterup from './static/js/butterup'
 import Icons from './static/svg/index'
 import Storage from './storage/index'
-import { quickSort } from './utils/index'
-import type { CommentElement, UserSettings } from './types/index'
-;(async function () {
+import { quickSort } from './utils/index';
+
+(async function () {
   if (!BGM_EP_REGEX.test(location.href) && !BGM_GROUP_REGEX.test(location.href)) {
     return
   }
@@ -68,14 +70,15 @@ import type { CommentElement, UserSettings } from './types/index'
     const curText = $(hiddenCommentsInfo).text()
     if (curText.includes('展开')) {
       hiddenCommentsInfo.text(`点击折叠${plainCommentsCount}条普通评论`)
-    } else {
+    }
+    else {
       hiddenCommentsInfo.text(`点击展开剩余${plainCommentsCount}条普通评论`)
     }
   }
 
   const hiddenCommentsInfo = $(
     `<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">${toggleButtonText}</div>`,
-  ).click(function () {
+  ).click(() => {
     const commentList = $('#comment_list_plain')
     commentList.slideToggle()
     toggleHiddenCommentsInfoText()
@@ -110,7 +113,7 @@ import type { CommentElement, UserSettings } from './types/index'
       // get the target element with the same id as lastRow inside the FeatureElements
       const targetId = lastRow[0]?.id
       const targetItem = isLastRowFeatured
-        ? featuredCommentElements.find((item) => item.element.id === targetId)
+        ? featuredCommentElements.find(item => item.element.id === targetId)
         : plainCommentElements.at(-1)
       if (targetItem) {
         $('html, body').animate({
@@ -119,7 +122,7 @@ import type { CommentElement, UserSettings } from './types/index'
       }
       $(lastRow).css({
         'background-color': '#ffd966',
-        transition: 'background-color 0.5s ease-in-out',
+        'transition': 'background-color 0.5s ease-in-out',
       })
       setTimeout(() => {
         $(lastRow).css('background-color', '')
@@ -174,10 +177,10 @@ import type { CommentElement, UserSettings } from './types/index'
   /**
    * Append components
    */
-  featuredCommentElements.forEach(function (element: CommentElement) {
+  featuredCommentElements.forEach((element: CommentElement) => {
     container.append($(element.element))
   })
-  plainCommentElements.forEach(function (element: CommentElement) {
+  plainCommentElements.forEach((element: CommentElement) => {
     container.append($(element.element))
   })
   container.append(stateBar)
@@ -190,7 +193,7 @@ import type { CommentElement, UserSettings } from './types/index'
   }
 
   // Add plain comments to the container
-  plainCommentElements.forEach(function (element: CommentElement) {
+  plainCommentElements.forEach((element: CommentElement) => {
     plainCommentsContainer.append($(element.element))
   })
 
