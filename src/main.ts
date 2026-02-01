@@ -7,6 +7,7 @@ import butterupStyles from './static/css/butterup.css'
 import styles from './static/css/styles.css'
 import butterup from './static/js/butterup'
 import Icons from './static/svg/index'
+import { initCloudSettings, syncFromCloud } from './storage/cloudSettings'
 import Storage from './storage/index'
 import { quickSort } from './utils/index';
 
@@ -32,6 +33,10 @@ import { quickSort } from './utils/index';
     stickyMentioned: Storage.get('stickyMentioned'),
     hidePremature: Storage.get('hidePremature'),
   }
+
+  // Sync from CloudStorage if available (before UI creation)
+  syncFromCloud(userSettings)
+
   const sortModeData = userSettings.sortMode || 'reactionCount'
   ;(() => {
     const butterupStyleEl = document.createElement('style')
@@ -97,11 +102,12 @@ import { quickSort } from './utils/index';
   /**
    * Button event handlers
    */
+
   const settingBtn = $('<strong></strong>')
     .css(menuBarCSSProperties)
     .html(Icons.gear || '')
     .attr('title', '设置')
-    .click(() => window.BCE!.settingsDialog!.show())
+  // Note: Click handler will be set up after determining which settings system to use
 
   const jumpToNewestBtn = $('<strong></strong>')
     .css(menuBarCSSProperties)
@@ -209,7 +215,13 @@ import { quickSort } from './utils/index';
   if (featuredCommentsCount < 10 && userSettings.hidePlainComments === true) {
     $('#toggleFilteredBtn').click()
   }
+  // Initialize CloudStorage settings if available, otherwise use standalone menu
+  const cloudSettingsInitialized = initCloudSettings(userSettings, BGM_EP_REGEX.test(location.href))
+
   createSettingMenu(userSettings, BGM_EP_REGEX.test(location.href))
+  // Set up settings button click handler for standalone mode
+  settingBtn.on('click', () => window.BCE!.settingsDialog!.show())
+
   // control center
   $(document).on('settingsSaved', () => {
     butterup.toast({

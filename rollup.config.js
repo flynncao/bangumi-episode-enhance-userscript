@@ -9,6 +9,10 @@ export default {
     {
       file: 'dist/index.user.js',
       format: 'cjs',
+      globals: {
+        chiiApp: 'chiiApp',
+        chiiLib: 'chiiLib',
+      },
     },
   ],
   plugins: [
@@ -16,6 +20,9 @@ export default {
       metadata: 'src/metadata.json',
     }),
     css(),
+    // typescript({
+    //   tsconfig: './tsconfig.json',
+    // }),
     typescript(),
     strip({
       functions: process.env.BUILD === 'production' ? ['console.log'] : [],

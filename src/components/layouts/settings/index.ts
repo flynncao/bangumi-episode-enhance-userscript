@@ -177,7 +177,7 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
     }
   }
 
-  // Initialize settings from localStorage
+  // Initialize settings from Storage (refreshes UI when dialog opens)
   const initSettings = (elements: SettingsElements) => {
     const {
       dropdown,
@@ -188,31 +188,35 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
       maxPostsInput,
     } = elements
 
-    if (localStorage.getItem('sortBy')) {
-      dropdown.value = localStorage.getItem('sortBy')!
+    // Read from Storage class to get latest values (including CloudStorage updates)
+    const sortMode = Storage.get('sortMode')
+    if (sortMode) {
+      dropdown.value = sortMode
     }
 
-    if (localStorage.getItem('showMine') !== null) {
-      pinMyCommentsCheckboxContainer.getInput()!.checked
-        = localStorage.getItem('showMine') === 'true'
+    const stickyMentioned = Storage.get('stickyMentioned')
+    if (stickyMentioned !== undefined) {
+      pinMyCommentsCheckboxContainer.getInput()!.checked = stickyMentioned
     }
 
-    if (localStorage.getItem('hidePremature') !== null) {
-      hidePrematureCommentsCheckboxContainer.getInput()!.checked
-        = localStorage.getItem('hidePremature') === 'true'
+    const hidePremature = Storage.get('hidePremature')
+    if (hidePremature !== undefined) {
+      hidePrematureCommentsCheckboxContainer.getInput()!.checked = hidePremature
     }
 
-    if (localStorage.getItem('hidePlainComments') !== null) {
-      hidePlainCommentsCheckboxContainer.getInput()!.checked
-        = localStorage.getItem('hidePlainComments') === 'true'
+    const hidePlainComments = Storage.get('hidePlainComments')
+    if (hidePlainComments !== undefined) {
+      hidePlainCommentsCheckboxContainer.getInput()!.checked = hidePlainComments
     }
 
-    if (localStorage.getItem('minEffectiveNumber')) {
-      minEffInput.value = localStorage.getItem('minEffectiveNumber')!
+    const minimumFeaturedCommentLength = Storage.get('minimumFeaturedCommentLength')
+    if (minimumFeaturedCommentLength !== undefined) {
+      minEffInput.value = minimumFeaturedCommentLength.toString()
     }
 
-    if (localStorage.getItem('maxSelectedPosts')) {
-      maxPostsInput.value = localStorage.getItem('maxSelectedPosts')!
+    const maxFeaturedComments = Storage.get('maxFeaturedComments')
+    if (maxFeaturedComments !== undefined) {
+      maxPostsInput.value = maxFeaturedComments.toString()
     }
   }
 
@@ -260,8 +264,10 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
     hideDialog(container)
   }
 
-  // Show dialog
-  const showDialog = (container: HTMLDivElement) => {
+  // Show dialog and refresh settings from Storage
+  const showDialog = (container: HTMLDivElement, elements: SettingsElements) => {
+    // Refresh all UI elements with latest values from Storage
+    initSettings(elements)
     container.style.display = 'block'
   }
 
@@ -286,7 +292,7 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
     // Expose API
     window.BCE = window.BCE || {}
     window.BCE.settingsDialog = {
-      show: () => showDialog(elements.container),
+      show: () => showDialog(elements.container, elements),
       hide: () => hideDialog(elements.container),
       save: () => saveSettings(elements),
       getElements: () => elements,
