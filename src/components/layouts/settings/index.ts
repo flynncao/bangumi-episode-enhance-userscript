@@ -200,7 +200,8 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
     }
 
     const hidePremature = Storage.get('hidePremature')
-    if (hidePremature !== undefined) {
+
+    if (hidePremature !== undefined && episodeMode) {
       hidePrematureCommentsCheckboxContainer.getInput()!.checked = hidePremature
     }
 
