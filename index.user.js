@@ -1,7 +1,7 @@
 
 // ==UserScript==
 // @name        bangumi-comment-enhance
-// @version     0.2.13
+// @version     0.2.15
 // @description Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @author      Flynn Cao
 // @updateURL   https://flynncao.github.io/bangumi-episode-enhance-userscript/index.user.js
@@ -58,22 +58,64 @@ class CustomCheckboxContainer {
 }
 
 const Icons = {
-    eyeOpen: '<svg t="1747629142037" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1338" width="256" height="256"><path d="M947.6 477.1c-131.1-163.4-276.3-245-435.6-245s-304.5 81.7-435.6 245c-16.4 20.5-16.4 49.7 0 70.1 131.1 163.4 276.3 245 435.6 245s304.5-81.7 435.6-245c16.4-20.4 16.4-49.6 0-70.1zM512 720c-130.6 0-251.1-67.8-363.5-207.8 112.4-140 232.9-207.8 363.5-207.8s251.1 67.8 363.5 207.8C763.1 652.2 642.6 720 512 720z" fill="#333333" p-id="1339"></path><path d="M512 592c44.1 0 79.8-35.7 79.8-79.8 0-44.1-35.7-79.8-79.8-79.8-44.1 0-79.8 35.7-79.8 79.8-0.1 44.1 35.7 79.8 79.8 79.8z m0 72c-83.8 0-151.8-68-151.8-151.8 0-83.8 68-151.8 151.8-151.8 83.8 0 151.8 68 151.8 151.8 0 83.8-68 151.8-151.8 151.8z m0 0" fill="#333333" p-id="1340"></path></svg>',
-    newest: '<svg t="1747628315444" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1861" width="256" height="256"><path d="M512.736 992a483.648 483.648 0 0 1-164.672-28.8 36.88 36.88 0 1 1 25.104-69.36 407.456 407.456 0 1 0-184.608-136.512A36.912 36.912 0 0 1 129.488 801.6a473.424 473.424 0 0 1-97.472-290A480 480 0 1 1 512.736 992z" fill="#5F5F5F" p-id="1862"></path><path d="M685.6 638.592a32 32 0 0 1-14.032-2.96l-178.048-73.888a36.8 36.8 0 0 1-22.912-34.016V236.672a36.944 36.944 0 1 1 73.888 0v266.72l155.2 64.272a36.336 36.336 0 0 1 19.952 48 37.616 37.616 0 0 1-34.048 22.928z" fill="#5F5F5F" p-id="1863"></path></svg>',
-    answerSheet: '<svg t="1741855047626" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2040" width="256" height="256"><path d="M188.8 135.7c-29.7 0-53.8 24.1-53.8 53.7v644.7c0 29.7 24.1 53.7 53.8 53.7h645.4c29.7 0 53.8-24.1 53.8-53.7V189.4c0-29.7-24.1-53.7-53.8-53.7H188.8z m-13-71.1h671.5c61.8 0 111.9 50.1 111.9 111.8v670.8c0 61.7-50.1 111.8-111.9 111.8H175.8C114 959 63.9 909 63.9 847.2V176.4c0-61.8 50.1-111.8 111.9-111.8z m0 0" fill="#333333" p-id="2041"></path><path d="M328 328h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM556 332h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM784 332h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36z" fill="#333333" p-id="2042"></path><path d="M328 546h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM556 550h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM784 550h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36z" fill="#333333" p-id="2043"></path><path d="M328 764h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM556 768h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM784 768h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36z" fill="#333333" p-id="2044"></path></svg>',
-    sorting: '<svg t="1741855109866" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2338" width="256" height="256"><path d="M375 898c-19.8 0-36-16.2-36-36V162c0-19.8 16.2-36 36-36s36 16.2 36 36v700c0 19.8-16.2 36-36 36z" fill="#333333" p-id="2339"></path><path d="M398.2 889.6c-15.2 12.7-38 10.7-50.7-4.4L136.6 633.9c-12.7-15.2-10.7-38 4.4-50.7 15.2-12.7 38-10.7 50.7 4.4l210.8 251.3c12.8 15.2 10.8 38-4.3 50.7zM649 126c19.8 0 36 16.2 36 36v700c0 19.8-16.2 36-36 36s-36-16.2-36-36V162c0-19.8 16.2-36 36-36z" fill="#333333" p-id="2340"></path><path d="M625.8 134.4c15.2-12.7 38-10.7 50.7 4.4l210.8 251.3c12.7 15.2 10.7 38-4.4 50.7-15.2 12.7-38 10.7-50.7-4.4L621.4 185.1c-12.7-15.2-10.7-38 4.4-50.7z" fill="#333333" p-id="2341"></path></svg>',
-    font: '<svg t="1741855156691" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2635" width="256" height="256"><path d="M859 201H165c-19.8 0-36-16.2-36-36s16.2-36 36-36h694c19.8 0 36 16.2 36 36s-16.2 36-36 36z" fill="#585757" p-id="2636"></path><path d="M476 859V165c0-19.8 16.2-36 36-36s36 16.2 36 36v694c0 19.8-16.2 36-36 36s-36-16.2-36-36z" fill="#585757" p-id="2637"></path></svg>',
-    gear: '<svg t="1741861365461" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2783" data-darkreader-inline-fill="" width="256" height="256"><path d="M594.9 64.8c36.8-0.4 66.9 29.1 67.3 65.9v7.8c0 38.2 31.5 69.4 70.2 69.4 12.3 0 24.5-3.3 35-9.3l7.1-4.1c10.3-5.9 22.1-9 33.9-9 23.9 0 46.2 12.5 58.3 32.8L949.9 359c18.7 31.6 7.6 71.9-24.6 90.1l-6.9 3.9c-34 19.2-45.7 61.2-26.4 93.8 6.1 10.3 14.9 18.9 25.4 24.8l7 3.9c32.3 18 43.6 58.5 24.8 90.2L866 806.3c-9.1 15.2-23.8 26.2-41 30.6-17.1 4.4-35.3 2.2-50.7-6.4l-7-3.9c-21.9-12.2-48.5-12.4-70.6-0.4-10.7 5.9-19.7 14.5-25.9 25-6.1 10.4-9.4 22.1-9.3 33.8v7.8c0.1 17.8-7.2 34.7-20 47.1-12.6 12.2-29.6 19-47.2 19H428c-36.6 0.3-66.7-29-67.2-65.5l-0.1-7.8c-0.1-18.4-7.6-36-20.8-48.8-22.5-22-56.9-26.5-84.3-10.9l-7 4.1c-10.3 5.8-22 8.9-33.8 8.9-23.9 0-46.1-12.4-58.2-32.8L73.2 665.2c-8.9-15.1-11.3-33.2-6.7-50.1 4.6-16.9 15.8-31.3 31.2-39.8l6.8-3.9c16.2-9 28.2-24.2 33.1-42.1 4.9-17.4 2.4-36.1-6.9-51.6-6.2-10.4-15.1-19-25.7-24.9l-6.9-3.9c-15.5-8.4-27-22.8-31.7-39.8-4.7-17-2.3-35.2 6.7-50.4L156.3 218c9-15.1 23.8-26.2 41-30.6 17.1-4.4 35.3-2.1 50.7 6.5l7.1 3.9c21.9 12.3 48.6 12.5 70.7 0.5 10.8-5.9 19.8-14.6 26-25.1 6.1-10.4 9.3-22.2 9.2-34.1v-7.9c-0.2-17.8 7-34.8 19.8-47.2 12.6-12.3 29.7-19.1 47.5-19.1h166.6z m-163.2 71c-3.1 0-6.1 1.2-8.4 3.3-1.9 1.8-2.9 4.2-2.9 6.8l0.1 7.6c0.2 21.2-5.4 42-16.3 60.3a120.02 120.02 0 0 1-45.2 43.7c-37.4 20.4-82.6 20.2-119.7-0.7l-6.8-3.8c-2.8-1.6-6.1-2-9.2-1.2-2.8 0.7-5.3 2.5-6.8 5l-80 135.1c-2.7 4.5-1.1 10.2 4.1 13l6.7 3.7c18.6 10.3 34 25.3 44.7 43.4 16.3 27.6 20.6 59.9 12.1 90.8-8.5 30.8-29 56.9-56.9 72.5l-6.6 3.7c-5 2.9-6.6 8.5-3.9 12.9l80 135.1c1.9 3.2 5.7 5.3 10 5.3 2.1 0 4.3-0.5 6.1-1.6l6.8-3.8c18.1-10.3 38.8-15.8 59.9-15.8 31.8 0 62 12.3 84.7 34.4 23 22.5 35.9 52.6 36 84.7v7.5c0 5.2 4.9 9.9 11.3 9.9h160c3.2 0 6.2-1.2 8.3-3.3 1.8-1.7 2.9-4.2 2.9-6.7v-7.5c-0.1-20.9 5.6-41.6 16.4-59.8 10.8-18.3 26.4-33.4 45.1-43.7 37.3-20.4 82.4-20.2 119.5 0.6l6.7 3.8c2.8 1.5 6.1 1.9 9.2 1.1 2.8-0.7 5.3-2.5 6.8-5l80-135c2.7-4.5 1.1-10.2-4-13l-6.7-3.7c-18.4-10.2-33.7-25.2-44.4-43.3-33.8-57.1-13.4-130.5 45-163.5l6.6-3.7c5.1-2.9 6.6-8.5 3.9-13l-79.9-135.1c-2.2-3.4-6-5.4-10-5.3-2.1 0-4.3 0.5-6.1 1.6l-6.8 3.8c-18.3 10.5-39.1 16-60.2 16-66.5 0.2-120.6-53.5-120.8-119.9v-7.5c0-5.3-4.8-10-11.3-10l-160 0.3z m-3.4-15.5" p-id="2784"></path><path d="M512 584c39.8 0 72-32.2 72-72s-32.2-72-72-72-72 32.2-72 72 32.2 72 72 72z m0 72c-79.5 0-144-64.5-144-144s64.5-144 144-144 144 64.5 144 144-64.5 144-144 144z m0 0" p-id="2785"></path></svg>',
+    eyeOpen: '<svg t="1747629142037" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1338"  ><path d="M947.6 477.1c-131.1-163.4-276.3-245-435.6-245s-304.5 81.7-435.6 245c-16.4 20.5-16.4 49.7 0 70.1 131.1 163.4 276.3 245 435.6 245s304.5-81.7 435.6-245c16.4-20.4 16.4-49.6 0-70.1zM512 720c-130.6 0-251.1-67.8-363.5-207.8 112.4-140 232.9-207.8 363.5-207.8s251.1 67.8 363.5 207.8C763.1 652.2 642.6 720 512 720z" fill="#333333" p-id="1339"></path><path d="M512 592c44.1 0 79.8-35.7 79.8-79.8 0-44.1-35.7-79.8-79.8-79.8-44.1 0-79.8 35.7-79.8 79.8-0.1 44.1 35.7 79.8 79.8 79.8z m0 72c-83.8 0-151.8-68-151.8-151.8 0-83.8 68-151.8 151.8-151.8 83.8 0 151.8 68 151.8 151.8 0 83.8-68 151.8-151.8 151.8z m0 0" fill="#333333" p-id="1340"></path></svg>',
+    newest: '<svg t="1747628315444" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1861"  ><path d="M512.736 992a483.648 483.648 0 0 1-164.672-28.8 36.88 36.88 0 1 1 25.104-69.36 407.456 407.456 0 1 0-184.608-136.512A36.912 36.912 0 0 1 129.488 801.6a473.424 473.424 0 0 1-97.472-290A480 480 0 1 1 512.736 992z" fill="#5F5F5F" p-id="1862"></path><path d="M685.6 638.592a32 32 0 0 1-14.032-2.96l-178.048-73.888a36.8 36.8 0 0 1-22.912-34.016V236.672a36.944 36.944 0 1 1 73.888 0v266.72l155.2 64.272a36.336 36.336 0 0 1 19.952 48 37.616 37.616 0 0 1-34.048 22.928z" fill="#5F5F5F" p-id="1863"></path></svg>',
+    answerSheet: '<svg t="1741855047626" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2040"  ><path d="M188.8 135.7c-29.7 0-53.8 24.1-53.8 53.7v644.7c0 29.7 24.1 53.7 53.8 53.7h645.4c29.7 0 53.8-24.1 53.8-53.7V189.4c0-29.7-24.1-53.7-53.8-53.7H188.8z m-13-71.1h671.5c61.8 0 111.9 50.1 111.9 111.8v670.8c0 61.7-50.1 111.8-111.9 111.8H175.8C114 959 63.9 909 63.9 847.2V176.4c0-61.8 50.1-111.8 111.9-111.8z m0 0" fill="#333333" p-id="2041"></path><path d="M328 328h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM556 332h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM784 332h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36z" fill="#333333" p-id="2042"></path><path d="M328 546h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM556 550h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM784 550h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36z" fill="#333333" p-id="2043"></path><path d="M328 764h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM556 768h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36zM784 768h-88c-19.8 0-36-16.2-36-36s16.2-36 36-36h88c19.8 0 36 16.2 36 36s-16.2 36-36 36z" fill="#333333" p-id="2044"></path></svg>',
+    sorting: '<svg t="1741855109866" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2338"  ><path d="M375 898c-19.8 0-36-16.2-36-36V162c0-19.8 16.2-36 36-36s36 16.2 36 36v700c0 19.8-16.2 36-36 36z" fill="#333333" p-id="2339"></path><path d="M398.2 889.6c-15.2 12.7-38 10.7-50.7-4.4L136.6 633.9c-12.7-15.2-10.7-38 4.4-50.7 15.2-12.7 38-10.7 50.7 4.4l210.8 251.3c12.8 15.2 10.8 38-4.3 50.7zM649 126c19.8 0 36 16.2 36 36v700c0 19.8-16.2 36-36 36s-36-16.2-36-36V162c0-19.8 16.2-36 36-36z" fill="#333333" p-id="2340"></path><path d="M625.8 134.4c15.2-12.7 38-10.7 50.7 4.4l210.8 251.3c12.7 15.2 10.7 38-4.4 50.7-15.2 12.7-38 10.7-50.7-4.4L621.4 185.1c-12.7-15.2-10.7-38 4.4-50.7z" fill="#333333" p-id="2341"></path></svg>',
+    font: '<svg t="1741855156691" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2635"  ><path d="M859 201H165c-19.8 0-36-16.2-36-36s16.2-36 36-36h694c19.8 0 36 16.2 36 36s-16.2 36-36 36z" fill="#585757" p-id="2636"></path><path d="M476 859V165c0-19.8 16.2-36 36-36s36 16.2 36 36v694c0 19.8-16.2 36-36 36s-36-16.2-36-36z" fill="#585757" p-id="2637"></path></svg>',
+    gear: '<svg t="1741861365461" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2783" data-darkreader-inline-fill=""  ><path d="M594.9 64.8c36.8-0.4 66.9 29.1 67.3 65.9v7.8c0 38.2 31.5 69.4 70.2 69.4 12.3 0 24.5-3.3 35-9.3l7.1-4.1c10.3-5.9 22.1-9 33.9-9 23.9 0 46.2 12.5 58.3 32.8L949.9 359c18.7 31.6 7.6 71.9-24.6 90.1l-6.9 3.9c-34 19.2-45.7 61.2-26.4 93.8 6.1 10.3 14.9 18.9 25.4 24.8l7 3.9c32.3 18 43.6 58.5 24.8 90.2L866 806.3c-9.1 15.2-23.8 26.2-41 30.6-17.1 4.4-35.3 2.2-50.7-6.4l-7-3.9c-21.9-12.2-48.5-12.4-70.6-0.4-10.7 5.9-19.7 14.5-25.9 25-6.1 10.4-9.4 22.1-9.3 33.8v7.8c0.1 17.8-7.2 34.7-20 47.1-12.6 12.2-29.6 19-47.2 19H428c-36.6 0.3-66.7-29-67.2-65.5l-0.1-7.8c-0.1-18.4-7.6-36-20.8-48.8-22.5-22-56.9-26.5-84.3-10.9l-7 4.1c-10.3 5.8-22 8.9-33.8 8.9-23.9 0-46.1-12.4-58.2-32.8L73.2 665.2c-8.9-15.1-11.3-33.2-6.7-50.1 4.6-16.9 15.8-31.3 31.2-39.8l6.8-3.9c16.2-9 28.2-24.2 33.1-42.1 4.9-17.4 2.4-36.1-6.9-51.6-6.2-10.4-15.1-19-25.7-24.9l-6.9-3.9c-15.5-8.4-27-22.8-31.7-39.8-4.7-17-2.3-35.2 6.7-50.4L156.3 218c9-15.1 23.8-26.2 41-30.6 17.1-4.4 35.3-2.1 50.7 6.5l7.1 3.9c21.9 12.3 48.6 12.5 70.7 0.5 10.8-5.9 19.8-14.6 26-25.1 6.1-10.4 9.3-22.2 9.2-34.1v-7.9c-0.2-17.8 7-34.8 19.8-47.2 12.6-12.3 29.7-19.1 47.5-19.1h166.6z m-163.2 71c-3.1 0-6.1 1.2-8.4 3.3-1.9 1.8-2.9 4.2-2.9 6.8l0.1 7.6c0.2 21.2-5.4 42-16.3 60.3a120.02 120.02 0 0 1-45.2 43.7c-37.4 20.4-82.6 20.2-119.7-0.7l-6.8-3.8c-2.8-1.6-6.1-2-9.2-1.2-2.8 0.7-5.3 2.5-6.8 5l-80 135.1c-2.7 4.5-1.1 10.2 4.1 13l6.7 3.7c18.6 10.3 34 25.3 44.7 43.4 16.3 27.6 20.6 59.9 12.1 90.8-8.5 30.8-29 56.9-56.9 72.5l-6.6 3.7c-5 2.9-6.6 8.5-3.9 12.9l80 135.1c1.9 3.2 5.7 5.3 10 5.3 2.1 0 4.3-0.5 6.1-1.6l6.8-3.8c18.1-10.3 38.8-15.8 59.9-15.8 31.8 0 62 12.3 84.7 34.4 23 22.5 35.9 52.6 36 84.7v7.5c0 5.2 4.9 9.9 11.3 9.9h160c3.2 0 6.2-1.2 8.3-3.3 1.8-1.7 2.9-4.2 2.9-6.7v-7.5c-0.1-20.9 5.6-41.6 16.4-59.8 10.8-18.3 26.4-33.4 45.1-43.7 37.3-20.4 82.4-20.2 119.5 0.6l6.7 3.8c2.8 1.5 6.1 1.9 9.2 1.1 2.8-0.7 5.3-2.5 6.8-5l80-135c2.7-4.5 1.1-10.2-4-13l-6.7-3.7c-18.4-10.2-33.7-25.2-44.4-43.3-33.8-57.1-13.4-130.5 45-163.5l6.6-3.7c5.1-2.9 6.6-8.5 3.9-13l-79.9-135.1c-2.2-3.4-6-5.4-10-5.3-2.1 0-4.3 0.5-6.1 1.6l-6.8 3.8c-18.3 10.5-39.1 16-60.2 16-66.5 0.2-120.6-53.5-120.8-119.9v-7.5c0-5.3-4.8-10-11.3-10l-160 0.3z m-3.4-15.5" p-id="2784"></path><path d="M512 584c39.8 0 72-32.2 72-72s-32.2-72-72-72-72 32.2-72 72 32.2 72 72 72z m0 72c-79.5 0-144-64.5-144-144s64.5-144 144-144 144 64.5 144 144-64.5 144-144 144z m0 0" p-id="2785"></path></svg>',
 };
+
+var Environment;
+(function (Environment) {
+    Environment["STANDALONE"] = "standalone";
+    Environment["CLOUD_STORAGE"] = "cloud_storage";
+})(Environment || (Environment = {}));
+function isCloudStorageEnvironment() {
+    return typeof chiiApp !== 'undefined' && chiiApp.cloud_settings !== undefined;
+}
+function hasChiiLib() {
+    return typeof chiiLib !== 'undefined' && chiiLib.ukagaka !== undefined;
+}
 
 const NAMESPACE = 'BangumiCommentEnhance';
 class Storage {
-    static set(key, value) {
-        localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value));
+    static useCloudStorage = isCloudStorageEnvironment();
+    static isCloudAvailable() {
+        try {
+            return this.useCloudStorage && typeof chiiApp !== 'undefined' && chiiApp.cloud_settings !== undefined;
+        }
+        catch {
+            return false;
+        }
     }
     static get(key) {
+        console.log('[BCE] Storage.get called for key:', key);
+        console.log(this.useCloudStorage, this.isCloudAvailable());
+        try {
+            if (this.isCloudAvailable()) {
+                const value = chiiApp.cloud_settings.get(key);
+                return value !== undefined ? value : undefined;
+            }
+        }
+        catch (e) {
+            console.warn(`[BCE] Failed to get cloud config '${key}', falling back to localStorage:`, e);
+        }
         const value = localStorage.getItem(`${NAMESPACE}_${key}`);
         return value ? JSON.parse(value) : undefined;
+    }
+    static set(key, value) {
+        console.log('[BCE] Storage.set called for key:', key);
+        console.log(this.useCloudStorage, this.isCloudAvailable());
+        try {
+            localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value));
+            if (this.isCloudAvailable()) {
+                chiiApp.cloud_settings.update({ [key]: value });
+            }
+        }
+        catch (e) {
+            console.warn(`[BCE] Failed to update cloud config '${key}'`, e);
+        }
     }
     static async init(settings) {
         const keys = Object.keys(settings);
@@ -83,6 +125,25 @@ class Storage {
                 Storage.set(key, settings[key]);
             }
         }
+        if (this.isCloudAvailable()) {
+            try {
+                const allCloudSettings = chiiApp.cloud_settings.getAll();
+                for (const [key, value] of Object.entries(allCloudSettings)) {
+                    if (key in settings && !localStorage.getItem(`${NAMESPACE}_${key}`)) {
+                        localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value));
+                    }
+                }
+            }
+            catch (e) {
+                console.warn('[BCE] Failed to sync cloud settings:', e);
+            }
+        }
+    }
+    static hasChiiLib() {
+        return hasChiiLib();
+    }
+    static isCloudEnvironment() {
+        return this.useCloudStorage;
     }
 }
 
@@ -131,7 +192,7 @@ function createNonameHeader() {
     return nonameHeader;
 }
 
-var styles$1 = ".fixed-container {\n  position: fixed;\n  z-index: 100;\n  width: calc(100vw - 50px);\n  max-width: 380px;\n  background-color: rgba(255, 255, 255, 0.8);\n  backdrop-filter: blur(8px);\n  left: 50%;\n  top: 50%;\n  transform: translate(-50%, -50%);\n  border-radius: 12px;\n  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);\n  padding: 30px;\n  padding-top: 0px;\n  text-align: center;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif;\n  box-sizing: border-box;\n  display: none;\n}\n\n[data-theme=\"dark\"] .fixed-container {\n  background-color: rgba(30, 30, 30, 0.8);\n  color: #fff;\n}\n\n.padding-row{\n\twidth:100%;\n\theight:40px;\n}\n\n.dropdown-group {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 16px;\n}\n\n.dropdown-select {\n  padding: 8px;\n  padding-right: 16px;\n  border-radius: 6px;\n  border: 1px solid #e2e2e2;\n  background-color: #f5f5f5;\n  font-size: 14px;\n  width: 100%;\n}\n\n[data-theme=\"dark\"] .dropdown-select {\n  background-color: #333;\n  border-color: #555;\n  color: #fff;\n}\n\n.checkbox-container {\n  display: flex;\n  align-items: center;\n  margin-bottom: 16px;\n  text-align: left;\n  font-size: 14px;\n}\n\n.checkbox-container input[type=\"checkbox\"] {\n  margin-right: 12px;\n  transform: translateY(1.5px);\n}\n\n.input-group {\n  display: flex;\n  align-items: center;\n  margin-bottom: 16px;\n  justify-content: flex-start;\n}\n\n.input-group label {\n  text-align: left;\n  font-size: 14px;\n  margin-right: 8px;\n}\n\n.input-group input {\n  max-width: 40px;\n  padding: 6px;\n  border-radius: 6px;\n  border: 1px solid #e2e2e2;\n  text-align: center;\n}\n\n[data-theme=\"dark\"] .input-group input {\n  background-color: #333;\n  border-color: #555;\n  color: #fff;\n}\n\n.button-group {\n  display: flex;\n  justify-content: space-between;\n  gap: 12px;\n}\n\n.button-group button {\n  flex: 1;\n  padding: 10px;\n  border-radius: 6px;\n  border: none;\n  font-size: 16px;\n  cursor: pointer;\n}\n\n.cancel-btn {\n  background-color: white;\n  border: 1px solid #e2e2e2;\n}\n\n[data-theme=\"dark\"] .cancel-btn {\n  background-color: #333;\n  border-color: #555;\n  color: #fff;\n}\n\n.save-btn {\n  background-color: #333;\n  color: white;\n}\n\n[data-theme=\"dark\"] .save-btn {\n  background-color: #555;\n}\n\nbutton:hover {\n  filter: brightness(1.5);\n  transition: all 0.3s;\n}\n\nstrong svg {\n  max-width: 21px;\n  max-height: 21px;\n  transform: translateY(2px);\n  margin-right: 10px;\n}\n\n[data-theme=\"dark\"] strong svg {\n  filter: invert(1);\n}\n\ninput[type=\"checkbox\"] {\n  width: 20px;\n  height: 20px;\n  margin: 0;\n  cursor: pointer;\n}\n";
+var styles$1 = ".fixed-container {\n  position: fixed;\n  z-index: 100;\n  width: calc(100vw - 50px);\n  max-width: 380px;\n  background-color: rgba(255, 255, 255, 0.8);\n  backdrop-filter: blur(8px);\n  left: 50%;\n  top: 50%;\n  transform: translate(-50%, -50%);\n  border-radius: 12px;\n  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);\n  padding: 30px;\n  padding-top: 0px;\n  text-align: center;\n  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;\n  box-sizing: border-box;\n  display: none;\n}\n\n[data-theme='dark'] .fixed-container {\n  background-color: rgba(30, 30, 30, 0.8);\n  color: #fff;\n}\n\n.padding-row {\n  width: 100%;\n  height: 40px;\n}\n\n.dropdown-group {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-bottom: 16px;\n}\n\n.dropdown-select {\n  padding: 8px;\n  padding-right: 16px;\n  border-radius: 6px;\n  border: 1px solid #e2e2e2;\n  background-color: #f5f5f5;\n  font-size: 14px;\n  width: 100%;\n}\n\n[data-theme='dark'] .dropdown-select {\n  background-color: #333;\n  border-color: #555;\n  color: #fff;\n}\n\n.checkbox-container {\n  display: flex;\n  align-items: center;\n  margin-bottom: 16px;\n  text-align: left;\n  font-size: 14px;\n}\n\n.checkbox-container input[type='checkbox'] {\n  margin-right: 12px;\n  transform: translateY(1.5px);\n}\n\n.input-group {\n  display: flex;\n  align-items: center;\n  margin-bottom: 16px;\n  justify-content: flex-start;\n}\n\n.input-group label {\n  text-align: left;\n  font-size: 14px;\n  margin-right: 8px;\n}\n\n.input-group input {\n  max-width: 40px;\n  padding: 6px;\n  border-radius: 6px;\n  border: 1px solid #e2e2e2;\n  text-align: center;\n}\n\n[data-theme='dark'] .input-group input {\n  background-color: #333;\n  border-color: #555;\n  color: #fff;\n}\n\n.button-group {\n  display: flex;\n  justify-content: space-between;\n  gap: 12px;\n}\n\n.button-group button {\n  flex: 1;\n  padding: 10px;\n  border-radius: 6px;\n  border: none;\n  font-size: 16px;\n  cursor: pointer;\n}\n\n.cancel-btn {\n  background-color: white;\n  border: 1px solid #e2e2e2;\n}\n\n[data-theme='dark'] .cancel-btn {\n  background-color: #333;\n  border-color: #555;\n  color: #fff;\n}\n\n.save-btn {\n  background-color: #333;\n  color: white;\n}\n\n[data-theme='dark'] .save-btn {\n  background-color: #555;\n}\n\nbutton:hover {\n  filter: brightness(1.5);\n  transition: all 0.3s;\n}\n\nstrong svg,\n.input-group > svg,\n.dropdown-group > svg {\n  width: 20px !important;\n  height: 20px !important;\n  max-width: 20px !important;\n  max-height: 20px !important;\n  transform: translateY(2px);\n  margin-right: 10px;\n  display: inline-block;\n}\n\n[data-theme='dark'] strong svg,\n[data-theme='dark'] .input-group > svg,\n[data-theme='dark'] .dropdown-group > svg {\n  filter: invert(1);\n}\n\ninput[type='checkbox'] {\n  width: 20px;\n  height: 20px;\n  margin: 0;\n  cursor: pointer;\n}\n";
 
 function createSettingMenu(userSettings, episodeMode = false) {
     const injectStyles = () => {
@@ -243,26 +304,29 @@ function createSettingMenu(userSettings, episodeMode = false) {
     };
     const initSettings = (elements) => {
         const { dropdown, pinMyCommentsCheckboxContainer, hidePlainCommentsCheckboxContainer, hidePrematureCommentsCheckboxContainer, minEffInput, maxPostsInput, } = elements;
-        if (localStorage.getItem('sortBy')) {
-            dropdown.value = localStorage.getItem('sortBy');
+        const sortMode = Storage.get('sortMode');
+        if (sortMode) {
+            dropdown.value = sortMode;
         }
-        if (localStorage.getItem('showMine') !== null) {
-            pinMyCommentsCheckboxContainer.getInput().checked
-                = localStorage.getItem('showMine') === 'true';
+        const stickyMentioned = Storage.get('stickyMentioned');
+        if (stickyMentioned !== undefined) {
+            pinMyCommentsCheckboxContainer.getInput().checked = stickyMentioned;
         }
-        if (localStorage.getItem('hidePremature') !== null) {
-            hidePrematureCommentsCheckboxContainer.getInput().checked
-                = localStorage.getItem('hidePremature') === 'true';
+        const hidePremature = Storage.get('hidePremature');
+        if (hidePremature !== undefined && episodeMode) {
+            hidePrematureCommentsCheckboxContainer.getInput().checked = hidePremature;
         }
-        if (localStorage.getItem('hidePlainComments') !== null) {
-            hidePlainCommentsCheckboxContainer.getInput().checked
-                = localStorage.getItem('hidePlainComments') === 'true';
+        const hidePlainComments = Storage.get('hidePlainComments');
+        if (hidePlainComments !== undefined) {
+            hidePlainCommentsCheckboxContainer.getInput().checked = hidePlainComments;
         }
-        if (localStorage.getItem('minEffectiveNumber')) {
-            minEffInput.value = localStorage.getItem('minEffectiveNumber');
+        const minimumFeaturedCommentLength = Storage.get('minimumFeaturedCommentLength');
+        if (minimumFeaturedCommentLength !== undefined) {
+            minEffInput.value = minimumFeaturedCommentLength.toString();
         }
-        if (localStorage.getItem('maxSelectedPosts')) {
-            maxPostsInput.value = localStorage.getItem('maxSelectedPosts');
+        const maxFeaturedComments = Storage.get('maxFeaturedComments');
+        if (maxFeaturedComments !== undefined) {
+            maxPostsInput.value = maxFeaturedComments.toString();
         }
     };
     const saveSettings = (elements) => {
@@ -283,7 +347,8 @@ function createSettingMenu(userSettings, episodeMode = false) {
         }
         hideDialog(container);
     };
-    const showDialog = (container) => {
+    const showDialog = (container, elements) => {
+        initSettings(elements);
         container.style.display = 'block';
     };
     const hideDialog = (container) => {
@@ -297,7 +362,7 @@ function createSettingMenu(userSettings, episodeMode = false) {
         elements.cancelBtn.addEventListener('click', () => hideDialog(elements.container));
         window.BCE = window.BCE || {};
         window.BCE.settingsDialog = {
-            show: () => showDialog(elements.container),
+            show: () => showDialog(elements.container, elements),
             hide: () => hideDialog(elements.container),
             save: () => saveSettings(elements),
             getElements: () => elements,
@@ -793,6 +858,166 @@ const butterup = {
     },
 };
 
+function initCloudSettings(userSettings, episodeMode = false) {
+    try {
+        if (typeof chiiLib === 'undefined' || !chiiLib.ukagaka) {
+            console.log('[BCE] chiiLib.ukagaka not available - using standalone settings panel');
+            return false;
+        }
+        console.log('[BCE] Initializing CloudStorage settings integration (radio-only)');
+        const configs = [];
+        configs.push({
+            title: '排序方式',
+            name: 'sortMode',
+            type: 'radio',
+            defaultValue: 'reactionCount',
+            getCurrentValue() {
+                return userSettings.sortMode || 'reactionCount';
+            },
+            onChange(value) {
+                Storage.set('sortMode', value);
+                userSettings.sortMode = value;
+            },
+            options: [
+                { value: 'reactionCount', label: '按热度(贴贴数)排序' },
+                { value: 'newFirst', label: '按时间排序(最新在前)' },
+                { value: 'oldFirst', label: '按时间排序(最旧在前)' },
+                { value: 'replyCount', label: '按评论数排序' },
+            ],
+        });
+        configs.push({
+            title: '置顶我发表/回复我的帖子',
+            name: 'stickyMentioned',
+            type: 'radio',
+            defaultValue: 'off',
+            getCurrentValue() {
+                return userSettings.stickyMentioned ? 'on' : 'off';
+            },
+            onChange(value) {
+                const boolValue = value === 'on';
+                Storage.set('stickyMentioned', boolValue);
+                userSettings.stickyMentioned = boolValue;
+            },
+            options: [
+                { value: 'on', label: '开启' },
+                { value: 'off', label: '关闭' },
+            ],
+        });
+        if (episodeMode) {
+            configs.push({
+                title: '隐藏开播前发表的评论',
+                name: 'hidePremature',
+                type: 'radio',
+                defaultValue: 'off',
+                getCurrentValue() {
+                    return userSettings.hidePremature ? 'on' : 'off';
+                },
+                onChange(value) {
+                    const boolValue = value === 'on';
+                    Storage.set('hidePremature', boolValue);
+                    userSettings.hidePremature = boolValue;
+                },
+                options: [
+                    { value: 'on', label: '开启' },
+                    { value: 'off', label: '关闭' },
+                ],
+            });
+        }
+        configs.forEach((config) => {
+            console.log(`[BCE] Registering ${config.type} config "${config.name}"`);
+            chiiLib.ukagaka.addGeneralConfig(config);
+        });
+        setupAutoSync(userSettings);
+        return true;
+    }
+    catch (error) {
+        console.warn('[BCE] Failed to initialize CloudStorage settings:', error);
+        return false;
+    }
+}
+function setupAutoSync(userSettings) {
+    try {
+        if (typeof chiiLib === 'undefined' || !chiiLib.ukagaka) {
+            return;
+        }
+        let configsSnapshot = {};
+        chiiLib.ukagaka.onOpen(() => {
+            console.log('[BCE] Customize panel opened');
+            configsSnapshot = {
+                sortMode: userSettings.sortMode,
+                stickyMentioned: userSettings.stickyMentioned ? 'on' : 'off',
+                hidePremature: userSettings.hidePremature ? 'on' : 'off',
+            };
+        });
+        chiiLib.ukagaka.onClose(() => {
+            console.log('[BCE] Customize panel closed');
+            const currentSettings = {
+                sortMode: userSettings.sortMode,
+                stickyMentioned: userSettings.stickyMentioned ? 'on' : 'off',
+                hidePremature: userSettings.hidePremature ? 'on' : 'off',
+            };
+            if (isDictDifferent(configsSnapshot, currentSettings)) {
+                console.log('[BCE] Settings changed, syncing to cloud');
+                if (typeof chiiApp !== 'undefined' && chiiApp.cloud_settings) {
+                    chiiApp.cloud_settings.update(currentSettings);
+                }
+                location.reload();
+            }
+        });
+    }
+    catch (error) {
+        console.warn('[BCE] Failed to setup auto-sync:', error);
+    }
+}
+function isDictDifferent(dict1, dict2) {
+    const keys1 = Object.keys(dict1);
+    const keys2 = Object.keys(dict2);
+    if (keys1.length !== keys2.length)
+        return true;
+    for (const key of keys1) {
+        if (dict1[key] !== dict2[key])
+            return true;
+    }
+    for (const key of keys2) {
+        if (!(key in dict1))
+            return true;
+    }
+    return false;
+}
+function syncFromCloud(userSettings) {
+    try {
+        if (typeof chiiApp === 'undefined' || !chiiApp.cloud_settings) {
+            return;
+        }
+        console.log('[BCE] Syncing settings from cloud');
+        const cloudSettings = chiiApp.cloud_settings.getAll();
+        if (cloudSettings.sortMode !== undefined && cloudSettings.sortMode !== userSettings.sortMode) {
+            console.log('[BCE] Syncing sortMode:', cloudSettings.sortMode);
+            userSettings.sortMode = cloudSettings.sortMode;
+            Storage.set('sortMode', cloudSettings.sortMode);
+        }
+        if (cloudSettings.stickyMentioned !== undefined) {
+            const boolValue = cloudSettings.stickyMentioned === 'on';
+            if (boolValue !== userSettings.stickyMentioned) {
+                console.log('[BCE] Syncing stickyMentioned:', boolValue);
+                userSettings.stickyMentioned = boolValue;
+                Storage.set('stickyMentioned', boolValue);
+            }
+        }
+        if (cloudSettings.hidePremature !== undefined) {
+            const boolValue = cloudSettings.hidePremature === 'on';
+            if (boolValue !== userSettings.hidePremature) {
+                console.log('[BCE] Syncing hidePremature:', boolValue);
+                userSettings.hidePremature = boolValue;
+                Storage.set('hidePremature', boolValue);
+            }
+        }
+    }
+    catch (error) {
+        console.warn('[BCE] Failed to sync from cloud:', error);
+    }
+}
+
 (async function () {
     if (!BGM_EP_REGEX.test(location.href) && !BGM_GROUP_REGEX.test(location.href)) {
         return;
@@ -814,6 +1039,7 @@ const butterup = {
         stickyMentioned: Storage.get('stickyMentioned'),
         hidePremature: Storage.get('hidePremature'),
     };
+    syncFromCloud(userSettings);
     const sortModeData = userSettings.sortMode || 'reactionCount';
     (() => {
         const butterupStyleEl = document.createElement('style');
@@ -860,8 +1086,7 @@ const butterup = {
     const settingBtn = $('<strong></strong>')
         .css(menuBarCSSProperties)
         .html(Icons.gear)
-        .attr('title', '设置')
-        .click(() => window.BCE.settingsDialog.show());
+        .attr('title', '设置');
     const jumpToNewestBtn = $('<strong></strong>')
         .css(menuBarCSSProperties)
         .html(Icons.newest)
@@ -951,7 +1176,9 @@ const butterup = {
     if (featuredCommentsCount < 10 && userSettings.hidePlainComments === true) {
         $('#toggleFilteredBtn').click();
     }
+    initCloudSettings(userSettings, BGM_EP_REGEX.test(location.href));
     createSettingMenu(userSettings, BGM_EP_REGEX.test(location.href));
+    settingBtn.on('click', () => window.BCE.settingsDialog.show());
     $(document).on('settingsSaved', () => {
         butterup.toast({
             title: '设置已保存',
