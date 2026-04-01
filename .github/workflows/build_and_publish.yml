@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     tags:
-    - '*'
+      - '*'
   pull_request:
     branches: [main]
 
@@ -46,6 +46,6 @@ jobs:
           tag: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
           name: Release ${{ github.ref_name }}
-          body: 
+          body:
             ${{ github.event.head_commit.message }}
           artifacts: dist/index.user.js
