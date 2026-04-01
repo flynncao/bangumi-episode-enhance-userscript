@@ -1,5 +1,11 @@
 {
   "permissions": {
-    "allow": ["Bash(pnpm build:*)"]
+    "allow": [
+      "Bash(pnpm build:*)",
+      "Bash(python C:\\\\Users\\\\westw\\\\.claude\\\\skills\\\\skill-creator\\\\scripts\\\\init_skill.py bgm-release --path C:\\\\Users\\\\westw\\\\.claude\\\\skills)",
+      "Bash(python \"C:\\\\Users\\\\westw\\\\.claude\\\\skills\\\\skill-creator\\\\scripts\\\\init_skill.py\" bgm-release --path \"C:\\\\Users\\\\westw\\\\.claude\\\\skills\")",
+      "Bash(python \"C:\\\\Users\\\\westw\\\\.claude\\\\skills\\\\skill-creator\\\\scripts\\\\package_skill.py\" \"C:\\\\Users\\\\westw\\\\.claude\\\\skills\\\\bgm-release\" \"C:\\\\Users\\\\westw\\\\.claude\\\\skills\")",
+      "Bash(pnpm run:*)"
+    ]
   }
 }
