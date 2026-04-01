@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
+const args = process.argv.slice(2)
 
 const METADATA_PATH = join(__dirname, '..', 'src', 'metadata.json')
 
@@ -22,6 +23,8 @@ function bumpVersion(version) {
 }
 
 function main() {
+  const isDryRun = args.includes('--dry-run')
+
   try {
     const metadata = JSON.parse(readFileSync(METADATA_PATH, 'utf-8'))
     const oldVersion = metadata.version
@@ -33,23 +36,24 @@ function main() {
     console.log(
       `\u001B[32m✓\u001B[0m Bumped version: \u001B[33m${oldVersion}\u001B[0m → \u001B[36m${newVersion}\u001B[0m`,
     )
-
-    // Stage all changes (including user's staged files and metadata.json)
-    execSync('git add .', { stdio: 'inherit' })
-    console.log(`\u001B[32m✓\u001B[0m Staged all changes`)
-
     // Commit with version bump message
     const commitMessage = `chore(release): bump version to ${newVersion}`
-    execSync(`git commit -m "${commitMessage}"`, { stdio: 'inherit' })
-    console.log(`\u001B[32m✓\u001B[0m Committed: ${commitMessage}`)
+    if (!isDryRun) {
+      // Stage all changes (including user's staged files and metadata.json)
+      execSync('git add .', { stdio: 'inherit' })
+      console.log(`\u001B[32m✓\u001B[0m Staged all changes`)
 
-    // Create tag
-    execSync(`git tag v${newVersion}`, { stdio: 'inherit' })
-    console.log(`\u001B[32m✓\u001B[0m Created tag: v${newVersion}`)
+      execSync(`git commit -m "${commitMessage}"`, { stdio: 'inherit' })
+      console.log(`\u001B[32m✓\u001B[0m Committed: ${commitMessage}`)
 
-    // Push commit and tags together
-    execSync('git push && git push --tags', { stdio: 'inherit' })
-    console.log(`\u001B[32m✓\u001B[0m Pushed commit and tags to remote`)
+      // Create tag
+      execSync(`git tag v${newVersion}`, { stdio: 'inherit' })
+      console.log(`\u001B[32m✓\u001B[0m Created tag: v${newVersion}`)
+
+      // Push commit and tags together
+      execSync('git push && git push --tags', { stdio: 'inherit' })
+      console.log(`\u001B[32m✓\u001B[0m Pushed commit and tags to remote`)
+    }
   }
   catch (error) {
     console.error('\u001B[31m✗\u001B[0m Failed to bump version:', error.message)
