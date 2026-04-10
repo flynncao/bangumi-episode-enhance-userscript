@@ -3,3 +3,11 @@ node_modules
 .idea/
 .vscode/
 dist/
+
+.claude/
+!.claude/settings.local.json
+.agents/
+.qwen/
+.playwright-mcp/
+skills/
+skills-lock.json

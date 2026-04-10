@@ -1,5 +1,6 @@
 {
   "permissions": {
+    "defaultMode": "acceptEdits",
     "allow": [
       "Bash(pnpm build:*)",
       "Bash(python C:\\\\Users\\\\westw\\\\.claude\\\\skills\\\\skill-creator\\\\scripts\\\\init_skill.py bgm-release --path C:\\\\Users\\\\westw\\\\.claude\\\\skills)",
