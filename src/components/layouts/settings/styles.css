@@ -74,8 +74,8 @@
   justify-content: space-between;
   padding: 20px 24px 16px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  cursor: move;
-  user-select: none;
+  /* cursor: move; */
+  /* user-select: none; */
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
 }
 
@@ -349,7 +349,7 @@
 /* ===== Custom Checkbox ===== */
 .bce-checkbox-wrapper {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 14px;
   padding: 14px;
   margin-bottom: 10px;
