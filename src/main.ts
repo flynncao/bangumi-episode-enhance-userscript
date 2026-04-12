@@ -135,6 +135,42 @@ import { quickSort } from './utils/index';
       }, 750)
     })
 
+  // Expand/Collapse all sub-replies toggle button
+  let allExpanded = false
+  const preservedPostID = $(location).attr('href')!.split('#').length > 1 ? $(location).attr('href')!.split('#')[1] : null
+  const expandToggleBtn = $('<strong></strong>')
+    .css(menuBarCSSProperties)
+    .html(Icons.expandAll || '')
+    .attr('title', '展开所有评论')
+    .click(() => {
+      allExpanded = !allExpanded
+      const length = $('.topic_sub_reply').length
+      $('.topic_sub_reply').each(function () {
+        const $this = $(this)
+        if (allExpanded && length < 50) {
+          $this.slideDown()
+        }
+        else {
+          // Don't hide if it has a preserved reply
+          const hasPreserved = preservedPostID && $this.find(`#${preservedPostID}`).length > 0
+          if (!hasPreserved) {
+            $this.slideUp()
+          }
+        }
+      })
+      butterup.toast({
+        title: allExpanded ? '已展开所有子评论' : '已折叠所有子评论',
+        location: 'top-right',
+        dismissable: false,
+        type: 'success',
+        duration: 1500,
+        icon: true,
+      })
+      // Update button icon and title
+      expandToggleBtn.html(allExpanded ? Icons.collapseAll || '' : Icons.expandAll || '')
+      expandToggleBtn.attr('title', allExpanded ? '折叠所有评论' : '展开所有评论')
+    })
+
   const menuBar = $(
     '<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>',
   )
@@ -161,6 +197,7 @@ import { quickSort } from './utils/index';
   }
   menuBar.append(settingBtn)
   menuBar.append(jumpToNewestBtn)
+  menuBar.append(expandToggleBtn)
   container.append(menuBar)
   const trinity: { [key: string]: () => void } = {
     reactionCount() {
