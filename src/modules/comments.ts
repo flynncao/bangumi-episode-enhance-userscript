@@ -119,6 +119,20 @@ export default function processComments(userSettings: UserSettings) {
       mentionedInSubReply && a.css('color', highlightMentionedColor)
       a.on('click', () => {
         subReplyContent.slideToggle()
+        // calculate teh height of the main comment and scroll to the position of the comment if the sub comments are hidden
+        // TODO: 解决不同情况下的滚动位置不准确问题（例如超出50vh的帖子和普通的帖子，处理情况应当不同）
+        const messageElement = that.find('.message.clearit')
+        const messageElementPos = messageElement.offset()?.top
+        const messageELementHeight = messageElement.outerHeight()
+        setTimeout(() => {
+          console.log('subReplyContent.is visible', subReplyContent.is(':visible'))
+          if (subReplyContent.is(':visible') && messageElementPos !== undefined && messageELementHeight !== undefined) {
+            window.scrollTo({
+              top: (messageElementPos + messageELementHeight),
+              behavior: 'smooth',
+            })
+          }
+        }, 0)
       })
       const el = $(`<div class="action"></div>`).append(a)
       timestampArea.after(el)
