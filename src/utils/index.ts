@@ -20,15 +20,18 @@ export function quickSort(
 
     if (elementImportant !== pivotImportant) {
       compareResult = elementImportant // true if element is important and pivot is not
-    } else if (changeCompareDirection) {
+    }
+    else if (changeCompareDirection) {
       compareResult = (element[sortKey] as number) < (pivot[sortKey] as number)
-    } else {
+    }
+    else {
       compareResult = (element[sortKey] as number) > (pivot[sortKey] as number)
     }
 
     if (compareResult) {
       left.push(element)
-    } else {
+    }
+    else {
       right.push(element)
     }
   }

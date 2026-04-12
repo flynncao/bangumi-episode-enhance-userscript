@@ -1,3 +1,5 @@
+import type { CommentElement, UserSettings } from './types/index'
+
 import { createSettingMenu } from './components/layouts/settings/index'
 import { BGM_EP_REGEX, BGM_GROUP_REGEX } from './constants/index'
 import processComments from './modules/comments'
@@ -5,10 +7,11 @@ import butterupStyles from './static/css/butterup.css'
 import styles from './static/css/styles.css'
 import butterup from './static/js/butterup'
 import Icons from './static/svg/index'
+import { initCloudSettings, syncFromCloud } from './storage/cloudSettings'
 import Storage from './storage/index'
-import { quickSort } from './utils/index'
-import type { CommentElement, UserSettings } from './types/index'
-;(async function () {
+import { quickSort } from './utils/index';
+
+(async function () {
   if (!BGM_EP_REGEX.test(location.href) && !BGM_GROUP_REGEX.test(location.href)) {
     return
   }
@@ -30,6 +33,10 @@ import type { CommentElement, UserSettings } from './types/index'
     stickyMentioned: Storage.get('stickyMentioned'),
     hidePremature: Storage.get('hidePremature'),
   }
+
+  // Sync from CloudStorage if available (before UI creation)
+  syncFromCloud(userSettings)
+
   const sortModeData = userSettings.sortMode || 'reactionCount'
   ;(() => {
     const butterupStyleEl = document.createElement('style')
@@ -68,14 +75,15 @@ import type { CommentElement, UserSettings } from './types/index'
     const curText = $(hiddenCommentsInfo).text()
     if (curText.includes('展开')) {
       hiddenCommentsInfo.text(`点击折叠${plainCommentsCount}条普通评论`)
-    } else {
+    }
+    else {
       hiddenCommentsInfo.text(`点击展开剩余${plainCommentsCount}条普通评论`)
     }
   }
 
   const hiddenCommentsInfo = $(
     `<div class="filtered" id="toggleFilteredBtn" style="cursor:pointer;color:#48a2c3;">${toggleButtonText}</div>`,
-  ).click(function () {
+  ).click(() => {
     const commentList = $('#comment_list_plain')
     commentList.slideToggle()
     toggleHiddenCommentsInfoText()
@@ -94,11 +102,12 @@ import type { CommentElement, UserSettings } from './types/index'
   /**
    * Button event handlers
    */
+
   const settingBtn = $('<strong></strong>')
     .css(menuBarCSSProperties)
     .html(Icons.gear || '')
     .attr('title', '设置')
-    .click(() => window.BCE!.settingsDialog!.show())
+  // Note: Click handler will be set up after determining which settings system to use
 
   const jumpToNewestBtn = $('<strong></strong>')
     .css(menuBarCSSProperties)
@@ -110,7 +119,7 @@ import type { CommentElement, UserSettings } from './types/index'
       // get the target element with the same id as lastRow inside the FeatureElements
       const targetId = lastRow[0]?.id
       const targetItem = isLastRowFeatured
-        ? featuredCommentElements.find((item) => item.element.id === targetId)
+        ? featuredCommentElements.find(item => item.element.id === targetId)
         : plainCommentElements.at(-1)
       if (targetItem) {
         $('html, body').animate({
@@ -119,11 +128,47 @@ import type { CommentElement, UserSettings } from './types/index'
       }
       $(lastRow).css({
         'background-color': '#ffd966',
-        transition: 'background-color 0.5s ease-in-out',
+        'transition': 'background-color 0.5s ease-in-out',
       })
       setTimeout(() => {
         $(lastRow).css('background-color', '')
       }, 750)
+    })
+
+  // Expand/Collapse all sub-replies toggle button
+  let allExpanded = false
+  const preservedPostID = $(location).attr('href')!.split('#').length > 1 ? $(location).attr('href')!.split('#')[1] : null
+  const expandToggleBtn = $('<strong></strong>')
+    .css(menuBarCSSProperties)
+    .html(Icons.expandAll || '')
+    .attr('title', '展开所有评论')
+    .click(() => {
+      allExpanded = !allExpanded
+      const length = $('.topic_sub_reply').length
+      $('.topic_sub_reply').each(function () {
+        const $this = $(this)
+        if (allExpanded && length < 50) {
+          $this.slideDown()
+        }
+        else {
+          // Don't hide if it has a preserved reply
+          const hasPreserved = preservedPostID && $this.find(`#${preservedPostID}`).length > 0
+          if (!hasPreserved) {
+            $this.slideUp()
+          }
+        }
+      })
+      butterup.toast({
+        title: allExpanded ? '已展开所有子评论' : '已折叠所有子评论',
+        location: 'top-right',
+        dismissable: false,
+        type: 'success',
+        duration: 1500,
+        icon: true,
+      })
+      // Update button icon and title
+      expandToggleBtn.html(allExpanded ? Icons.collapseAll || '' : Icons.expandAll || '')
+      expandToggleBtn.attr('title', allExpanded ? '折叠所有评论' : '展开所有评论')
     })
 
   const menuBar = $(
@@ -152,6 +197,7 @@ import type { CommentElement, UserSettings } from './types/index'
   }
   menuBar.append(settingBtn)
   menuBar.append(jumpToNewestBtn)
+  menuBar.append(expandToggleBtn)
   container.append(menuBar)
   const trinity: { [key: string]: () => void } = {
     reactionCount() {
@@ -174,10 +220,10 @@ import type { CommentElement, UserSettings } from './types/index'
   /**
    * Append components
    */
-  featuredCommentElements.forEach(function (element: CommentElement) {
+  featuredCommentElements.forEach((element: CommentElement) => {
     container.append($(element.element))
   })
-  plainCommentElements.forEach(function (element: CommentElement) {
+  plainCommentElements.forEach((element: CommentElement) => {
     container.append($(element.element))
   })
   container.append(stateBar)
@@ -190,7 +236,7 @@ import type { CommentElement, UserSettings } from './types/index'
   }
 
   // Add plain comments to the container
-  plainCommentElements.forEach(function (element: CommentElement) {
+  plainCommentElements.forEach((element: CommentElement) => {
     plainCommentsContainer.append($(element.element))
   })
 
@@ -206,7 +252,13 @@ import type { CommentElement, UserSettings } from './types/index'
   if (featuredCommentsCount < 10 && userSettings.hidePlainComments === true) {
     $('#toggleFilteredBtn').click()
   }
+  // Initialize CloudStorage settings if available, otherwise use standalone menu
+  const cloudSettingsInitialized = initCloudSettings(userSettings, BGM_EP_REGEX.test(location.href))
+
   createSettingMenu(userSettings, BGM_EP_REGEX.test(location.href))
+  // Set up settings button click handler for standalone mode
+  settingBtn.on('click', () => window.BCE!.settingsDialog!.show())
+
   // control center
   $(document).on('settingsSaved', () => {
     butterup.toast({

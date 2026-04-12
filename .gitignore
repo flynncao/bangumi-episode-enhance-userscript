@@ -6,10 +6,6 @@ dist/
 
 
 .playwright-mcp/
-.agents/
-.claude/
-.qwen/
-.mcp/
-.gemini/
 skills/
 skills-lock.json
+
