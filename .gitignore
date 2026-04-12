@@ -2,3 +2,14 @@ test
 node_modules
 .idea/
 .vscode/
+dist/
+
+
+.playwright-mcp/
+.agents/
+.claude/
+.qwen/
+.mcp/
+.gemini/
+skills/
+skills-lock.json

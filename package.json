@@ -2,22 +2,47 @@
   "name": "bangumi-episode-enhance",
   "version": "1.0.0",
   "description": "Enhance Bangumi episode page with more information and features",
+  "type": "module",
+  "keywords": [
+    "bangumi",
+    "anime"
+  ],
+  "license": "ISC",
+  "author": "Flynn Cao",
   "main": "index.user.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "rollup -c -w --environment BUILD:development",
+    "build": "rollup -c --environment BUILD:production",
+    "format": "prettier --write",
+    "lint": "eslint --fix",
+    "bump-version": "node scripts/bump-version.js --dry-run",
+    "bump-version:commit": "node scripts/bump-version.js",
+    "cm": "npm run bump-version",
+    "cmc": "npm run bump-version:commit",
+    "lint-staged": "lint-staged"
   },
-  "keywords": ["bangumi", "anime"],
-  "author": "Flynn Cao",
-  "license": "ISC",
   "devDependencies": {
-    "lint-staged": "^15.2.7",
-    "prettier": "^3.3.3",
-    "simple-git-hooks": "^2.11.1"
+    "@antfu/eslint-config": "^7.2.0",
+    "@rollup/plugin-strip": "^3.0.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/jquery": "^3.5.32",
+    "@types/node": "^24.2.1",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.38.0",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.6.1",
+    "rollup": "^4.34.8",
+    "rollup-plugin-import-css": "^3.5.8",
+    "rollup-plugin-userscript-metadata": "^2.0.1",
+    "simple-git-hooks": "^2.11.1",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.2"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm lint-staged"
+    "pre-commit": "npm run lint-staged"
   },
   "lint-staged": {
-    "*.js": "prettier --write"
+    "*.{js,ts}": "npm run lint",
+    "*.{json,css,md}": "npm run format"
   }
 }
