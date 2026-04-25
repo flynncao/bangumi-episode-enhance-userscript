@@ -6,6 +6,7 @@
 
 // @ts-nocheck - This file needs to match bgm.tv's exact JavaScript structure
 import type { UserSettings } from '../types/index'
+import { NAMESPACE } from '../constants/index'
 import Storage from './index'
 
 /**
@@ -17,7 +18,7 @@ import Storage from './index'
  * - stickyMentioned (converted to on/off radio)
  * - hidePremature (converted to on/off radio, episode mode only)
  */
-export function initCloudSettings(userSettings: UserSettings, episodeMode = false): boolean {
+export function initCloudSettings(userSettings: UserSettings, episodeMode = false) {
   try {
     // Check if chiiLib is available
     if (typeof chiiLib === 'undefined' || !chiiLib.ukagaka) {
@@ -26,10 +27,16 @@ export function initCloudSettings(userSettings: UserSettings, episodeMode = fals
     }
 
     console.log('[BCE] Initializing CloudStorage settings integration (radio-only)')
+    // Add Tab
+    const tabApp = {
+      tab: 'bangumi_comment_enhance',
+      label: '评论区增强',
+      type: 'options',
+      config: [],
+    }
 
     // Build configs array - ONLY radio-compatible settings
     const configs = []
-
     // 1. sortMode - already radio, no conversion needed
     configs.push({
       title: '排序方式',
@@ -37,7 +44,7 @@ export function initCloudSettings(userSettings: UserSettings, episodeMode = fals
       type: 'radio',
       defaultValue: 'reactionCount',
       getCurrentValue() {
-        return userSettings.sortMode || 'reactionCount'
+        return Storage.get('sortMode') || 'reactionCount'
       },
       onChange(value) {
         Storage.set('sortMode', value)
@@ -58,12 +65,10 @@ export function initCloudSettings(userSettings: UserSettings, episodeMode = fals
       type: 'radio',
       defaultValue: 'off',
       getCurrentValue() {
-        return userSettings.stickyMentioned ? 'on' : 'off'
+        return Storage.get('stickyMentioned')
       },
       onChange(value) {
-        const boolValue = value === 'on'
-        Storage.set('stickyMentioned', boolValue)
-        userSettings.stickyMentioned = boolValue
+        Storage.set('stickyMentioned', value)
       },
       options: [
         { value: 'on', label: '开启' },
@@ -79,12 +84,10 @@ export function initCloudSettings(userSettings: UserSettings, episodeMode = fals
         type: 'radio',
         defaultValue: 'off',
         getCurrentValue() {
-          return userSettings.hidePremature ? 'on' : 'off'
+          return Storage.get('hidePremature')
         },
         onChange(value) {
-          const boolValue = value === 'on'
-          Storage.set('hidePremature', boolValue)
-          userSettings.hidePremature = boolValue
+          Storage.set('hidePremature', value)
         },
         options: [
           { value: 'on', label: '开启' },
@@ -93,16 +96,38 @@ export function initCloudSettings(userSettings: UserSettings, episodeMode = fals
       })
     }
 
-    // Register all configs with chiiLib
-    configs.forEach((config) => {
-      console.log(`[BCE] Registering ${config.type} config "${config.name}"`)
-      chiiLib.ukagaka.addGeneralConfig(config)
+    // 4. hidePlainComments
+    configs.push({
+      title: '隐藏普通评论',
+      name: 'hidePlainComments',
+      type: 'radio',
+      defaultValue: 'off',
+      getCurrentValue() {
+        return Storage.get('hidePlainComments')
+      },
+      onChange(value) {
+        Storage.set('hidePlainComments', value)
+      },
+      options: [
+        { value: 'on', label: '开启' },
+        { value: 'off', label: '关闭' },
+      ],
     })
 
-    // Set up auto-sync on panel open/close
-    setupAutoSync(userSettings)
+    // // Register all configs with chiiLib
+    // configs.forEach((config) => {
+    //   console.log(`[BCE] Registering ${config.type} config "${config.name}"`)
+    //   chiiLib.ukagaka.addGeneralConfig(config)
+    // })
 
-    return true
+    tabApp.config = configs
+
+    console.log('[BCE] Registering settings tab with chiiLib.ukagaka')
+
+    chiiLib.ukagaka.addPanelTab(tabApp)
+
+    // Set up auto-sync on panel open/close
+    setUpCloudLifeCycleHooks()
   }
   catch (error) {
     console.warn('[BCE] Failed to initialize CloudStorage settings:', error)
@@ -110,43 +135,34 @@ export function initCloudSettings(userSettings: UserSettings, episodeMode = fals
   }
 }
 
+function cookieKey(key: string): string {
+  return `${NAMESPACE}_${key}`
+}
+
 /**
  * Set up auto-sync for settings when the customize panel is opened/closed
  */
-function setupAutoSync(userSettings: UserSettings): void {
+function setUpCloudLifeCycleHooks(): void {
   try {
     if (typeof chiiLib === 'undefined' || !chiiLib.ukagaka) {
       return
     }
 
-    let configsSnapshot: Record<string, any> = {}
-
     chiiLib.ukagaka.onOpen(() => {
       console.log('[BCE] Customize panel opened')
-      // Save current settings state (convert booleans to strings for CloudStorage)
-      configsSnapshot = {
-        sortMode: userSettings.sortMode,
-        stickyMentioned: userSettings.stickyMentioned ? 'on' : 'off',
-        hidePremature: userSettings.hidePremature ? 'on' : 'off',
-      }
     })
 
     chiiLib.ukagaka.onClose(() => {
       console.log('[BCE] Customize panel closed')
       // Check if settings changed and sync to cloud (convert back to booleans)
       const currentSettings = {
-        sortMode: userSettings.sortMode,
-        stickyMentioned: userSettings.stickyMentioned ? 'on' : 'off',
-        hidePremature: userSettings.hidePremature ? 'on' : 'off',
+        sortMode: Storage.get('sortMode') || 'reactionCount',
+        stickyMentioned: Storage.get('stickyMentioned'),
+        hidePremature: Storage.get('hidePremature'),
+        hidePlainComments: Storage.get('hidePlainComments'),
       }
-
-      if (isDictDifferent(configsSnapshot, currentSettings)) {
-        console.log('[BCE] Settings changed, syncing to cloud')
-        if (typeof chiiApp !== 'undefined' && chiiApp.cloud_settings) {
-          chiiApp.cloud_settings.update(currentSettings)
-        }
-        // Trigger reload to apply new settings
-        location.reload()
+      if (typeof chiiApp !== 'undefined' && chiiApp.cloud_settings) {
+        chiiApp.cloud_settings.update(currentSettings)
       }
     })
   }
@@ -174,51 +190,53 @@ function isDictDifferent(dict1: Record<string, any>, dict2: Record<string, any>)
   return false
 }
 
-/**
- * Sync settings from CloudStorage to local storage
- * Call this on script initialization to pull cloud settings
- * Converts 'on'/'off' strings back to booleans
- */
-export function syncFromCloud(userSettings: UserSettings): void {
-  try {
-    if (typeof chiiApp === 'undefined' || !chiiApp.cloud_settings) {
-      return
-    }
+// /**
+//  * Sync settings from CloudStorage to local storage
+//  * Call this on script initialization to pull cloud settings
+//  * Converts 'on'/'off' strings back to booleans
+//  */
+// export function syncFromCloud(userSettings: UserSettings): void {
+//   try {
+//     if (typeof chiiApp === 'undefined' || !chiiApp.cloud_settings) {
+//       return
+//     }
 
-    console.log('[BCE] Syncing settings from cloud')
-    const cloudSettings = chiiApp.cloud_settings.getAll()
+//     console.log('[BCE] Syncing settings from cloud')
+//     const cloudSettings = chiiApp.cloud_settings.getAll()
 
-    // Sync sortMode (string value, no conversion needed)
-    if (cloudSettings.sortMode !== undefined && cloudSettings.sortMode !== userSettings.sortMode) {
-      console.log('[BCE] Syncing sortMode:', cloudSettings.sortMode)
-      userSettings.sortMode = cloudSettings.sortMode
-      Storage.set('sortMode', cloudSettings.sortMode)
-    }
+//     console.log('cloudSettings', cloudSettings)
 
-    // Sync stickyMentioned (convert 'on'/'off' string to boolean)
-    if (cloudSettings.stickyMentioned !== undefined) {
-      const boolValue = cloudSettings.stickyMentioned === 'on'
-      if (boolValue !== userSettings.stickyMentioned) {
-        console.log('[BCE] Syncing stickyMentioned:', boolValue)
-        userSettings.stickyMentioned = boolValue
-        Storage.set('stickyMentioned', boolValue)
-      }
-    }
+//     // Sync sortMode (string value, no conversion needed)
+//     if (cloudSettings.sortMode !== undefined && cloudSettings.sortMode !== userSettings.sortMode) {
+//       console.log('[BCE] Syncing sortMode:', cloudSettings.sortMode)
+//       userSettings.sortMode = cloudSettings.sortMode
+//       Storage.set('sortMode', cloudSettings.sortMode)
+//     }
 
-    // Sync hidePremature (convert 'on'/'off' string to boolean)
-    if (cloudSettings.hidePremature !== undefined) {
-      const boolValue = cloudSettings.hidePremature === 'on'
-      if (boolValue !== userSettings.hidePremature) {
-        console.log('[BCE] Syncing hidePremature:', boolValue)
-        userSettings.hidePremature = boolValue
-        Storage.set('hidePremature', boolValue)
-      }
-    }
+//     // Sync stickyMentioned (convert 'on'/'off' string to boolean)
+//     if (cloudSettings.stickyMentioned !== undefined) {
+//       const boolValue = cloudSettings.stickyMentioned === 'on'
+//       if (boolValue !== userSettings.stickyMentioned) {
+//         console.log('[BCE] Syncing stickyMentioned:', boolValue)
+//         userSettings.stickyMentioned = boolValue
+//         Storage.set('stickyMentioned', boolValue)
+//       }
+//     }
 
-    // Note: hidePlainComments, minimumFeaturedCommentLength, maxFeaturedComments
-    // are NOT synced from CloudStorage as they're not compatible with radio-only interface
-  }
-  catch (error) {
-    console.warn('[BCE] Failed to sync from cloud:', error)
-  }
-}
+//     // Sync hidePremature (convert 'on'/'off' string to boolean)
+//     if (cloudSettings.hidePremature !== undefined) {
+//       const boolValue = cloudSettings.hidePremature === 'on'
+//       if (boolValue !== userSettings.hidePremature) {
+//         console.log('[BCE] Syncing hidePremature:', boolValue)
+//         userSettings.hidePremature = boolValue
+//         Storage.set('hidePremature', boolValue)
+//       }
+//     }
+
+//     // Note: hidePlainComments, minimumFeaturedCommentLength, maxFeaturedComments
+//     // are NOT synced from CloudStorage as they're not compatible with radio-only interface
+//   }
+//   catch (error) {
+//     console.warn('[BCE] Failed to sync from cloud:', error)
+//   }
+// }

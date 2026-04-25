@@ -1,7 +1,5 @@
+import { NAMESPACE } from '../constants/index'
 import { hasChiiLib, isCloudStorageEnvironment } from '../utils/environment'
-
-const NAMESPACE = 'BangumiCommentEnhance'
-
 /**
  * Hybrid Storage class that supports both localStorage and CloudStorage
  * - In CloudStorage environment: uses chiiApp.cloud_settings
@@ -13,7 +11,7 @@ export default class Storage {
   /**
    * Check if CloudStorage is available
    */
-  private static isCloudAvailable(): boolean {
+  static isCloudAvailable(): boolean {
     try {
       return this.useCloudStorage && typeof chiiApp !== 'undefined' && chiiApp.cloud_settings !== undefined
     }
@@ -22,38 +20,51 @@ export default class Storage {
     }
   }
 
+  private static getDefaultValue(key: string): any {
+    const defaults: Record<string, any> = {
+      hidePlainComments: true,
+      minimumFeaturedCommentLength: 15,
+      maxFeaturedComments: 99,
+      sortMode: 'reactionCount',
+      stickyMentioned: false,
+      hidePremature: false,
+    }
+    return defaults[key]
+  }
+
   /**
    * Get a value from storage (CloudStorage or localStorage)
    */
   static get(key: string): any {
-    console.log('[BCE] Storage.get called for key:', key)
-    console.log(this.useCloudStorage, this.isCloudAvailable())
+    const realKey = `${NAMESPACE}_${key}`
+    // Fallback to localStorage
+    let currentValue = this.getDefaultValue(key)
+
     try {
       if (this.isCloudAvailable()) {
-        const value = chiiApp!.cloud_settings.get(key)
-        return value !== undefined ? value : undefined
+        const cloudValue = $.cookie(realKey) || this.getDefaultValue(key)
+        console.log('cloudValue', cloudValue)
+        currentValue = cloudValue
       }
+
+      return currentValue
     }
     catch (e) {
       console.warn(`[BCE] Failed to get cloud config '${key}', falling back to localStorage:`, e)
     }
-
-    // Fallback to localStorage
-    const value = localStorage.getItem(`${NAMESPACE}_${key}`)
-    return value ? JSON.parse(value) : undefined
   }
 
   /**
    * Set a value in storage (CloudStorage or localStorage)
    */
   static set(key: string, value: any): void {
-    console.log('[BCE] Storage.set called for key:', key)
-    console.log(this.useCloudStorage, this.isCloudAvailable())
     try {
-      localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value))
-      if (this.isCloudAvailable()) {
-        chiiApp!.cloud_settings.update({ [key]: value })
-      }
+      console.log('local value being set to', value)
+      //  localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value))
+      $.cookie(`${NAMESPACE}_${key}`, value, { expires: 365 }) // Sync to cookie for CloudStorage retrieval
+      // if (this.isCloudAvailable()) {
+      //   chiiApp!.cloud_settings.update({ [`${NAMESPACE}_${key}`]: value })
+      // }
     }
     catch (e) {
       console.warn(`[BCE] Failed to update cloud config '${key}'`, e)

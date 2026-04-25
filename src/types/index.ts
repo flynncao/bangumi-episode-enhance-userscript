@@ -64,7 +64,7 @@ interface GeneralConfigRadioParams {
   defaultValue: string
   getCurrentValue: () => void
   onChange: (value: string) => void
-  options: { value: string; label: string }[]
+  options: { value: string, label: string }[]
 }
 
 type GeneralConfigParams = GeneralConfigRadioParams

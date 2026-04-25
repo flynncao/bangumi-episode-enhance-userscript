@@ -336,17 +336,17 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
       dropdown.value = sortMode
     }
 
-    const stickyMentioned = Storage.get('stickyMentioned')
+    const stickyMentioned: boolean = Storage.get('stickyMentioned') === 'on'
     if (stickyMentioned !== undefined) {
       pinMyCommentsCheckboxContainer.setChecked(stickyMentioned)
     }
 
-    const hidePremature = Storage.get('hidePremature')
+    const hidePremature = Storage.get('hidePremature') === 'on'
     if (hidePremature !== undefined && episodeMode) {
       hidePrematureCommentsCheckboxContainer.setChecked(hidePremature)
     }
 
-    const hidePlainComments = Storage.get('hidePlainComments')
+    const hidePlainComments = Storage.get('hidePlainComments') === 'on'
     if (hidePlainComments !== undefined) {
       hidePlainCommentsCheckboxContainer.setChecked(hidePlainComments)
     }
@@ -384,12 +384,12 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
       Number.parseInt(maxPostsInput.value) > 0 ? Number.parseInt(maxPostsInput.value) : 1,
     )
 
-    Storage.set('hidePlainComments', hidePlainCommentsCheckboxContainer.isChecked())
-    Storage.set('stickyMentioned', pinMyCommentsCheckboxContainer.isChecked())
+    Storage.set('hidePlainComments', hidePlainCommentsCheckboxContainer.isChecked() ? 'on' : 'off')
+    Storage.set('stickyMentioned', pinMyCommentsCheckboxContainer.isChecked() ? 'on' : 'off')
     Storage.set('sortMode', dropdown.value)
 
     if (episodeMode) {
-      Storage.set('hidePremature', hidePrematureCommentsCheckboxContainer.isChecked())
+      Storage.set('hidePremature', hidePrematureCommentsCheckboxContainer.isChecked() ? 'on' : 'off')
     }
 
     // Trigger custom event

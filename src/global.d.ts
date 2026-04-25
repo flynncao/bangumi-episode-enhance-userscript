@@ -22,7 +22,10 @@ interface ChiiLib {
 
 declare global {
   const chiiLib: ChiiLib
-  const $: any
+
+  interface JQueryStatic {
+    cookie: (name: string, value?: string, options?: any) => string | undefined
+  }
 }
 
 export {}

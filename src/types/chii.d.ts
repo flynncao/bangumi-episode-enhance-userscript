@@ -9,6 +9,13 @@ export interface RadioOption {
   label: string
 }
 
+export interface TabConfigs {
+  tab: string
+  label: string
+  type: 'options'
+  config: RadioConfig[]
+}
+
 export interface RadioConfig {
   title: string
   name: string
@@ -26,7 +33,7 @@ export interface CloudSettings {
 }
 
 export interface Ukagaka {
-  addGeneralConfig: (config: RadioConfig) => void
+  addGeneralConfig: (configs: TabConfigs) => void
   onOpen: (callback: () => void) => void
   onClose: (callback: () => void) => void
 }

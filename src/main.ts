@@ -7,7 +7,7 @@ import butterupStyles from './static/css/butterup.css'
 import styles from './static/css/styles.css'
 import butterup from './static/js/butterup'
 import Icons from './static/svg/index'
-import { initCloudSettings, syncFromCloud } from './storage/cloudSettings'
+import { initCloudSettings } from './storage/cloudSettings'
 import Storage from './storage/index'
 import { quickSort } from './utils/index';
 
@@ -34,11 +34,8 @@ import { quickSort } from './utils/index';
     hidePremature: Storage.get('hidePremature'),
   }
 
-  // Sync from CloudStorage if available (before UI creation)
-  syncFromCloud(userSettings)
-
   const sortModeData = userSettings.sortMode || 'reactionCount'
-  ;(() => {
+    ; (() => {
     const butterupStyleEl = document.createElement('style')
     butterupStyleEl.textContent = String(butterupStyles)
     document.head.append(butterupStyleEl)
@@ -253,7 +250,7 @@ import { quickSort } from './utils/index';
     $('#toggleFilteredBtn').click()
   }
   // Initialize CloudStorage settings if available, otherwise use standalone menu
-  const cloudSettingsInitialized = initCloudSettings(userSettings, BGM_EP_REGEX.test(location.href))
+  initCloudSettings(userSettings, BGM_EP_REGEX.test(location.href))
 
   createSettingMenu(userSettings, BGM_EP_REGEX.test(location.href))
   // Set up settings button click handler for standalone mode
