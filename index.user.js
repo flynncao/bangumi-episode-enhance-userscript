@@ -1,7 +1,7 @@
 
 // ==UserScript==
 // @name        bangumi-comment-enhance
-// @version     0.2.19
+// @version     0.2.20
 // @description Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @author      Flynn Cao
 // @updateURL   https://flynncao.github.io/bangumi-episode-enhance-userscript/index.user.js
@@ -108,6 +108,10 @@ class CustomCheckboxContainer {
     }
 }
 
+const BGM_EP_REGEX = /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/ep\/\d+/;
+const BGM_GROUP_REGEX = /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/group\/topic\/\d+/;
+const NAMESPACE = 'bangumi_comment_enhance';
+
 var Environment;
 (function (Environment) {
     Environment["STANDALONE"] = "standalone";
@@ -120,7 +124,6 @@ function hasChiiLib() {
     return typeof chiiLib !== 'undefined' && chiiLib.ukagaka !== undefined;
 }
 
-const NAMESPACE = 'BangumiCommentEnhance';
 class Storage {
     static useCloudStorage = isCloudStorageEnvironment();
     static isCloudAvailable() {
@@ -131,29 +134,36 @@ class Storage {
             return false;
         }
     }
+    static getDefaultValue(key) {
+        const defaults = {
+            hidePlainComments: true,
+            minimumFeaturedCommentLength: 15,
+            maxFeaturedComments: 99,
+            sortMode: 'reactionCount',
+            stickyMentioned: false,
+            hidePremature: false,
+        };
+        return defaults[key];
+    }
     static get(key) {
-        console.log('[BCE] Storage.get called for key:', key);
-        console.log(this.useCloudStorage, this.isCloudAvailable());
+        const realKey = `${NAMESPACE}_${key}`;
+        let currentValue = this.getDefaultValue(key);
         try {
             if (this.isCloudAvailable()) {
-                const value = chiiApp.cloud_settings.get(key);
-                return value !== undefined ? value : undefined;
+                const cloudValue = $.cookie(realKey) || this.getDefaultValue(key);
+                console.log('cloudValue', cloudValue);
+                currentValue = cloudValue;
             }
+            return currentValue;
         }
         catch (e) {
             console.warn(`[BCE] Failed to get cloud config '${key}', falling back to localStorage:`, e);
         }
-        const value = localStorage.getItem(`${NAMESPACE}_${key}`);
-        return value ? JSON.parse(value) : undefined;
     }
     static set(key, value) {
-        console.log('[BCE] Storage.set called for key:', key);
-        console.log(this.useCloudStorage, this.isCloudAvailable());
         try {
-            localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value));
-            if (this.isCloudAvailable()) {
-                chiiApp.cloud_settings.update({ [key]: value });
-            }
+            console.log('local value being set to', value);
+            $.cookie(`${NAMESPACE}_${key}`, value, { expires: 365 });
         }
         catch (e) {
             console.warn(`[BCE] Failed to update cloud config '${key}'`, e);
@@ -350,15 +360,15 @@ function createSettingMenu(userSettings, episodeMode = false) {
         if (sortMode) {
             dropdown.value = sortMode;
         }
-        const stickyMentioned = Storage.get('stickyMentioned');
+        const stickyMentioned = Storage.get('stickyMentioned') === 'on';
         if (stickyMentioned !== undefined) {
             pinMyCommentsCheckboxContainer.setChecked(stickyMentioned);
         }
-        const hidePremature = Storage.get('hidePremature');
+        const hidePremature = Storage.get('hidePremature') === 'on';
         if (hidePremature !== undefined && episodeMode) {
             hidePrematureCommentsCheckboxContainer.setChecked(hidePremature);
         }
-        const hidePlainComments = Storage.get('hidePlainComments');
+        const hidePlainComments = Storage.get('hidePlainComments') === 'on';
         if (hidePlainComments !== undefined) {
             hidePlainCommentsCheckboxContainer.setChecked(hidePlainComments);
         }
@@ -375,11 +385,11 @@ function createSettingMenu(userSettings, episodeMode = false) {
         const { container, overlay, dropdown, pinMyCommentsCheckboxContainer, hidePrematureCommentsCheckboxContainer, hidePlainCommentsCheckboxContainer, minEffInput, maxPostsInput, } = elements;
         Storage.set('minimumFeaturedCommentLength', Math.max(Number.parseInt(minEffInput.value) || 0, 0));
         Storage.set('maxFeaturedComments', Number.parseInt(maxPostsInput.value) > 0 ? Number.parseInt(maxPostsInput.value) : 1);
-        Storage.set('hidePlainComments', hidePlainCommentsCheckboxContainer.isChecked());
-        Storage.set('stickyMentioned', pinMyCommentsCheckboxContainer.isChecked());
+        Storage.set('hidePlainComments', hidePlainCommentsCheckboxContainer.isChecked() ? 'on' : 'off');
+        Storage.set('stickyMentioned', pinMyCommentsCheckboxContainer.isChecked() ? 'on' : 'off');
         Storage.set('sortMode', dropdown.value);
         if (episodeMode) {
-            Storage.set('hidePremature', hidePrematureCommentsCheckboxContainer.isChecked());
+            Storage.set('hidePremature', hidePrematureCommentsCheckboxContainer.isChecked() ? 'on' : 'off');
         }
         const event = new CustomEvent('settingsSaved');
         document.dispatchEvent(event);
@@ -445,9 +455,6 @@ function createSettingMenu(userSettings, episodeMode = false) {
         init();
     }
 }
-
-const BGM_EP_REGEX = /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/ep\/\d+/;
-const BGM_GROUP_REGEX = /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/group\/topic\/\d+/;
 
 function quickSort(arr, sortKey, changeCompareDirection = false) {
     if (arr.length <= 1) {
@@ -943,6 +950,12 @@ function initCloudSettings(userSettings, episodeMode = false) {
             return false;
         }
         console.log('[BCE] Initializing CloudStorage settings integration (radio-only)');
+        const tabApp = {
+            tab: 'bangumi_comment_enhance',
+            label: '评论区增强',
+            type: 'options',
+            config: [],
+        };
         const configs = [];
         configs.push({
             title: '排序方式',
@@ -950,7 +963,7 @@ function initCloudSettings(userSettings, episodeMode = false) {
             type: 'radio',
             defaultValue: 'reactionCount',
             getCurrentValue() {
-                return userSettings.sortMode || 'reactionCount';
+                return Storage.get('sortMode') || 'reactionCount';
             },
             onChange(value) {
                 Storage.set('sortMode', value);
@@ -969,12 +982,10 @@ function initCloudSettings(userSettings, episodeMode = false) {
             type: 'radio',
             defaultValue: 'off',
             getCurrentValue() {
-                return userSettings.stickyMentioned ? 'on' : 'off';
+                return Storage.get('stickyMentioned');
             },
             onChange(value) {
-                const boolValue = value === 'on';
-                Storage.set('stickyMentioned', boolValue);
-                userSettings.stickyMentioned = boolValue;
+                Storage.set('stickyMentioned', value);
             },
             options: [
                 { value: 'on', label: '开启' },
@@ -988,12 +999,10 @@ function initCloudSettings(userSettings, episodeMode = false) {
                 type: 'radio',
                 defaultValue: 'off',
                 getCurrentValue() {
-                    return userSettings.hidePremature ? 'on' : 'off';
+                    return Storage.get('hidePremature');
                 },
                 onChange(value) {
-                    const boolValue = value === 'on';
-                    Storage.set('hidePremature', boolValue);
-                    userSettings.hidePremature = boolValue;
+                    Storage.set('hidePremature', value);
                 },
                 options: [
                     { value: 'on', label: '开启' },
@@ -1001,98 +1010,55 @@ function initCloudSettings(userSettings, episodeMode = false) {
                 ],
             });
         }
-        configs.forEach((config) => {
-            console.log(`[BCE] Registering ${config.type} config "${config.name}"`);
-            chiiLib.ukagaka.addGeneralConfig(config);
+        configs.push({
+            title: '隐藏普通评论',
+            name: 'hidePlainComments',
+            type: 'radio',
+            defaultValue: 'off',
+            getCurrentValue() {
+                return Storage.get('hidePlainComments');
+            },
+            onChange(value) {
+                Storage.set('hidePlainComments', value);
+            },
+            options: [
+                { value: 'on', label: '开启' },
+                { value: 'off', label: '关闭' },
+            ],
         });
-        setupAutoSync(userSettings);
-        return true;
+        tabApp.config = configs;
+        console.log('[BCE] Registering settings tab with chiiLib.ukagaka');
+        chiiLib.ukagaka.addPanelTab(tabApp);
+        setUpCloudLifeCycleHooks();
     }
     catch (error) {
         console.warn('[BCE] Failed to initialize CloudStorage settings:', error);
         return false;
     }
 }
-function setupAutoSync(userSettings) {
+function setUpCloudLifeCycleHooks() {
     try {
         if (typeof chiiLib === 'undefined' || !chiiLib.ukagaka) {
             return;
         }
-        let configsSnapshot = {};
         chiiLib.ukagaka.onOpen(() => {
             console.log('[BCE] Customize panel opened');
-            configsSnapshot = {
-                sortMode: userSettings.sortMode,
-                stickyMentioned: userSettings.stickyMentioned ? 'on' : 'off',
-                hidePremature: userSettings.hidePremature ? 'on' : 'off',
-            };
         });
         chiiLib.ukagaka.onClose(() => {
             console.log('[BCE] Customize panel closed');
             const currentSettings = {
-                sortMode: userSettings.sortMode,
-                stickyMentioned: userSettings.stickyMentioned ? 'on' : 'off',
-                hidePremature: userSettings.hidePremature ? 'on' : 'off',
+                sortMode: Storage.get('sortMode') || 'reactionCount',
+                stickyMentioned: Storage.get('stickyMentioned'),
+                hidePremature: Storage.get('hidePremature'),
+                hidePlainComments: Storage.get('hidePlainComments'),
             };
-            if (isDictDifferent(configsSnapshot, currentSettings)) {
-                console.log('[BCE] Settings changed, syncing to cloud');
-                if (typeof chiiApp !== 'undefined' && chiiApp.cloud_settings) {
-                    chiiApp.cloud_settings.update(currentSettings);
-                }
-                location.reload();
+            if (typeof chiiApp !== 'undefined' && chiiApp.cloud_settings) {
+                chiiApp.cloud_settings.update(currentSettings);
             }
         });
     }
     catch (error) {
         console.warn('[BCE] Failed to setup auto-sync:', error);
-    }
-}
-function isDictDifferent(dict1, dict2) {
-    const keys1 = Object.keys(dict1);
-    const keys2 = Object.keys(dict2);
-    if (keys1.length !== keys2.length)
-        return true;
-    for (const key of keys1) {
-        if (dict1[key] !== dict2[key])
-            return true;
-    }
-    for (const key of keys2) {
-        if (!(key in dict1))
-            return true;
-    }
-    return false;
-}
-function syncFromCloud(userSettings) {
-    try {
-        if (typeof chiiApp === 'undefined' || !chiiApp.cloud_settings) {
-            return;
-        }
-        console.log('[BCE] Syncing settings from cloud');
-        const cloudSettings = chiiApp.cloud_settings.getAll();
-        if (cloudSettings.sortMode !== undefined && cloudSettings.sortMode !== userSettings.sortMode) {
-            console.log('[BCE] Syncing sortMode:', cloudSettings.sortMode);
-            userSettings.sortMode = cloudSettings.sortMode;
-            Storage.set('sortMode', cloudSettings.sortMode);
-        }
-        if (cloudSettings.stickyMentioned !== undefined) {
-            const boolValue = cloudSettings.stickyMentioned === 'on';
-            if (boolValue !== userSettings.stickyMentioned) {
-                console.log('[BCE] Syncing stickyMentioned:', boolValue);
-                userSettings.stickyMentioned = boolValue;
-                Storage.set('stickyMentioned', boolValue);
-            }
-        }
-        if (cloudSettings.hidePremature !== undefined) {
-            const boolValue = cloudSettings.hidePremature === 'on';
-            if (boolValue !== userSettings.hidePremature) {
-                console.log('[BCE] Syncing hidePremature:', boolValue);
-                userSettings.hidePremature = boolValue;
-                Storage.set('hidePremature', boolValue);
-            }
-        }
-    }
-    catch (error) {
-        console.warn('[BCE] Failed to sync from cloud:', error);
     }
 }
 
@@ -1117,7 +1083,6 @@ function syncFromCloud(userSettings) {
         stickyMentioned: Storage.get('stickyMentioned'),
         hidePremature: Storage.get('hidePremature'),
     };
-    syncFromCloud(userSettings);
     const sortModeData = userSettings.sortMode || 'reactionCount';
     (() => {
         const butterupStyleEl = document.createElement('style');
