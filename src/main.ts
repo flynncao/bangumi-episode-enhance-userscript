@@ -92,8 +92,7 @@ import { quickSort } from './utils/index';
     display: 'inline-block',
     width: '20px',
     height: '20px',
-    transform: 'translate(0, -3px)',
-    margin: '0 0 0 5px',
+    margin: '0 0 2.5px 5px',
     cursor: 'pointer',
   }
   /**
@@ -169,7 +168,7 @@ import { quickSort } from './utils/index';
     })
 
   const menuBar = $(
-    '<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>',
+    '<h3 style="padding:10px;padding-bottom:7.5px;display:flex;width:100%;align-items:center;"><span style="display:inline-block;">所有精选评论</span></h3>',
   )
 
   if (BGM_EP_REGEX.test(location.href)) {
