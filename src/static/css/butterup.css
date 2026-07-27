@@ -24,7 +24,7 @@
   padding: 5px;
 }
 
-@keyframes spin {
+@keyframes bce-icon-spin {
   from {
     transform: rotate(0deg);
   }
@@ -33,8 +33,8 @@
   }
 }
 
-.animate-spin {
-  animation: spin 1s linear infinite;
+.bce-icon-spin {
+  animation: bce-icon-spin 1s linear infinite;
 }
 
 .toaster.bottom-right {
@@ -149,10 +149,17 @@ ol.rack.lowerstack {
   flex-direction: column;
 }
 
+.butteruptoast .icon .bce-icon {
+  color: inherit;
+  font-size: 1.538em;
+  padding: 0;
+  margin: 0;
+}
+
 .butteruptoast .icon svg {
-  width: 20px;
-  height: 20px;
-  fill: #282828;
+  width: 1.538em;
+  height: 1.538em;
+  fill: currentColor;
   padding: 0;
   margin: 0;
 }
@@ -183,22 +190,6 @@ ol.rack.lowerstack {
   background-color: #ebfef2;
   color: hsl(140, 100%, 27%);
   border: solid 1px hsl(145, 92%, 91%);
-}
-
-.butteruptoast.success .icon svg {
-  fill: hsl(140, 100%, 27%);
-}
-
-.butteruptoast.error .icon svg {
-  fill: hsl(0, 100%, 27%);
-}
-
-.butteruptoast.warning .icon svg {
-  fill: hsl(50, 100%, 27%);
-}
-
-.butteruptoast.info .icon svg {
-  fill: hsl(210, 100%, 27%);
 }
 
 .butteruptoast.error {

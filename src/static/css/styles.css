@@ -1,63 +1,33 @@
-.bct-button {
-  /* --button-size: 2rem;
-  width: var(--button-size);
-  height: var(--button-size); */
+.bce-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  color: inherit;
+  vertical-align: middle;
+  background-color: currentColor;
+  -webkit-mask: var(--un-icon) no-repeat;
+  mask: var(--un-icon) no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.bce-toolbar-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 1em;
+  height: 1em;
+  margin: 0 0 0.125em 0.25em;
+  color: #5f5f5f;
+  font-size: 1.4em;
+  line-height: 1;
+  vertical-align: middle;
   cursor: pointer;
-  color: #000;
-  transform: translateY(4px);
-  padding: 2px 5px;
-  border: 1px solid transparent;
 }
 
-[data-theme='dark'] .bct-button {
+[data-theme='dark'] .bce-toolbar-button {
   color: #f5f5f5;
-}
-
-.bct-button:hover {
-  border: 1px solid lightgray;
-  border-radius: 4px;
-  transition: all 0.2s ease-in-out;
-}
-
-.bct-button svg {
-  width: 100%;
-  height: 100%;
-  /* Let the button control the size */
-  flex: 1;
-}
-
-.bct-button svg {
-  max-width: 21px;
-  max-height: 21px;
-}
-
-.bct-button span {
-  font-size: 12px !important;
-  font-weight: normal !important;
-  padding-right: 4px !important;
-}
-[data-theme='dark'] .bct-button svg {
-  filter: invert(1);
-}
-
-.bct-checkbox {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  height: 20px;
-  cursor: pointer;
-}
-
-.bct-checkbox .bct-checkmark {
-  /* You had no styles for this in the original, but leave this as a placeholder */
-}
-
-.bct-checkbox span:last-child {
-  margin-left: 2px;
 }
 
 .premature-comment {

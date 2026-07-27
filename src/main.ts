@@ -1,15 +1,17 @@
 import type { CommentElement, UserSettings } from './types/index'
 
+import unoStyles from 'virtual:uno.css'
+
 import { createSettingMenu } from './components/layouts/settings/index'
 import { BGM_EP_REGEX, BGM_GROUP_REGEX } from './constants/index'
+import { icon } from './icons'
 import processComments from './modules/comments'
 import butterupStyles from './static/css/butterup.css'
 import styles from './static/css/styles.css'
 import butterup from './static/js/butterup'
-import Icons from './static/svg/index'
 import { initCloudSettings } from './storage/cloudSettings'
 import Storage from './storage/index'
-import { quickSort } from './utils/index';
+import { quickSort } from './utils/index'
 
 (async function () {
   if (!BGM_EP_REGEX.test(location.href) && !BGM_GROUP_REGEX.test(location.href)) {
@@ -40,7 +42,7 @@ import { quickSort } from './utils/index';
     butterupStyleEl.textContent = String(butterupStyles)
     document.head.append(butterupStyleEl)
     const styleEl = document.createElement('style')
-    styleEl.textContent = String(styles)
+    styleEl.textContent = `${String(unoStyles)}${String(styles)}`
     document.head.append(styleEl)
   })()
 
@@ -88,26 +90,19 @@ import { quickSort } from './utils/index';
 
   stateBar.append(hiddenCommentsInfo)
   container.find('.row').detach()
-  const menuBarCSSProperties: JQuery.PlainObject = {
-    display: 'inline-block',
-    width: '20px',
-    height: '20px',
-    margin: '0 0 2.5px 5px',
-    cursor: 'pointer',
-  }
   /**
    * Button event handlers
    */
 
   const settingBtn = $('<strong></strong>')
-    .css(menuBarCSSProperties)
-    .html(Icons.gear || '')
+    .addClass('bce-toolbar-button')
+    .html(icon('settings'))
     .attr('title', '设置')
   // Note: Click handler will be set up after determining which settings system to use
 
   const jumpToNewestBtn = $('<strong></strong>')
-    .css(menuBarCSSProperties)
-    .html(Icons.newest || '')
+    .addClass('bce-toolbar-button')
+    .html(icon('clock-3'))
     .attr('title', '跳转到最新评论')
     .click(() => {
       $('#comment_list_plain').slideDown()
@@ -135,8 +130,8 @@ import { quickSort } from './utils/index';
   let allExpanded = false
   const preservedPostID = $(location).attr('href')!.split('#').length > 1 ? $(location).attr('href')!.split('#')[1] : null
   const expandToggleBtn = $('<strong></strong>')
-    .css(menuBarCSSProperties)
-    .html(Icons.expandAll || '')
+    .addClass('bce-toolbar-button')
+    .html(icon('chevrons-down'))
     .attr('title', '展开所有评论')
     .click(() => {
       allExpanded = !allExpanded
@@ -163,7 +158,7 @@ import { quickSort } from './utils/index';
         icon: true,
       })
       // Update button icon and title
-      expandToggleBtn.html(allExpanded ? Icons.collapseAll || '' : Icons.expandAll || '')
+      expandToggleBtn.html(icon(allExpanded ? 'chevrons-up' : 'chevrons-down'))
       expandToggleBtn.attr('title', allExpanded ? '折叠所有评论' : '展开所有评论')
     })
 
@@ -173,8 +168,8 @@ import { quickSort } from './utils/index';
 
   if (BGM_EP_REGEX.test(location.href)) {
     const showPrematureBtn = $('<strong></strong>')
-      .css(menuBarCSSProperties)
-      .html(Icons.eyeOpen || '')
+      .addClass('bce-toolbar-button')
+      .html(icon('eye'))
       .attr('title', '显示开播前发表的评论')
       .click(() => {
         const hideStatus: boolean = $('.premature-comment').is(':visible')

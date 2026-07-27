@@ -23,10 +23,13 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^7.2.0",
+    "@iconify-json/lucide": "^1.2.120",
     "@rollup/plugin-strip": "^3.0.4",
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/jquery": "^3.5.32",
     "@types/node": "^24.2.1",
+    "@unocss/core": "^66.7.5",
+    "@unocss/preset-icons": "^66.7.5",
     "concurrently": "^9.1.2",
     "eslint": "^9.38.0",
     "lint-staged": "^16.2.7",

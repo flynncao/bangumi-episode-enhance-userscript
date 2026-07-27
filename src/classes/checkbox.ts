@@ -1,8 +1,12 @@
+import type { IconName } from '../icons'
+
+import { icon } from '../icons'
+
 class CustomCheckboxContainer {
   id: string
   label: string
   description: string
-  iconSvg: string
+  iconName: IconName
   checked: boolean
   input: HTMLInputElement | null
   element: HTMLElement | null
@@ -12,13 +16,13 @@ class CustomCheckboxContainer {
     id: string,
     label: string,
     description: string,
-    iconSvg: string,
+    iconName: IconName,
     checked: boolean,
   ) {
     this.id = id
     this.label = label
     this.description = description
-    this.iconSvg = iconSvg
+    this.iconName = iconName
     this.checked = checked
     this.input = null
     this.element = null
@@ -50,7 +54,7 @@ class CustomCheckboxContainer {
     // Icon
     const iconDiv = document.createElement('div')
     iconDiv.className = 'bce-checkbox-icon'
-    iconDiv.innerHTML = this.iconSvg
+    iconDiv.innerHTML = icon(this.iconName)
 
     // Content
     const contentDiv = document.createElement('div')
@@ -70,7 +74,7 @@ class CustomCheckboxContainer {
     // Custom checkbox visual
     const checkDiv = document.createElement('div')
     checkDiv.className = 'bce-checkbox-check'
-    checkDiv.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+    checkDiv.innerHTML = icon('check')
 
     // Hidden input
     const input = this.createElement()
