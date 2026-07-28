@@ -3,7 +3,7 @@ import type { CommentElement, UserSettings } from './types/index'
 import unoStyles from 'virtual:uno.css'
 
 import { createSettingMenu } from './components/layouts/settings/index'
-import { BGM_EP_REGEX, BGM_GROUP_REGEX } from './constants/index'
+import { getCommentArea } from './constants/index'
 import { icon } from './icons'
 import processComments from './modules/comments'
 import butterupStyles from './static/css/butterup.css'
@@ -11,12 +11,17 @@ import styles from './static/css/styles.css'
 import butterup from './static/js/butterup'
 import { initCloudSettings } from './storage/cloudSettings'
 import Storage from './storage/index'
+import { getDisabledCommentAreas, setCommentAreaEnabled } from './storage/localSettings'
 import { quickSort } from './utils/index'
 
 (async function () {
-  if (!BGM_EP_REGEX.test(location.href) && !BGM_GROUP_REGEX.test(location.href)) {
+  const currentCommentArea = getCommentArea(location.href)
+  if (!currentCommentArea) {
     return
   }
+  const episodeMode = currentCommentArea === 'episode'
+  const commentAreaDisabled = getDisabledCommentAreas().includes(currentCommentArea)
+
   Storage.init({
     hidePlainComments: true,
     minimumFeaturedCommentLength: 15,
@@ -34,6 +39,36 @@ import { quickSort } from './utils/index'
     sortMode: Storage.get('sortMode'),
     stickyMentioned: Storage.get('stickyMentioned'),
     hidePremature: Storage.get('hidePremature'),
+  }
+
+  if (commentAreaDisabled) {
+    const disabledStyleEl = document.createElement('style')
+    disabledStyleEl.textContent = `${String(unoStyles)}${String(styles)}`
+    document.head.append(disabledStyleEl)
+
+    createSettingMenu(userSettings, episodeMode, true)
+
+    const disabledMenuBar = $(
+      '<h3 style="padding:10px;padding-bottom:7.5px;display:flex;width:100%;align-items:center;"><span style="display:inline-block;">评论区增强</span></h3>',
+    )
+    const enableAreaBtn = $('<button type="button"></button>')
+      .addClass('bce-area-status')
+      .text('已禁用 · 点击启用')
+      .attr('title', '仅重新启用当前评论区域')
+      .on('click', () => {
+        setCommentAreaEnabled(currentCommentArea, true)
+        location.reload()
+      })
+    const disabledSettingBtn = $('<strong></strong>')
+      .addClass('bce-toolbar-button')
+      .html(icon('settings'))
+      .attr('title', '设置')
+      .on('click', () => window.BCE!.settingsDialog!.show())
+
+    disabledMenuBar.append(enableAreaBtn)
+    disabledMenuBar.append(disabledSettingBtn)
+    $('#comment_list').prepend(disabledMenuBar)
+    return
   }
 
   const sortModeData = userSettings.sortMode || 'reactionCount'
@@ -166,7 +201,7 @@ import { quickSort } from './utils/index'
     '<h3 style="padding:10px;padding-bottom:7.5px;display:flex;width:100%;align-items:center;"><span style="display:inline-block;">所有精选评论</span></h3>',
   )
 
-  if (BGM_EP_REGEX.test(location.href)) {
+  if (episodeMode) {
     const showPrematureBtn = $('<strong></strong>')
       .addClass('bce-toolbar-button')
       .html(icon('eye'))
@@ -244,9 +279,9 @@ import { quickSort } from './utils/index'
     $('#toggleFilteredBtn').click()
   }
   // Initialize CloudStorage settings if available, otherwise use standalone menu
-  initCloudSettings(userSettings, BGM_EP_REGEX.test(location.href))
+  initCloudSettings(userSettings, episodeMode)
 
-  createSettingMenu(userSettings, BGM_EP_REGEX.test(location.href))
+  createSettingMenu(userSettings, episodeMode)
   // Set up settings button click handler for standalone mode
   settingBtn.on('click', () => window.BCE!.settingsDialog!.show())
 

@@ -72,6 +72,32 @@ export default class Storage {
   }
 
   /**
+   * Get a setting that must remain in this browser and never enter CloudStorage.
+   */
+  static getLocal<T>(key: string, defaultValue: T): T {
+    try {
+      const storedValue = localStorage.getItem(`${NAMESPACE}_${key}`)
+      return storedValue === null ? defaultValue : (JSON.parse(storedValue) as T)
+    }
+    catch (e) {
+      console.warn(`[BCE] Failed to get local config '${key}':`, e)
+      return defaultValue
+    }
+  }
+
+  /**
+   * Save a setting only in this browser, independently of CloudStorage.
+   */
+  static setLocal<T>(key: string, value: T): void {
+    try {
+      localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value))
+    }
+    catch (e) {
+      console.warn(`[BCE] Failed to update local config '${key}':`, e)
+    }
+  }
+
+  /**
    * Initialize storage with default values
    * Syncs with CloudStorage if available
    */

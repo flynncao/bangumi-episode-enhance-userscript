@@ -11,6 +11,8 @@ interface CommentElement {
   timestamp?: string
 }
 
+type CommentArea = 'episode' | 'blog' | 'groupTopic' | 'subjectTopic'
+
 // User settings structure
 interface UserSettings {
   hidePlainComments: boolean
@@ -39,8 +41,13 @@ interface BCE {
 }
 
 export interface SettingsElements {
+  overlay: HTMLDivElement
   container: HTMLDivElement
   dropdown: HTMLSelectElement
+  commentAreaDropdown: HTMLDivElement
+  commentAreaTrigger: HTMLButtonElement
+  commentAreaSummary: HTMLSpanElement
+  commentAreaInputs: Map<CommentArea, HTMLInputElement>
   pinMyCommentsCheckboxContainer: CustomCheckboxContainer
   hidePlainCommentsCheckboxContainer: CustomCheckboxContainer
   hidePrematureCommentsCheckboxContainer: CustomCheckboxContainer
@@ -88,6 +95,7 @@ type PanelTabParams = PanelTabOptionsParams | PanelTabCustomParams
 // Export interfaces for use in other files
 export type {
   BCE,
+  CommentArea,
   CommentElement,
   PanelTabCustomParams,
   PanelTabOptionsParams,

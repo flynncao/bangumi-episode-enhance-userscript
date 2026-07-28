@@ -1,24 +1,52 @@
-import type { UserSettings } from '../../../types/index'
+import type { CommentArea, SettingsElements, UserSettings } from '../../../types/index'
+
 import { CustomCheckboxContainer } from '../../../classes/checkbox'
+import { COMMENT_AREAS } from '../../../constants/index'
 import { icon } from '../../../icons'
 import Storage from '../../../storage/index'
+import { getDisabledCommentAreas, setDisabledCommentAreas } from '../../../storage/localSettings'
 // @ts-ignore
 import styles from './styles.css'
 
-interface SettingsElements {
-  overlay: HTMLDivElement
-  container: HTMLDivElement
-  dropdown: HTMLSelectElement
-  pinMyCommentsCheckboxContainer: CustomCheckboxContainer
-  hidePlainCommentsCheckboxContainer: CustomCheckboxContainer
-  hidePrematureCommentsCheckboxContainer: CustomCheckboxContainer
-  minEffInput: HTMLInputElement
-  maxPostsInput: HTMLInputElement
-  cancelBtn: HTMLButtonElement
-  saveBtn: HTMLButtonElement
+const COMMENT_AREA_LABELS: Record<CommentArea, string> = {
+  episode: '单集评论',
+  blog: '日志评论',
+  groupTopic: '小组话题',
+  subjectTopic: '条目讨论',
 }
 
-export function createSettingMenu(userSettings: UserSettings, episodeMode = false) {
+function setCommentAreaDropdownOpen(elements: SettingsElements, open: boolean): void {
+  elements.commentAreaDropdown.classList.toggle('open', open)
+  elements.commentAreaTrigger.setAttribute('aria-expanded', String(open))
+}
+
+function syncCommentAreaSelection(elements: SettingsElements): void {
+  let selectedCount = 0
+  elements.commentAreaInputs.forEach((input) => {
+    if (input.checked) {
+      selectedCount += 1
+    }
+    const option = input.closest('.bce-multi-select-option')
+    option?.classList.toggle('selected', input.checked)
+  })
+
+  const totalCount = COMMENT_AREAS.length
+  if (selectedCount === totalCount) {
+    elements.commentAreaSummary.textContent = `全部 ${totalCount} 个区域`
+  }
+  else if (selectedCount === 0) {
+    elements.commentAreaSummary.textContent = '未启用任何区域'
+  }
+  else {
+    elements.commentAreaSummary.textContent = `已选择 ${selectedCount}/${totalCount} 个区域`
+  }
+}
+
+export function createSettingMenu(
+  userSettings: UserSettings,
+  episodeMode = false,
+  reloadOnSave = false,
+): void {
   const injectStyles = () => {
     const styleEl = document.createElement('style')
     styleEl.textContent = styles
@@ -53,6 +81,73 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
     // Create body
     const body = document.createElement('div')
     body.className = 'bce-modal-body'
+
+    // Comment area scope section
+    const scopeSection = document.createElement('div')
+    scopeSection.className = 'bce-section'
+
+    const scopeTitle = document.createElement('h3')
+    scopeTitle.className = 'bce-section-title'
+    scopeTitle.innerHTML = `${icon('list')} 生效范围`
+    scopeSection.appendChild(scopeTitle)
+
+    const scopeGroup = document.createElement('div')
+    scopeGroup.className = 'bce-form-group'
+
+    const scopeLabel = document.createElement('label')
+    scopeLabel.className = 'bce-form-label'
+    scopeLabel.textContent = '启用评论区增强的区域'
+    scopeLabel.htmlFor = 'bce-comment-area-trigger'
+
+    const commentAreaDropdown = document.createElement('div')
+    commentAreaDropdown.className = 'bce-multi-select'
+
+    const commentAreaTrigger = document.createElement('button')
+    commentAreaTrigger.type = 'button'
+    commentAreaTrigger.id = 'bce-comment-area-trigger'
+    commentAreaTrigger.className = 'bce-multi-select-trigger'
+    commentAreaTrigger.setAttribute('aria-expanded', 'false')
+    commentAreaTrigger.setAttribute('aria-controls', 'bce-comment-area-options')
+
+    const commentAreaSummary = document.createElement('span')
+    commentAreaSummary.className = 'bce-multi-select-summary'
+    commentAreaTrigger.appendChild(commentAreaSummary)
+
+    const commentAreaMenu = document.createElement('div')
+    commentAreaMenu.id = 'bce-comment-area-options'
+    commentAreaMenu.className = 'bce-multi-select-menu'
+    commentAreaMenu.setAttribute('aria-label', '启用评论区增强的区域')
+
+    const commentAreaInputs = new Map<CommentArea, HTMLInputElement>()
+    COMMENT_AREAS.forEach((area) => {
+      const option = document.createElement('label')
+      option.className = 'bce-multi-select-option selected'
+
+      const input = document.createElement('input')
+      input.type = 'checkbox'
+      input.value = area
+      input.checked = true
+
+      const optionLabel = document.createElement('span')
+      optionLabel.textContent = COMMENT_AREA_LABELS[area]
+
+      option.appendChild(input)
+      option.appendChild(optionLabel)
+      commentAreaMenu.appendChild(option)
+      commentAreaInputs.set(area, input)
+    })
+
+    const scopeHint = document.createElement('span')
+    scopeHint.className = 'bce-field-hint'
+    scopeHint.textContent = '仅保存在当前浏览器，不会同步到 Bangumi Riff'
+
+    commentAreaDropdown.appendChild(commentAreaTrigger)
+    commentAreaDropdown.appendChild(commentAreaMenu)
+    scopeGroup.appendChild(scopeLabel)
+    scopeGroup.appendChild(commentAreaDropdown)
+    scopeGroup.appendChild(scopeHint)
+    scopeSection.appendChild(scopeGroup)
+    body.appendChild(scopeSection)
 
     // Sorting Section
     const sortSection = document.createElement('div')
@@ -298,6 +393,10 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
       overlay,
       container,
       dropdown,
+      commentAreaDropdown,
+      commentAreaTrigger,
+      commentAreaSummary,
+      commentAreaInputs,
       pinMyCommentsCheckboxContainer,
       hidePlainCommentsCheckboxContainer,
       hidePrematureCommentsCheckboxContainer,
@@ -317,7 +416,14 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
       hidePrematureCommentsCheckboxContainer,
       minEffInput,
       maxPostsInput,
+      commentAreaInputs,
     } = elements
+
+    const disabledCommentAreas = new Set(getDisabledCommentAreas())
+    commentAreaInputs.forEach((input, area) => {
+      input.checked = !disabledCommentAreas.has(area)
+    })
+    syncCommentAreaSelection(elements)
 
     const sortMode = Storage.get('sortMode')
     if (sortMode) {
@@ -361,7 +467,13 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
       hidePlainCommentsCheckboxContainer,
       minEffInput,
       maxPostsInput,
+      commentAreaInputs,
     } = elements
+
+    const disabledCommentAreas = COMMENT_AREAS.filter(
+      area => !commentAreaInputs.get(area)?.checked,
+    )
+    setDisabledCommentAreas(disabledCommentAreas)
 
     Storage.set(
       'minimumFeaturedCommentLength',
@@ -377,7 +489,10 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
     Storage.set('sortMode', dropdown.value)
 
     if (episodeMode) {
-      Storage.set('hidePremature', hidePrematureCommentsCheckboxContainer.isChecked() ? 'on' : 'off')
+      Storage.set(
+        'hidePremature',
+        hidePrematureCommentsCheckboxContainer.isChecked() ? 'on' : 'off',
+      )
     }
 
     // Trigger custom event
@@ -392,6 +507,9 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
     }
 
     hideDialog(elements)
+    if (reloadOnSave) {
+      setTimeout(() => location.reload(), 250)
+    }
   }
 
   // Show dialog with animation
@@ -407,7 +525,7 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
 
     // Show elements
     overlay.style.display = 'block'
-    container.style.display = 'block'
+    container.style.display = 'flex'
 
     // Trigger reflow for animation
     void overlay.offsetWidth
@@ -426,6 +544,8 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
   // Hide dialog with animation
   const hideDialog = (elements: SettingsElements) => {
     const { overlay, container } = elements
+
+    setCommentAreaDropdownOpen(elements, false)
 
     // Remove active class for exit animation
     overlay.classList.remove('active')
@@ -455,6 +575,18 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
     elements.saveBtn.addEventListener('click', () => saveSettings(elements))
     elements.cancelBtn.addEventListener('click', () => hideDialog(elements))
     elements.overlay.addEventListener('click', () => hideDialog(elements))
+    elements.commentAreaTrigger.addEventListener('click', () => {
+      const open = elements.commentAreaTrigger.getAttribute('aria-expanded') !== 'true'
+      setCommentAreaDropdownOpen(elements, open)
+    })
+    elements.commentAreaInputs.forEach((input) => {
+      input.addEventListener('change', () => syncCommentAreaSelection(elements))
+    })
+    document.addEventListener('click', (event: MouseEvent) => {
+      if (event.target instanceof Node && !elements.commentAreaDropdown.contains(event.target)) {
+        setCommentAreaDropdownOpen(elements, false)
+      }
+    })
 
     // Close on X button
     const closeBtn = elements.container.querySelector('.bce-modal-close')
@@ -465,6 +597,11 @@ export function createSettingMenu(userSettings: UserSettings, episodeMode = fals
     // ESC key to close
     document.addEventListener('keydown', (e: KeyboardEvent) => {
       if (e.key === 'Escape' && elements.container.classList.contains('active')) {
+        if (elements.commentAreaTrigger.getAttribute('aria-expanded') === 'true') {
+          setCommentAreaDropdownOpen(elements, false)
+          elements.commentAreaTrigger.focus()
+          return
+        }
         hideDialog(elements)
       }
     })
