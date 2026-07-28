@@ -1,7 +1,7 @@
 
 // ==UserScript==
 // @name        bangumi-comment-enhance
-// @version     0.2.20
+// @version     0.2.21
 // @description Improve comment reading experience, hide certain comments, sort featured comments by reaction count or reply count, and more.
 // @author      Flynn Cao
 // @updateURL   https://flynncao.github.io/bangumi-episode-enhance-userscript/index.user.js
@@ -15,20 +15,29 @@
 // ==/UserScript==
 'use strict';
 
+var unoStyles = ".i-lucide-arrow-down-up{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m3 16l4 4l4-4m-4 4V4m14 4l-4-4l-4 4m4-4v16'/%3E%3C/svg%3E\");}.i-lucide-calendar-days{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='M8 2v4m8-4v4'/%3E%3Crect width='18' height='18' x='3' y='4' rx='2'/%3E%3Cpath d='M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01'/%3E%3C/g%3E%3C/svg%3E\");}.i-lucide-check{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M20 6L9 17l-5-5'/%3E%3C/svg%3E\");}.i-lucide-chevrons-down{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m7 6l5 5l5-5M7 13l5 5l5-5'/%3E%3C/svg%3E\");}.i-lucide-chevrons-up{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m17 11l-5-5l-5 5m10 7l-5-5l-5 5'/%3E%3C/svg%3E\");}.i-lucide-circle-check{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m9 12l2 2l4-4'/%3E%3C/g%3E%3C/svg%3E\");}.i-lucide-circle-x{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m15 9l-6 6m0-6l6 6'/%3E%3C/g%3E%3C/svg%3E\");}.i-lucide-clock-3{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 6v6h4'/%3E%3C/g%3E%3C/svg%3E\");}.i-lucide-eye{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='M2.062 12.348a1 1 0 0 1 0-.696a10.75 10.75 0 0 1 19.876 0a1 1 0 0 1 0 .696a10.75 10.75 0 0 1-19.876 0'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/g%3E%3C/svg%3E\");}.i-lucide-filter{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M22 3H2l8 9.46V19l4 2v-8.54z'/%3E%3C/svg%3E\");}.i-lucide-info{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 16v-4m0-4h.01'/%3E%3C/g%3E%3C/svg%3E\");}.i-lucide-list{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M3 5h.01M3 12h.01M3 19h.01M8 5h13M8 12h13M8 19h13'/%3E%3C/svg%3E\");}.i-lucide-loader-circle{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 12a9 9 0 1 1-6.219-8.56'/%3E%3C/svg%3E\");}.i-lucide-settings{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='M9.671 4.136a2.34 2.34 0 0 1 4.659 0a2.34 2.34 0 0 0 3.319 1.915a2.34 2.34 0 0 1 2.33 4.033a2.34 2.34 0 0 0 0 3.831a2.34 2.34 0 0 1-2.33 4.033a2.34 2.34 0 0 0-3.319 1.915a2.34 2.34 0 0 1-4.659 0a2.34 2.34 0 0 0-3.32-1.915a2.34 2.34 0 0 1-2.33-4.033a2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/g%3E%3C/svg%3E\");}.i-lucide-triangle-alert{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m21.73 18l-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3M12 9v4m0 4h.01'/%3E%3C/svg%3E\");}.i-lucide-user-round{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Ccircle cx='12' cy='8' r='5'/%3E%3Cpath d='M20 21a8 8 0 0 0-16 0'/%3E%3C/g%3E%3C/svg%3E\");}.i-lucide-x{--un-icon:url(\"data:image/svg+xml;utf8,%3Csvg viewBox='0 0 24 24' width='1em' height='1em' xmlns='http://www.w3.org/2000/svg' %3E%3Cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M18 6L6 18M6 6l12 12'/%3E%3C/svg%3E\");}";
+
+function icon(name, extraClass = '') {
+    const className = extraClass
+        ? `bce-icon i-lucide-${name} ${extraClass}`
+        : `bce-icon i-lucide-${name}`;
+    return `<span class="${className}" aria-hidden="true"></span>`;
+}
+
 class CustomCheckboxContainer {
     id;
     label;
     description;
-    iconSvg;
+    iconName;
     checked;
     input;
     element;
     container;
-    constructor(id, label, description, iconSvg, checked) {
+    constructor(id, label, description, iconName, checked) {
         this.id = id;
         this.label = label;
         this.description = description;
-        this.iconSvg = iconSvg;
+        this.iconName = iconName;
         this.checked = checked;
         this.input = null;
         this.element = null;
@@ -55,7 +64,7 @@ class CustomCheckboxContainer {
         wrapper.htmlFor = this.id;
         const iconDiv = document.createElement('div');
         iconDiv.className = 'bce-checkbox-icon';
-        iconDiv.innerHTML = this.iconSvg;
+        iconDiv.innerHTML = icon(this.iconName);
         const contentDiv = document.createElement('div');
         contentDiv.className = 'bce-checkbox-content';
         const labelSpan = document.createElement('span');
@@ -68,7 +77,7 @@ class CustomCheckboxContainer {
         contentDiv.appendChild(descSpan);
         const checkDiv = document.createElement('div');
         checkDiv.className = 'bce-checkbox-check';
-        checkDiv.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        checkDiv.innerHTML = icon('check');
         const input = this.createElement();
         wrapper.appendChild(iconDiv);
         wrapper.appendChild(contentDiv);
@@ -109,8 +118,30 @@ class CustomCheckboxContainer {
 }
 
 const BGM_EP_REGEX = /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/ep\/\d+/;
-const BGM_GROUP_REGEX = /^https:\/\/(((fast\.)?bgm\.tv)|(chii\.in)|(bangumi\.tv))\/group\/topic\/\d+/;
+const BGM_GROUP_REGEX = /^https:\/\/(?:fast\.)?(?:bgm\.tv|chii\.in|bangumi\.tv)\/(?:blog\/(?<blogId>\d+)|(?<topicType>group|subject)\/topic\/(?<topicId>\d+))/;
+const COMMENT_AREAS = [
+    'episode',
+    'blog',
+    'groupTopic',
+    'subjectTopic',
+];
 const NAMESPACE = 'bangumi_comment_enhance';
+function getCommentArea(url) {
+    if (BGM_EP_REGEX.test(url)) {
+        return 'episode';
+    }
+    const discussionMatch = BGM_GROUP_REGEX.exec(url);
+    if (discussionMatch?.groups?.blogId) {
+        return 'blog';
+    }
+    if (discussionMatch?.groups?.topicType === 'group') {
+        return 'groupTopic';
+    }
+    if (discussionMatch?.groups?.topicType === 'subject') {
+        return 'subjectTopic';
+    }
+    return null;
+}
 
 var Environment;
 (function (Environment) {
@@ -169,6 +200,24 @@ class Storage {
             console.warn(`[BCE] Failed to update cloud config '${key}'`, e);
         }
     }
+    static getLocal(key, defaultValue) {
+        try {
+            const storedValue = localStorage.getItem(`${NAMESPACE}_${key}`);
+            return storedValue === null ? defaultValue : JSON.parse(storedValue);
+        }
+        catch (e) {
+            console.warn(`[BCE] Failed to get local config '${key}':`, e);
+            return defaultValue;
+        }
+    }
+    static setLocal(key, value) {
+        try {
+            localStorage.setItem(`${NAMESPACE}_${key}`, JSON.stringify(value));
+        }
+        catch (e) {
+            console.warn(`[BCE] Failed to update local config '${key}':`, e);
+        }
+    }
     static async init(settings) {
         const keys = Object.keys(settings);
         for (const key of keys) {
@@ -199,19 +248,59 @@ class Storage {
     }
 }
 
-var styles$1 = "/* Bangumi Comment Enhance - Modern Settings Modal */\n/* ChatGPT-inspired design with backdrop blur */\n\n/* ===== Modal Overlay ===== */\n:root {\n  --bce-modal-theme-color: #f09199;\n}\n\n.bce-modal-overlay {\n  position: fixed;\n  inset: 0;\n  z-index: 9998;\n  background: rgba(0, 0, 0, 0);\n  backdrop-filter: blur(0px);\n  -webkit-backdrop-filter: blur(0px);\n  display: none;\n  transition:\n    background 0.3s ease,\n    backdrop-filter 0.3s ease;\n}\n\n.bce-modal-overlay.active {\n  background: rgba(0, 0, 0, 0.4);\n  backdrop-filter: blur(4px);\n  -webkit-backdrop-filter: blur(4px);\n}\n\n[data-theme='dark'] .bce-modal-overlay.active {\n  background: rgba(0, 0, 0, 0.6);\n}\n\n/* ===== Modal Container ===== */\n.bce-modal {\n  position: fixed;\n  z-index: 9999;\n  width: calc(100vw - 32px);\n  max-width: 420px;\n  max-height: calc(100vh - 64px);\n  left: 50%;\n  top: 50%;\n  transform: translate(-50%, -50%) scale(0.95);\n  background: rgba(255, 255, 255, 0.95);\n  backdrop-filter: blur(20px);\n  -webkit-backdrop-filter: blur(20px);\n  border-radius: 16px;\n  box-shadow:\n    0 20px 60px rgba(0, 0, 0, 0.15),\n    0 0 0 1px rgba(0, 0, 0, 0.05);\n  display: none;\n  flex-direction: column;\n  overflow: hidden;\n  opacity: 0;\n  transition:\n    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),\n    opacity 0.2s ease;\n}\n\n.bce-modal.active {\n  transform: translate(-50%, -50%) scale(1);\n  opacity: 1;\n}\n\n[data-theme='dark'] .bce-modal {\n  background: rgba(28, 28, 30, 0.95);\n  box-shadow:\n    0 20px 60px rgba(0, 0, 0, 0.4),\n    0 0 0 1px rgba(255, 255, 255, 0.08);\n}\n\n/* ===== Modal Header ===== */\n.bce-modal-header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 20px 24px 16px;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.06);\n  /* cursor: move; */\n  /* user-select: none; */\n  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);\n}\n\n[data-theme='dark'] .bce-modal-header {\n  border-bottom-color: rgba(255, 255, 255, 0.08);\n  background: linear-gradient(180deg, rgba(40, 40, 42, 0.8) 0%, rgba(28, 28, 30, 0.4) 100%);\n}\n\n.bce-modal-title {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  margin: 0;\n  font-size: 17px;\n  font-weight: 600;\n  color: #1a1a1a;\n  letter-spacing: -0.01em;\n}\n\n[data-theme='dark'] .bce-modal-title {\n  color: #f5f5f7;\n}\n\n.bce-modal-title svg {\n  width: 20px;\n  height: 20px;\n  stroke: var(--bce-modal-theme-color);\n  flex-shrink: 0;\n}\n\n.bce-modal-close {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 32px;\n  height: 32px;\n  border: none;\n  border-radius: 8px;\n  background: transparent;\n  color: #6e6e73;\n  cursor: pointer;\n  transition: all 0.2s ease;\n}\n\n.bce-modal-close:hover {\n  background: rgba(0, 0, 0, 0.06);\n  color: #1a1a1a;\n}\n\n[data-theme='dark'] .bce-modal-close:hover {\n  background: rgba(255, 255, 255, 0.1);\n  color: #f5f5f7;\n}\n\n.bce-modal-close svg {\n  width: 18px;\n  height: 18px;\n}\n\n/* ===== Modal Body ===== */\n.bce-modal-body {\n  padding: 8px 0;\n  overflow-y: auto;\n  flex: 1;\n  scrollbar-width: thin;\n  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;\n}\n\n.bce-modal-body::-webkit-scrollbar {\n  width: 6px;\n}\n\n.bce-modal-body::-webkit-scrollbar-track {\n  background: transparent;\n}\n\n.bce-modal-body::-webkit-scrollbar-thumb {\n  background: rgba(0, 0, 0, 0.15);\n  border-radius: 3px;\n}\n\n[data-theme='dark'] .bce-modal-body::-webkit-scrollbar-thumb {\n  background: rgba(255, 255, 255, 0.15);\n}\n\n/* ===== Section ===== */\n.bce-section {\n  padding: 16px 24px;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.04);\n}\n\n[data-theme='dark'] .bce-section {\n  border-bottom-color: rgba(255, 255, 255, 0.05);\n}\n\n.bce-section:last-of-type {\n  border-bottom: none;\n}\n\n.bce-section-title {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  margin: 0 0 16px 0;\n  font-size: 13px;\n  font-weight: 600;\n  text-transform: uppercase;\n  letter-spacing: 0.03em;\n  color: #6e6e73;\n}\n\n[data-theme='dark'] .bce-section-title {\n  color: #8e8e93;\n}\n\n.bce-section-title svg {\n  width: 16px;\n  height: 16px;\n  stroke: currentColor;\n  opacity: 0.8;\n}\n\n/* ===== Form Groups ===== */\n.bce-form-group {\n  margin-bottom: 16px;\n}\n\n.bce-form-group:last-child {\n  margin-bottom: 0;\n}\n\n.bce-form-label {\n  display: block;\n  margin-bottom: 8px;\n  font-size: 14px;\n  font-weight: 500;\n  color: #1a1a1a;\n}\n\n[data-theme='dark'] .bce-form-label {\n  color: #f5f5f7;\n}\n\n/* ===== Select Wrapper ===== */\n.bce-select-wrapper {\n  position: relative;\n}\n\n.bce-select-wrapper::after {\n  content: '';\n  position: absolute;\n  right: 14px;\n  top: 50%;\n  transform: translateY(-50%);\n  width: 0;\n  height: 0;\n  border-left: 5px solid transparent;\n  border-right: 5px solid transparent;\n  border-top: 5px solid #6e6e73;\n  pointer-events: none;\n}\n\n.bce-select {\n  width: 100%;\n  padding: 12px 36px 12px 14px;\n  font-size: 14px;\n  font-weight: 400;\n  color: #1a1a1a;\n  background: rgba(0, 0, 0, 0.03);\n  border: 1px solid transparent;\n  border-radius: 10px;\n  cursor: pointer;\n  appearance: none;\n  -webkit-appearance: none;\n  transition: all 0.2s ease;\n}\n\n.bce-select:hover {\n  background: rgba(0, 0, 0, 0.05);\n}\n\n.bce-select:focus {\n  outline: none;\n  background: rgba(255, 255, 255, 0.8);\n  border-color: var(--bce-modal-theme-color);\n  box-shadow: 0 0 0 3px rgba(240, 145, 153, 0.15);\n}\n\n[data-theme='dark'] .bce-select {\n  color: #f5f5f7;\n  background: rgba(255, 255, 255, 0.06);\n}\n\n[data-theme='dark'] .bce-select:hover {\n  background: rgba(255, 255, 255, 0.1);\n}\n\n[data-theme='dark'] .bce-select:focus {\n  background: rgba(30, 30, 30, 0.8);\n  border-color: #f5a5ac;\n  box-shadow: 0 0 0 3px rgba(245, 165, 172, 0.15);\n}\n\n/* ===== Input Wrapper ===== */\n.bce-input-wrapper {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n}\n\n.bce-number-input {\n  width: 72px;\n  padding: 10px 12px;\n  font-size: 14px;\n  font-weight: 500;\n  color: #1a1a1a;\n  text-align: center;\n  background: rgba(0, 0, 0, 0.03);\n  border: 1px solid transparent;\n  border-radius: 10px;\n  transition: all 0.2s ease;\n}\n\n.bce-number-input:hover {\n  background: rgba(0, 0, 0, 0.05);\n}\n\n.bce-number-input:focus {\n  outline: none;\n  background: rgba(255, 255, 255, 0.8);\n  border-color: var(--bce-modal-theme-color);\n  box-shadow: 0 0 0 3px rgba(240, 145, 153, 0.15);\n}\n\n[data-theme='dark'] .bce-number-input {\n  color: #f5f5f7;\n  background: rgba(255, 255, 255, 0.06);\n}\n\n[data-theme='dark'] .bce-number-input:hover {\n  background: rgba(255, 255, 255, 0.1);\n}\n\n[data-theme='dark'] .bce-number-input:focus {\n  background: rgba(30, 30, 30, 0.8);\n  border-color: #f5a5ac;\n  box-shadow: 0 0 0 3px rgba(245, 165, 172, 0.15);\n}\n\n/* Remove number input spinners */\n.bce-number-input::-webkit-outer-spin-button,\n.bce-number-input::-webkit-inner-spin-button {\n  -webkit-appearance: none;\n  margin: 0;\n}\n\n.bce-number-input[type='number'] {\n  -moz-appearance: textfield;\n}\n\n.bce-input-hint {\n  font-size: 13px;\n  color: #6e6e73;\n  line-height: 1.4;\n}\n\n[data-theme='dark'] .bce-input-hint {\n  color: #8e8e93;\n}\n\n/* ===== Custom Checkbox ===== */\n.bce-checkbox-wrapper {\n  display: flex;\n  align-items: center;\n  gap: 14px;\n  padding: 14px;\n  margin-bottom: 10px;\n  background: rgba(0, 0, 0, 0.02);\n  border: 1px solid transparent;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n}\n\n.bce-checkbox-wrapper:hover {\n  background: rgba(0, 0, 0, 0.04);\n}\n\n.bce-checkbox-wrapper.checked {\n  background: rgba(240, 145, 153, 0.08);\n  border-color: rgba(240, 145, 153, 0.3);\n}\n\n[data-theme='dark'] .bce-checkbox-wrapper {\n  background: rgba(255, 255, 255, 0.04);\n}\n\n[data-theme='dark'] .bce-checkbox-wrapper:hover {\n  background: rgba(255, 255, 255, 0.08);\n}\n\n[data-theme='dark'] .bce-checkbox-wrapper.checked {\n  background: rgba(240, 145, 153, 0.12);\n  border-color: rgba(240, 145, 153, 0.35);\n}\n\n.bce-checkbox-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  margin-top: 1px;\n  flex-shrink: 0;\n  color: #6e6e73;\n  transition: color 0.2s ease;\n}\n\n.bce-checkbox-wrapper.checked .bce-checkbox-icon {\n  color: var(--bce-modal-theme-color);\n}\n\n[data-theme='dark'] .bce-checkbox-icon {\n  color: #8e8e93;\n}\n\n[data-theme='dark'] .bce-checkbox-wrapper.checked .bce-checkbox-icon {\n  color: #f5a5ac;\n}\n\n.bce-checkbox-icon svg {\n  width: 20px;\n  height: 20px;\n  stroke-width: 1.8;\n}\n\n.bce-checkbox-content {\n  flex: 1;\n  min-width: 0;\n}\n\n.bce-checkbox-label {\n  display: block;\n  font-size: 14px;\n  font-weight: 500;\n  color: #1a1a1a;\n  margin-bottom: 3px;\n}\n\n[data-theme='dark'] .bce-checkbox-label {\n  color: #f5f5f7;\n}\n\n.bce-checkbox-description {\n  display: block;\n  font-size: 12px;\n  color: #6e6e73;\n  line-height: 1.4;\n}\n\n[data-theme='dark'] .bce-checkbox-description {\n  color: #8e8e93;\n}\n\n.bce-checkbox-input {\n  position: absolute;\n  opacity: 0;\n  width: 0;\n  height: 0;\n}\n\n.bce-checkbox-check {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  border: 2px solid #c7c7cc;\n  border-radius: 6px;\n  margin-top: 1px;\n  flex-shrink: 0;\n  transition: all 0.2s ease;\n}\n\n.bce-checkbox-wrapper:hover .bce-checkbox-check {\n  border-color: #a1a1a6;\n}\n\n.bce-checkbox-wrapper.checked .bce-checkbox-check {\n  background: var(--bce-modal-theme-color);\n  border-color: var(--bce-modal-theme-color);\n}\n\n[data-theme='dark'] .bce-checkbox-check {\n  border-color: #636366;\n}\n\n[data-theme='dark'] .bce-checkbox-wrapper:hover .bce-checkbox-check {\n  border-color: #8e8e93;\n}\n\n[data-theme='dark'] .bce-checkbox-wrapper.checked .bce-checkbox-check {\n  background: #f5a5ac;\n  border-color: #f5a5ac;\n}\n\n.bce-checkbox-check svg {\n  width: 14px;\n  height: 14px;\n  stroke: white;\n  stroke-width: 2.5;\n  opacity: 0;\n  transform: scale(0.8);\n  transition: all 0.15s ease;\n}\n\n.bce-checkbox-wrapper.checked .bce-checkbox-check svg {\n  opacity: 1;\n  transform: scale(1);\n}\n\n/* ===== Modal Footer ===== */\n.bce-modal-footer {\n  display: flex;\n  gap: 12px;\n  padding: 16px 24px 20px;\n  border-top: 1px solid rgba(0, 0, 0, 0.06);\n  background: linear-gradient(0deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);\n}\n\n[data-theme='dark'] .bce-modal-footer {\n  border-top-color: rgba(255, 255, 255, 0.08);\n  background: linear-gradient(0deg, rgba(40, 40, 42, 0.8) 0%, rgba(28, 28, 30, 0.4) 100%);\n}\n\n/* ===== Buttons ===== */\n.bce-btn {\n  flex: 1;\n  padding: 12px 20px;\n  font-size: 14px;\n  font-weight: 500;\n  border: none;\n  border-radius: 10px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n}\n\n.bce-btn-primary {\n  background: #1a1a1a;\n  color: white;\n}\n\n.bce-btn-primary:hover {\n  background: #333;\n  transform: translateY(-1px);\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n}\n\n.bce-btn-primary:active {\n  transform: translateY(0);\n  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);\n}\n\n[data-theme='dark'] .bce-btn-primary {\n  background: #f5f5f7;\n  color: #1a1a1a;\n}\n\n[data-theme='dark'] .bce-btn-primary:hover {\n  background: #ffffff;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n}\n\n.bce-btn-secondary {\n  background: rgba(0, 0, 0, 0.05);\n  color: #1a1a1a;\n}\n\n.bce-btn-secondary:hover {\n  background: rgba(0, 0, 0, 0.1);\n}\n\n[data-theme='dark'] .bce-btn-secondary {\n  background: rgba(255, 255, 255, 0.1);\n  color: #f5f5f7;\n}\n\n[data-theme='dark'] .bce-btn-secondary:hover {\n  background: rgba(255, 255, 255, 0.15);\n}\n\n/* ===== Legacy styles for backwards compatibility ===== */\n.fixed-container {\n  display: none !important;\n}\n";
+const DISABLED_COMMENT_AREAS_KEY = 'disabledCommentAreas';
+function getDisabledCommentAreas() {
+    const storedAreas = Storage.getLocal(DISABLED_COMMENT_AREAS_KEY, []);
+    if (!Array.isArray(storedAreas)) {
+        return [];
+    }
+    return COMMENT_AREAS.filter(area => storedAreas.includes(area));
+}
+function setDisabledCommentAreas(areas) {
+    const normalizedAreas = COMMENT_AREAS.filter(area => areas.includes(area));
+    Storage.setLocal(DISABLED_COMMENT_AREAS_KEY, normalizedAreas);
+}
+function setCommentAreaEnabled(area, enabled) {
+    const disabledAreas = new Set(getDisabledCommentAreas());
+    {
+        disabledAreas.delete(area);
+    }
+    setDisabledCommentAreas([...disabledAreas]);
+}
 
-const ModalIcons = {
-    settings: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`,
-    close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
-    sort: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>`,
-    filter: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>`,
-    list: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>`,
-    eye: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
-    user: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
-    calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>`,
+var styles$1 = "/* Bangumi Comment Enhance - Modern Settings Modal */\n/* ChatGPT-inspired design with backdrop blur */\n\n/* ===== Modal Overlay ===== */\n:root {\n  --bce-modal-theme-color: #f09199;\n}\n\n.bce-modal-overlay {\n  position: fixed;\n  inset: 0;\n  z-index: 9998;\n  background: rgba(0, 0, 0, 0);\n  backdrop-filter: blur(0px);\n  -webkit-backdrop-filter: blur(0px);\n  display: none;\n  transition:\n    background 0.3s ease,\n    backdrop-filter 0.3s ease;\n}\n\n.bce-modal-overlay.active {\n  background: rgba(0, 0, 0, 0.4);\n  backdrop-filter: blur(4px);\n  -webkit-backdrop-filter: blur(4px);\n}\n\n[data-theme='dark'] .bce-modal-overlay.active {\n  background: rgba(0, 0, 0, 0.6);\n}\n\n/* ===== Modal Container ===== */\n.bce-modal {\n  position: fixed;\n  z-index: 9999;\n  width: calc(100vw - 32px);\n  max-width: 420px;\n  max-height: calc(100vh - 64px);\n  max-height: calc(100dvh - 64px);\n  left: 50%;\n  top: 50%;\n  transform: translate(-50%, -50%) scale(0.95);\n  background: rgba(255, 255, 255, 0.95);\n  backdrop-filter: blur(20px);\n  -webkit-backdrop-filter: blur(20px);\n  border-radius: 16px;\n  box-shadow:\n    0 20px 60px rgba(0, 0, 0, 0.15),\n    0 0 0 1px rgba(0, 0, 0, 0.05);\n  display: none;\n  flex-direction: column;\n  overflow: hidden;\n  opacity: 0;\n  transition:\n    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),\n    opacity 0.2s ease;\n}\n\n.bce-modal.active {\n  transform: translate(-50%, -50%) scale(1);\n  opacity: 1;\n}\n\n[data-theme='dark'] .bce-modal {\n  background: rgba(28, 28, 30, 0.95);\n  box-shadow:\n    0 20px 60px rgba(0, 0, 0, 0.4),\n    0 0 0 1px rgba(255, 255, 255, 0.08);\n}\n\n/* ===== Modal Header ===== */\n.bce-modal-header {\n  display: flex;\n  flex: 0 0 auto;\n  align-items: center;\n  justify-content: space-between;\n  padding: 20px 24px 16px;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.06);\n  /* cursor: move; */\n  /* user-select: none; */\n  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);\n}\n\n[data-theme='dark'] .bce-modal-header {\n  border-bottom-color: rgba(255, 255, 255, 0.08);\n  background: linear-gradient(180deg, rgba(40, 40, 42, 0.8) 0%, rgba(28, 28, 30, 0.4) 100%);\n}\n\n.bce-modal-title {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  margin: 0;\n  font-size: 17px;\n  font-weight: 600;\n  color: #1a1a1a;\n  letter-spacing: -0.01em;\n}\n\n[data-theme='dark'] .bce-modal-title {\n  color: #f5f5f7;\n}\n\n.bce-modal-title .bce-icon {\n  color: var(--bce-modal-theme-color);\n  font-size: 1.176em;\n  flex-shrink: 0;\n}\n\n.bce-modal-close {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 32px;\n  height: 32px;\n  border: none;\n  border-radius: 8px;\n  background: transparent;\n  color: #6e6e73;\n  font: inherit;\n  cursor: pointer;\n  transition: all 0.2s ease;\n}\n\n.bce-modal-close:hover {\n  background: rgba(0, 0, 0, 0.06);\n  color: #1a1a1a;\n}\n\n[data-theme='dark'] .bce-modal-close:hover {\n  background: rgba(255, 255, 255, 0.1);\n  color: #f5f5f7;\n}\n\n.bce-modal-close .bce-icon {\n  font-size: 1.125em;\n}\n\n/* ===== Modal Body ===== */\n.bce-modal-body {\n  flex: 1 1 auto;\n  min-height: 0;\n  padding: 8px 0;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n  -webkit-overflow-scrolling: touch;\n  scrollbar-width: thin;\n  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;\n}\n\n.bce-modal-body::-webkit-scrollbar {\n  width: 6px;\n}\n\n.bce-modal-body::-webkit-scrollbar-track {\n  background: transparent;\n}\n\n.bce-modal-body::-webkit-scrollbar-thumb {\n  background: rgba(0, 0, 0, 0.15);\n  border-radius: 3px;\n}\n\n[data-theme='dark'] .bce-modal-body::-webkit-scrollbar-thumb {\n  background: rgba(255, 255, 255, 0.15);\n}\n\n/* ===== Section ===== */\n.bce-section {\n  padding: 16px 24px;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.04);\n}\n\n[data-theme='dark'] .bce-section {\n  border-bottom-color: rgba(255, 255, 255, 0.05);\n}\n\n.bce-section:last-of-type {\n  border-bottom: none;\n}\n\n.bce-section-title {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  margin: 0 0 16px 0;\n  font-size: 13px;\n  font-weight: 600;\n  text-transform: uppercase;\n  letter-spacing: 0.03em;\n  color: #6e6e73;\n}\n\n[data-theme='dark'] .bce-section-title {\n  color: #8e8e93;\n}\n\n.bce-section-title .bce-icon {\n  font-size: 1.231em;\n  opacity: 0.8;\n}\n\n/* ===== Form Groups ===== */\n.bce-form-group {\n  margin-bottom: 16px;\n}\n\n.bce-form-group:last-child {\n  margin-bottom: 0;\n}\n\n.bce-form-label {\n  display: block;\n  margin-bottom: 8px;\n  font-size: 14px;\n  font-weight: 500;\n  color: #1a1a1a;\n}\n\n[data-theme='dark'] .bce-form-label {\n  color: #f5f5f7;\n}\n\n/* ===== Select Wrapper ===== */\n.bce-select-wrapper {\n  position: relative;\n}\n\n.bce-select-wrapper::after {\n  content: '';\n  position: absolute;\n  right: 14px;\n  top: 50%;\n  transform: translateY(-50%);\n  width: 0;\n  height: 0;\n  border-left: 5px solid transparent;\n  border-right: 5px solid transparent;\n  border-top: 5px solid #6e6e73;\n  pointer-events: none;\n}\n\n.bce-select {\n  width: 100%;\n  padding: 12px 36px 12px 14px;\n  font-size: 14px;\n  font-weight: 400;\n  color: #1a1a1a;\n  background: rgba(0, 0, 0, 0.03);\n  border: 1px solid transparent;\n  border-radius: 10px;\n  cursor: pointer;\n  appearance: none;\n  -webkit-appearance: none;\n  transition: all 0.2s ease;\n}\n\n.bce-select:hover {\n  background: rgba(0, 0, 0, 0.05);\n}\n\n.bce-select:focus {\n  outline: none;\n  background: rgba(255, 255, 255, 0.8);\n  border-color: var(--bce-modal-theme-color);\n  box-shadow: 0 0 0 3px rgba(240, 145, 153, 0.15);\n}\n\n[data-theme='dark'] .bce-select {\n  color: #f5f5f7;\n  background: rgba(255, 255, 255, 0.06);\n}\n\n[data-theme='dark'] .bce-select:hover {\n  background: rgba(255, 255, 255, 0.1);\n}\n\n[data-theme='dark'] .bce-select:focus {\n  background: rgba(30, 30, 30, 0.8);\n  border-color: #f5a5ac;\n  box-shadow: 0 0 0 3px rgba(245, 165, 172, 0.15);\n}\n\n/* ===== Multi-select ===== */\n.bce-multi-select {\n  position: relative;\n}\n\n.bce-multi-select-trigger {\n  position: relative;\n  width: 100%;\n  padding: 12px 36px 12px 14px;\n  color: #1a1a1a;\n  font-size: 14px;\n  text-align: left;\n  background: rgba(0, 0, 0, 0.03);\n  border: 1px solid transparent;\n  border-radius: 10px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n}\n\n.bce-multi-select-trigger::after {\n  content: '';\n  position: absolute;\n  right: 14px;\n  top: 50%;\n  width: 0;\n  height: 0;\n  border-left: 5px solid transparent;\n  border-right: 5px solid transparent;\n  border-top: 5px solid #6e6e73;\n  transform: translateY(-50%);\n  transition: transform 0.2s ease;\n}\n\n.bce-multi-select-trigger:hover {\n  background: rgba(0, 0, 0, 0.05);\n}\n\n.bce-multi-select-trigger:focus,\n.bce-multi-select.open .bce-multi-select-trigger {\n  outline: none;\n  background: rgba(255, 255, 255, 0.8);\n  border-color: var(--bce-modal-theme-color);\n  box-shadow: 0 0 0 3px rgba(240, 145, 153, 0.15);\n}\n\n.bce-multi-select.open .bce-multi-select-trigger::after {\n  transform: translateY(-50%) rotate(180deg);\n}\n\n.bce-multi-select-menu {\n  position: absolute;\n  z-index: 10;\n  top: calc(100% + 6px);\n  left: 0;\n  right: 0;\n  display: none;\n  padding: 6px;\n  background: rgba(255, 255, 255, 0.98);\n  border: 1px solid rgba(0, 0, 0, 0.08);\n  border-radius: 10px;\n  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);\n}\n\n.bce-multi-select.open .bce-multi-select-menu {\n  display: block;\n}\n\n.bce-multi-select-option {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  padding: 9px 10px;\n  color: #1a1a1a;\n  font-size: 14px;\n  border-radius: 7px;\n  cursor: pointer;\n}\n\n.bce-multi-select-option:hover,\n.bce-multi-select-option.selected {\n  background: rgba(240, 145, 153, 0.1);\n}\n\n.bce-multi-select-option input {\n  width: 16px;\n  height: 16px;\n  margin: 0;\n  accent-color: var(--bce-modal-theme-color);\n}\n\n.bce-field-hint {\n  display: block;\n  margin-top: 7px;\n  color: #8e8e93;\n  font-size: 12px;\n}\n\n[data-theme='dark'] .bce-multi-select-trigger {\n  color: #f5f5f7;\n  background: rgba(255, 255, 255, 0.06);\n}\n\n[data-theme='dark'] .bce-multi-select-trigger:hover {\n  background: rgba(255, 255, 255, 0.1);\n}\n\n[data-theme='dark'] .bce-multi-select-trigger:focus,\n[data-theme='dark'] .bce-multi-select.open .bce-multi-select-trigger {\n  background: rgba(30, 30, 30, 0.8);\n  border-color: #f5a5ac;\n  box-shadow: 0 0 0 3px rgba(245, 165, 172, 0.15);\n}\n\n[data-theme='dark'] .bce-multi-select-menu {\n  background: rgba(40, 40, 42, 0.98);\n  border-color: rgba(255, 255, 255, 0.1);\n  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);\n}\n\n[data-theme='dark'] .bce-multi-select-option {\n  color: #f5f5f7;\n}\n\n[data-theme='dark'] .bce-multi-select-option:hover,\n[data-theme='dark'] .bce-multi-select-option.selected {\n  background: rgba(245, 165, 172, 0.14);\n}\n\n/* ===== Input Wrapper ===== */\n.bce-input-wrapper {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n}\n\n.bce-number-input {\n  width: 72px;\n  padding: 10px 12px;\n  font-size: 14px;\n  font-weight: 500;\n  color: #1a1a1a;\n  text-align: center;\n  background: rgba(0, 0, 0, 0.03);\n  border: 1px solid transparent;\n  border-radius: 10px;\n  transition: all 0.2s ease;\n}\n\n.bce-number-input:hover {\n  background: rgba(0, 0, 0, 0.05);\n}\n\n.bce-number-input:focus {\n  outline: none;\n  background: rgba(255, 255, 255, 0.8);\n  border-color: var(--bce-modal-theme-color);\n  box-shadow: 0 0 0 3px rgba(240, 145, 153, 0.15);\n}\n\n[data-theme='dark'] .bce-number-input {\n  color: #f5f5f7;\n  background: rgba(255, 255, 255, 0.06);\n}\n\n[data-theme='dark'] .bce-number-input:hover {\n  background: rgba(255, 255, 255, 0.1);\n}\n\n[data-theme='dark'] .bce-number-input:focus {\n  background: rgba(30, 30, 30, 0.8);\n  border-color: #f5a5ac;\n  box-shadow: 0 0 0 3px rgba(245, 165, 172, 0.15);\n}\n\n/* Remove number input spinners */\n.bce-number-input::-webkit-outer-spin-button,\n.bce-number-input::-webkit-inner-spin-button {\n  -webkit-appearance: none;\n  margin: 0;\n}\n\n.bce-number-input[type='number'] {\n  -moz-appearance: textfield;\n}\n\n.bce-input-hint {\n  font-size: 13px;\n  color: #6e6e73;\n  line-height: 1.4;\n}\n\n[data-theme='dark'] .bce-input-hint {\n  color: #8e8e93;\n}\n\n/* ===== Custom Checkbox ===== */\n.bce-checkbox-wrapper {\n  display: flex;\n  align-items: center;\n  gap: 14px;\n  padding: 14px;\n  margin-bottom: 10px;\n  background: rgba(0, 0, 0, 0.02);\n  border: 1px solid transparent;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n}\n\n.bce-checkbox-wrapper:hover {\n  background: rgba(0, 0, 0, 0.04);\n}\n\n.bce-checkbox-wrapper.checked {\n  background: rgba(240, 145, 153, 0.08);\n  border-color: rgba(240, 145, 153, 0.3);\n}\n\n[data-theme='dark'] .bce-checkbox-wrapper {\n  background: rgba(255, 255, 255, 0.04);\n}\n\n[data-theme='dark'] .bce-checkbox-wrapper:hover {\n  background: rgba(255, 255, 255, 0.08);\n}\n\n[data-theme='dark'] .bce-checkbox-wrapper.checked {\n  background: rgba(240, 145, 153, 0.12);\n  border-color: rgba(240, 145, 153, 0.35);\n}\n\n.bce-checkbox-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  margin-top: 1px;\n  flex-shrink: 0;\n  color: #6e6e73;\n  transition: color 0.2s ease;\n}\n\n.bce-checkbox-wrapper.checked .bce-checkbox-icon {\n  color: var(--bce-modal-theme-color);\n}\n\n[data-theme='dark'] .bce-checkbox-icon {\n  color: #8e8e93;\n}\n\n[data-theme='dark'] .bce-checkbox-wrapper.checked .bce-checkbox-icon {\n  color: #f5a5ac;\n}\n\n.bce-checkbox-icon .bce-icon {\n  font-size: 1.25em;\n}\n\n.bce-checkbox-content {\n  flex: 1;\n  min-width: 0;\n}\n\n.bce-checkbox-label {\n  display: block;\n  font-size: 14px;\n  font-weight: 500;\n  color: #1a1a1a;\n  margin-bottom: 3px;\n}\n\n[data-theme='dark'] .bce-checkbox-label {\n  color: #f5f5f7;\n}\n\n.bce-checkbox-description {\n  display: block;\n  font-size: 12px;\n  color: #6e6e73;\n  line-height: 1.4;\n}\n\n[data-theme='dark'] .bce-checkbox-description {\n  color: #8e8e93;\n}\n\n.bce-checkbox-input {\n  position: absolute;\n  opacity: 0;\n  width: 0;\n  height: 0;\n}\n\n.bce-checkbox-check {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  border: 2px solid #c7c7cc;\n  border-radius: 6px;\n  margin-top: 1px;\n  flex-shrink: 0;\n  transition: all 0.2s ease;\n}\n\n.bce-checkbox-wrapper:hover .bce-checkbox-check {\n  border-color: #a1a1a6;\n}\n\n.bce-checkbox-wrapper.checked .bce-checkbox-check {\n  background: var(--bce-modal-theme-color);\n  border-color: var(--bce-modal-theme-color);\n}\n\n[data-theme='dark'] .bce-checkbox-check {\n  border-color: #636366;\n}\n\n[data-theme='dark'] .bce-checkbox-wrapper:hover .bce-checkbox-check {\n  border-color: #8e8e93;\n}\n\n[data-theme='dark'] .bce-checkbox-wrapper.checked .bce-checkbox-check {\n  background: #f5a5ac;\n  border-color: #f5a5ac;\n}\n\n.bce-checkbox-check .bce-icon {\n  color: white;\n  font-size: 0.875em;\n  opacity: 0;\n  transform: scale(0.8);\n  transition: all 0.15s ease;\n}\n\n.bce-checkbox-wrapper.checked .bce-checkbox-check .bce-icon {\n  opacity: 1;\n  transform: scale(1);\n}\n\n/* ===== Modal Footer ===== */\n.bce-modal-footer {\n  display: flex;\n  flex: 0 0 auto;\n  gap: 12px;\n  padding: 16px 24px 20px;\n  border-top: 1px solid rgba(0, 0, 0, 0.06);\n  background: linear-gradient(0deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);\n}\n\n[data-theme='dark'] .bce-modal-footer {\n  border-top-color: rgba(255, 255, 255, 0.08);\n  background: linear-gradient(0deg, rgba(40, 40, 42, 0.8) 0%, rgba(28, 28, 30, 0.4) 100%);\n}\n\n/* ===== Buttons ===== */\n.bce-btn {\n  flex: 1;\n  padding: 12px 20px;\n  font-size: 14px;\n  font-weight: 500;\n  border: none;\n  border-radius: 10px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n}\n\n.bce-btn-primary {\n  background: #1a1a1a;\n  color: white;\n}\n\n.bce-btn-primary:hover {\n  background: #333;\n  transform: translateY(-1px);\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n}\n\n.bce-btn-primary:active {\n  transform: translateY(0);\n  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);\n}\n\n[data-theme='dark'] .bce-btn-primary {\n  background: #f5f5f7;\n  color: #1a1a1a;\n}\n\n[data-theme='dark'] .bce-btn-primary:hover {\n  background: #ffffff;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n}\n\n.bce-btn-secondary {\n  background: rgba(0, 0, 0, 0.05);\n  color: #1a1a1a;\n}\n\n.bce-btn-secondary:hover {\n  background: rgba(0, 0, 0, 0.1);\n}\n\n[data-theme='dark'] .bce-btn-secondary {\n  background: rgba(255, 255, 255, 0.1);\n  color: #f5f5f7;\n}\n\n[data-theme='dark'] .bce-btn-secondary:hover {\n  background: rgba(255, 255, 255, 0.15);\n}\n\n@media (max-width: 480px) {\n  .bce-modal {\n    width: calc(100vw - 16px);\n    max-width: none;\n    max-height: calc(100vh - 16px);\n    max-height: calc(100dvh - 16px);\n    border-radius: 12px;\n  }\n\n  .bce-modal-header {\n    padding: 14px 16px 12px;\n  }\n\n  .bce-modal-title {\n    gap: 8px;\n    font-size: 16px;\n  }\n\n  .bce-modal-close {\n    width: 30px;\n    height: 30px;\n  }\n\n  .bce-modal-body {\n    padding: 4px 0;\n  }\n\n  .bce-section {\n    padding: 12px 16px;\n  }\n\n  .bce-section-title {\n    margin-bottom: 10px;\n    font-size: 12px;\n  }\n\n  .bce-form-group {\n    margin-bottom: 12px;\n  }\n\n  .bce-form-label {\n    margin-bottom: 6px;\n  }\n\n  .bce-select,\n  .bce-multi-select-trigger {\n    padding: 10px 34px 10px 12px;\n  }\n\n  .bce-input-wrapper {\n    gap: 8px;\n  }\n\n  .bce-number-input {\n    width: 64px;\n    padding: 8px 10px;\n  }\n\n  .bce-input-hint {\n    font-size: 12px;\n  }\n\n  .bce-checkbox-wrapper {\n    gap: 10px;\n    padding: 10px;\n    margin-bottom: 8px;\n    border-radius: 10px;\n  }\n\n  .bce-checkbox-icon,\n  .bce-checkbox-check {\n    width: 20px;\n    height: 20px;\n  }\n\n  .bce-modal-footer {\n    gap: 8px;\n    padding: 10px 16px;\n    padding-bottom: max(10px, env(safe-area-inset-bottom));\n  }\n\n  .bce-btn {\n    padding: 10px 14px;\n  }\n}\n\n/* ===== Legacy styles for backwards compatibility ===== */\n.fixed-container {\n  display: none !important;\n}\n";
+
+const COMMENT_AREA_LABELS = {
+    episode: '单集评论',
+    blog: '日志评论',
+    groupTopic: '小组话题',
+    subjectTopic: '条目讨论',
 };
-function createSettingMenu(userSettings, episodeMode = false) {
+function setCommentAreaDropdownOpen(elements, open) {
+    elements.commentAreaDropdown.classList.toggle('open', open);
+    elements.commentAreaTrigger.setAttribute('aria-expanded', String(open));
+}
+function syncCommentAreaSelection(elements) {
+    let selectedCount = 0;
+    elements.commentAreaInputs.forEach((input) => {
+        if (input.checked) {
+            selectedCount += 1;
+        }
+        const option = input.closest('.bce-multi-select-option');
+        option?.classList.toggle('selected', input.checked);
+    });
+    const totalCount = COMMENT_AREAS.length;
+    if (selectedCount === totalCount) {
+        elements.commentAreaSummary.textContent = `全部 ${totalCount} 个区域`;
+    }
+    else if (selectedCount === 0) {
+        elements.commentAreaSummary.textContent = '未启用任何区域';
+    }
+    else {
+        elements.commentAreaSummary.textContent = `已选择 ${selectedCount}/${totalCount} 个区域`;
+    }
+}
+function createSettingMenu(userSettings, episodeMode = false, reloadOnSave = false) {
     const injectStyles = () => {
         const styleEl = document.createElement('style');
         styleEl.textContent = styles$1;
@@ -226,20 +315,72 @@ function createSettingMenu(userSettings, episodeMode = false) {
         header.className = 'bce-modal-header';
         const title = document.createElement('h2');
         title.className = 'bce-modal-title';
-        title.innerHTML = `${ModalIcons.settings} 评论增强设置`;
+        title.innerHTML = `${icon('settings')} 评论增强设置`;
         const closeBtn = document.createElement('button');
         closeBtn.className = 'bce-modal-close';
-        closeBtn.innerHTML = ModalIcons.close;
+        closeBtn.innerHTML = icon('x');
         closeBtn.setAttribute('aria-label', '关闭');
         header.appendChild(title);
         header.appendChild(closeBtn);
         const body = document.createElement('div');
         body.className = 'bce-modal-body';
+        const scopeSection = document.createElement('div');
+        scopeSection.className = 'bce-section';
+        const scopeTitle = document.createElement('h3');
+        scopeTitle.className = 'bce-section-title';
+        scopeTitle.innerHTML = `${icon('list')} 生效范围`;
+        scopeSection.appendChild(scopeTitle);
+        const scopeGroup = document.createElement('div');
+        scopeGroup.className = 'bce-form-group';
+        const scopeLabel = document.createElement('label');
+        scopeLabel.className = 'bce-form-label';
+        scopeLabel.textContent = '启用评论区增强的区域';
+        scopeLabel.htmlFor = 'bce-comment-area-trigger';
+        const commentAreaDropdown = document.createElement('div');
+        commentAreaDropdown.className = 'bce-multi-select';
+        const commentAreaTrigger = document.createElement('button');
+        commentAreaTrigger.type = 'button';
+        commentAreaTrigger.id = 'bce-comment-area-trigger';
+        commentAreaTrigger.className = 'bce-multi-select-trigger';
+        commentAreaTrigger.setAttribute('aria-expanded', 'false');
+        commentAreaTrigger.setAttribute('aria-controls', 'bce-comment-area-options');
+        const commentAreaSummary = document.createElement('span');
+        commentAreaSummary.className = 'bce-multi-select-summary';
+        commentAreaTrigger.appendChild(commentAreaSummary);
+        const commentAreaMenu = document.createElement('div');
+        commentAreaMenu.id = 'bce-comment-area-options';
+        commentAreaMenu.className = 'bce-multi-select-menu';
+        commentAreaMenu.setAttribute('aria-label', '启用评论区增强的区域');
+        const commentAreaInputs = new Map();
+        COMMENT_AREAS.forEach((area) => {
+            const option = document.createElement('label');
+            option.className = 'bce-multi-select-option selected';
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.value = area;
+            input.checked = true;
+            const optionLabel = document.createElement('span');
+            optionLabel.textContent = COMMENT_AREA_LABELS[area];
+            option.appendChild(input);
+            option.appendChild(optionLabel);
+            commentAreaMenu.appendChild(option);
+            commentAreaInputs.set(area, input);
+        });
+        const scopeHint = document.createElement('span');
+        scopeHint.className = 'bce-field-hint';
+        scopeHint.textContent = '仅保存在当前浏览器，不会同步到 Bangumi Riff';
+        commentAreaDropdown.appendChild(commentAreaTrigger);
+        commentAreaDropdown.appendChild(commentAreaMenu);
+        scopeGroup.appendChild(scopeLabel);
+        scopeGroup.appendChild(commentAreaDropdown);
+        scopeGroup.appendChild(scopeHint);
+        scopeSection.appendChild(scopeGroup);
+        body.appendChild(scopeSection);
         const sortSection = document.createElement('div');
         sortSection.className = 'bce-section';
         const sortTitle = document.createElement('h3');
         sortTitle.className = 'bce-section-title';
-        sortTitle.innerHTML = `${ModalIcons.sort} 排序方式`;
+        sortTitle.innerHTML = `${icon('arrow-down-up')} 排序方式`;
         sortSection.appendChild(sortTitle);
         const sortGroup = document.createElement('div');
         sortGroup.className = 'bce-form-group';
@@ -268,7 +409,7 @@ function createSettingMenu(userSettings, episodeMode = false) {
         displaySection.className = 'bce-section';
         const displayTitle = document.createElement('h3');
         displayTitle.className = 'bce-section-title';
-        displayTitle.innerHTML = `${ModalIcons.list} 显示选项`;
+        displayTitle.innerHTML = `${icon('list')} 显示选项`;
         displaySection.appendChild(displayTitle);
         const numbersGroup = document.createElement('div');
         numbersGroup.className = 'bce-form-group';
@@ -315,11 +456,11 @@ function createSettingMenu(userSettings, episodeMode = false) {
         filterSection.className = 'bce-section';
         const filterTitle = document.createElement('h3');
         filterTitle.className = 'bce-section-title';
-        filterTitle.innerHTML = `${ModalIcons.filter} 过滤选项`;
+        filterTitle.innerHTML = `${icon('filter')} 过滤选项`;
         filterSection.appendChild(filterTitle);
-        const hidePlainCommentsCheckboxContainer = new CustomCheckboxContainer('hidePlainComments', '隐藏普通评论', '仅显示精选评论，折叠低互动内容', ModalIcons.eye, userSettings.hidePlainComments || false);
-        const pinMyCommentsCheckboxContainer = new CustomCheckboxContainer('showMine', '置顶我的评论', '将我发表或回复我的帖子置顶显示', ModalIcons.user, userSettings.stickyMentioned || false);
-        const hidePrematureCommentsCheckboxContainer = new CustomCheckboxContainer('hidePremature', '隐藏开播前评论', '隐藏剧集开播前发表的评论（仅单集页面）', ModalIcons.calendar, userSettings.hidePremature || false);
+        const hidePlainCommentsCheckboxContainer = new CustomCheckboxContainer('hidePlainComments', '隐藏普通评论', '仅显示精选评论，折叠低互动内容', 'eye', userSettings.hidePlainComments || false);
+        const pinMyCommentsCheckboxContainer = new CustomCheckboxContainer('showMine', '置顶我的评论', '将我发表或回复我的帖子置顶显示', 'user-round', userSettings.stickyMentioned || false);
+        const hidePrematureCommentsCheckboxContainer = new CustomCheckboxContainer('hidePremature', '隐藏开播前评论', '隐藏剧集开播前发表的评论（仅单集页面）', 'calendar-days', userSettings.hidePremature || false);
         filterSection.appendChild(hidePlainCommentsCheckboxContainer.getContainer());
         filterSection.appendChild(pinMyCommentsCheckboxContainer.getContainer());
         if (episodeMode) {
@@ -345,6 +486,10 @@ function createSettingMenu(userSettings, episodeMode = false) {
             overlay,
             container,
             dropdown,
+            commentAreaDropdown,
+            commentAreaTrigger,
+            commentAreaSummary,
+            commentAreaInputs,
             pinMyCommentsCheckboxContainer,
             hidePlainCommentsCheckboxContainer,
             hidePrematureCommentsCheckboxContainer,
@@ -355,7 +500,12 @@ function createSettingMenu(userSettings, episodeMode = false) {
         };
     };
     const initSettings = (elements) => {
-        const { dropdown, pinMyCommentsCheckboxContainer, hidePlainCommentsCheckboxContainer, hidePrematureCommentsCheckboxContainer, minEffInput, maxPostsInput, } = elements;
+        const { dropdown, pinMyCommentsCheckboxContainer, hidePlainCommentsCheckboxContainer, hidePrematureCommentsCheckboxContainer, minEffInput, maxPostsInput, commentAreaInputs, } = elements;
+        const disabledCommentAreas = new Set(getDisabledCommentAreas());
+        commentAreaInputs.forEach((input, area) => {
+            input.checked = !disabledCommentAreas.has(area);
+        });
+        syncCommentAreaSelection(elements);
         const sortMode = Storage.get('sortMode');
         if (sortMode) {
             dropdown.value = sortMode;
@@ -382,7 +532,9 @@ function createSettingMenu(userSettings, episodeMode = false) {
         }
     };
     const saveSettings = (elements) => {
-        const { container, overlay, dropdown, pinMyCommentsCheckboxContainer, hidePrematureCommentsCheckboxContainer, hidePlainCommentsCheckboxContainer, minEffInput, maxPostsInput, } = elements;
+        const { container, overlay, dropdown, pinMyCommentsCheckboxContainer, hidePrematureCommentsCheckboxContainer, hidePlainCommentsCheckboxContainer, minEffInput, maxPostsInput, commentAreaInputs, } = elements;
+        const disabledCommentAreas = COMMENT_AREAS.filter(area => !commentAreaInputs.get(area)?.checked);
+        setDisabledCommentAreas(disabledCommentAreas);
         Storage.set('minimumFeaturedCommentLength', Math.max(Number.parseInt(minEffInput.value) || 0, 0));
         Storage.set('maxFeaturedComments', Number.parseInt(maxPostsInput.value) > 0 ? Number.parseInt(maxPostsInput.value) : 1);
         Storage.set('hidePlainComments', hidePlainCommentsCheckboxContainer.isChecked() ? 'on' : 'off');
@@ -397,6 +549,9 @@ function createSettingMenu(userSettings, episodeMode = false) {
             jQuery(document).trigger('settingsSaved');
         }
         hideDialog(elements);
+        if (reloadOnSave) {
+            setTimeout(() => location.reload(), 250);
+        }
     };
     const showDialog = (elements) => {
         const { overlay, container } = elements;
@@ -404,7 +559,7 @@ function createSettingMenu(userSettings, episodeMode = false) {
         const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
         document.body.style.paddingRight = `${scrollbarWidth}px`;
         overlay.style.display = 'block';
-        container.style.display = 'block';
+        container.style.display = 'flex';
         void overlay.offsetWidth;
         void container.offsetWidth;
         requestAnimationFrame(() => {
@@ -415,6 +570,7 @@ function createSettingMenu(userSettings, episodeMode = false) {
     };
     const hideDialog = (elements) => {
         const { overlay, container } = elements;
+        setCommentAreaDropdownOpen(elements, false);
         overlay.classList.remove('active');
         container.classList.remove('active');
         setTimeout(() => {
@@ -431,12 +587,29 @@ function createSettingMenu(userSettings, episodeMode = false) {
         elements.saveBtn.addEventListener('click', () => saveSettings(elements));
         elements.cancelBtn.addEventListener('click', () => hideDialog(elements));
         elements.overlay.addEventListener('click', () => hideDialog(elements));
+        elements.commentAreaTrigger.addEventListener('click', () => {
+            const open = elements.commentAreaTrigger.getAttribute('aria-expanded') !== 'true';
+            setCommentAreaDropdownOpen(elements, open);
+        });
+        elements.commentAreaInputs.forEach((input) => {
+            input.addEventListener('change', () => syncCommentAreaSelection(elements));
+        });
+        document.addEventListener('click', (event) => {
+            if (event.target instanceof Node && !elements.commentAreaDropdown.contains(event.target)) {
+                setCommentAreaDropdownOpen(elements, false);
+            }
+        });
         const closeBtn = elements.container.querySelector('.bce-modal-close');
         if (closeBtn) {
             closeBtn.addEventListener('click', () => hideDialog(elements));
         }
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && elements.container.classList.contains('active')) {
+                if (elements.commentAreaTrigger.getAttribute('aria-expanded') === 'true') {
+                    setCommentAreaDropdownOpen(elements, false);
+                    elements.commentAreaTrigger.focus();
+                    return;
+                }
                 hideDialog(elements);
             }
         });
@@ -662,9 +835,9 @@ function processComments(userSettings) {
     };
 }
 
-var butterupStyles = ".toaster {\n  font-family:\n    ui-sans-serif,\n    system-ui,\n    -apple-system,\n    BlinkMacSystemFont,\n    Segoe UI,\n    Roboto,\n    Helvetica Neue,\n    Arial,\n    Noto Sans,\n    sans-serif,\n    Apple Color Emoji,\n    Segoe UI Emoji,\n    Segoe UI Symbol,\n    Noto Color Emoji;\n  box-sizing: border-box;\n  padding: 0;\n  margin: 0;\n  list-style: none;\n  outline: none;\n  z-index: 999999999;\n  position: fixed;\n  padding: 5px;\n}\n\n@keyframes spin {\n  from {\n    transform: rotate(0deg);\n  }\n  to {\n    transform: rotate(360deg);\n  }\n}\n\n.animate-spin {\n  animation: spin 1s linear infinite;\n}\n\n.toaster.bottom-right {\n  bottom: 20px;\n  right: 20px;\n}\n\n.toaster.bottom-left {\n  bottom: 20px;\n  left: 20px;\n}\n\n.toaster.top-right {\n  top: 20px;\n  right: 20px;\n}\n\n.toaster.top-left {\n  top: 20px;\n  left: 20px;\n}\n\n.toaster.bottom-center {\n  bottom: 20px;\n  left: 50%;\n  transform: translateX(-50%);\n}\n\n.toaster.top-center {\n  top: 20px;\n  left: 50%;\n  transform: translateX(-50%);\n}\n\n.toaster.top-center ol.rack {\n  flex-direction: column-reverse;\n}\n\n.toaster.top-left ol.rack {\n  flex-direction: column-reverse;\n}\n\n.toaster.top-right ol.rack {\n  flex-direction: column-reverse;\n}\n\n.toaster.bottom-center ol.rack {\n  flex-direction: column;\n}\n\n.toaster.bottom-left ol.rack {\n  flex-direction: column;\n}\n\n.toaster.bottom-right ol.rack {\n  flex-direction: column;\n}\n\nol.rack {\n  list-style: none;\n  padding: 0;\n  margin: 0;\n  /* reverse the list order so that the newest items are at the top */\n  display: flex;\n}\n\nol.rack li {\n  margin-bottom: 16px;\n}\n\n/* Stacked Toasts Enabled */\nol.rack.upperstack li {\n  margin-bottom: -35px;\n  transition: all 0.3s ease-in-out;\n}\n\nol.rack.upperstack li:hover {\n  margin-bottom: 16px;\n  scale: 1.03;\n  transition: all 0.3s ease-in-out;\n}\n\nol.rack.lowerstack li {\n  margin-top: -35px;\n}\n\nol.rack.lowerstack {\n  margin-bottom: 0px;\n}\n\n.butteruptoast {\n  border-radius: 8px;\n  box-shadow: 0 4px 12px #0000001a;\n  font-size: 13px;\n  display: flex;\n  padding: 16px;\n  border: 1px solid hsl(0, 0%, 93%);\n  background-color: white;\n  gap: 6px;\n  color: #282828;\n  width: 325px;\n  transition: all 0.3s ease-in-out;\n}\n\n.butteruptoast.dismissable {\n  cursor: pointer;\n}\n\n.butteruptoast .icon {\n  display: flex;\n  align-items: start;\n  flex-direction: column;\n}\n\n.butteruptoast .icon svg {\n  width: 20px;\n  height: 20px;\n  fill: #282828;\n  padding: 0;\n  margin: 0;\n}\n\n.butteruptoast .notif .desc {\n  display: flex;\n  flex-direction: column;\n  gap: 2px;\n  padding: 0;\n  margin: 0;\n}\n\n.butteruptoast .notif .desc .title {\n  font-weight: 600;\n  line-height: 1.5;\n  padding: 0;\n  margin: 0;\n}\n\n.butteruptoast .notif .desc .message {\n  font-weight: 400;\n  line-height: 1.4;\n  padding: 0;\n  margin: 0;\n}\n\n.butteruptoast.success {\n  background-color: #ebfef2;\n  color: hsl(140, 100%, 27%);\n  border: solid 1px hsl(145, 92%, 91%);\n}\n\n.butteruptoast.success .icon svg {\n  fill: hsl(140, 100%, 27%);\n}\n\n.butteruptoast.error .icon svg {\n  fill: hsl(0, 100%, 27%);\n}\n\n.butteruptoast.warning .icon svg {\n  fill: hsl(50, 100%, 27%);\n}\n\n.butteruptoast.info .icon svg {\n  fill: hsl(210, 100%, 27%);\n}\n\n.butteruptoast.error {\n  background-color: #fef0f0;\n  color: hsl(0, 100%, 27%);\n  border: solid 1px hsl(0, 92%, 91%);\n}\n\n.butteruptoast.warning {\n  background-color: #fffdf0;\n  color: hsl(50, 100%, 27%);\n  border: solid 1px hsl(50, 92%, 91%);\n}\n\n.butteruptoast.info {\n  background-color: #f0f8ff;\n  color: hsl(210, 100%, 27%);\n  border: solid 1px hsl(210, 92%, 91%);\n}\n\n/* Buttons */\n.toast-buttons {\n  display: flex;\n  gap: 8px;\n  width: 100%;\n  align-items: center;\n  flex-direction: row;\n  margin-top: 16px;\n}\n\n.toast-buttons .toast-button.primary {\n  background-color: #282828;\n  color: white;\n  padding: 8px 16px;\n  border-radius: 4px;\n  cursor: pointer;\n  border: none;\n  width: 100%;\n}\n\n.toast-buttons .toast-button.secondary {\n  background-color: #f0f8ff;\n  color: hsl(210, 100%, 27%);\n  border: solid 1px hsl(210, 92%, 91%);\n  padding: 8px 16px;\n  border-radius: 4px;\n  cursor: pointer;\n  width: 100%;\n}\n\n/* Success toast buttons */\n.butteruptoast.success .toast-button.primary {\n  background-color: hsl(145, 63%, 42%);\n  color: white;\n}\n\n.butteruptoast.success .toast-button.secondary {\n  background-color: hsl(145, 45%, 90%);\n  color: hsl(145, 63%, 32%);\n  border: solid 1px hsl(145, 63%, 72%);\n}\n\n/* Error toast buttons */\n.butteruptoast.error .toast-button.primary {\n  background-color: hsl(354, 70%, 54%);\n  color: white;\n}\n\n.butteruptoast.error .toast-button.secondary {\n  background-color: hsl(354, 30%, 90%);\n  color: hsl(354, 70%, 44%);\n  border: solid 1px hsl(354, 70%, 74%);\n}\n\n/* Warning toast buttons */\n.butteruptoast.warning .toast-button.primary {\n  background-color: hsl(45, 100%, 51%);\n  color: hsl(45, 100%, 15%);\n}\n\n.butteruptoast.warning .toast-button.secondary {\n  background-color: hsl(45, 100%, 96%);\n  color: hsl(45, 100%, 31%);\n  border: solid 1px hsl(45, 100%, 76%);\n}\n\n/* Info toast buttons */\n.butteruptoast.info .toast-button.primary {\n  background-color: hsl(207, 90%, 54%);\n  color: white;\n}\n\n.butteruptoast.info .toast-button.secondary {\n  background-color: hsl(207, 90%, 94%);\n  color: hsl(207, 90%, 34%);\n  border: solid 1px hsl(207, 90%, 74%);\n}\n\n/* Entrance animations */\n/*  Note: These animations need to differ depending on the location of the toaster\n\tElements that are in the top should slide and fade down from the top\n\tElemennts that are in the bottom should slide and fade up from the bottom\n*/\n\n.toastUp {\n  animation: slideUp 0.5s ease-in-out;\n  animation-fill-mode: forwards;\n}\n\n.toastDown {\n  animation: slideDown 0.5s ease-in-out;\n  animation-fill-mode: forwards;\n}\n\n@keyframes slideDown {\n  0% {\n    opacity: 0;\n    transform: translateY(-100%);\n  }\n  100% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n@keyframes slideUp {\n  0% {\n    opacity: 0;\n    transform: translateY(100%);\n  }\n  100% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n.fadeOutToast {\n  animation: fadeOut 0.3s ease-in-out;\n  animation-fill-mode: forwards;\n}\n\n@keyframes fadeOut {\n  0% {\n    opacity: 1;\n  }\n  100% {\n    opacity: 0;\n  }\n}\n\n/*  Additional Styles\n\tThese styles are an alternative to the standard option. A user can choose to use these\n\tstyles by setting the theme: variable per toast\n*/\n\n/* Glass */\n\n.butteruptoast.glass {\n  background-color: rgba(255, 255, 255, 0.42) !important;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: none;\n  box-shadow: 0 4px 12px #0000001a;\n  color: #282828;\n}\n\n.butteruptoast.glass.success {\n  background-color: rgba(235, 254, 242, 0.42) !important;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: none;\n  box-shadow: 0 4px 12px #0000001a;\n  color: hsl(140, 100%, 27%);\n}\n\n.butteruptoast.glass.error {\n  background-color: rgba(254, 240, 240, 0.42) !important;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: none;\n  box-shadow: 0 4px 12px #0000001a;\n  color: hsl(0, 100%, 27%);\n}\n\n.butteruptoast.glass.warning {\n  background-color: rgba(255, 253, 240, 0.42) !important;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: none;\n  box-shadow: 0 4px 12px #0000001a;\n  color: hsl(50, 100%, 27%);\n}\n\n.butteruptoast.glass.info {\n  background-color: rgba(240, 248, 255, 0.42) !important;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: none;\n  box-shadow: 0 4px 12px #0000001a;\n  color: hsl(210, 100%, 27%);\n}\n\n/* brutalist */\n.butteruptoast.brutalist {\n  border-radius: 0px;\n  box-shadow: 0 4px 12px #0000001a;\n  border: solid 2px #282828;\n  font-size: 13px;\n  align-items: center;\n  display: flex;\n  padding: 16px;\n  background-color: white;\n  gap: 6px;\n  color: #282828;\n  width: 325px;\n}\n\n.butteruptoast.brutalist.success {\n  background-color: #ebfef2;\n  color: hsl(140, 100%, 27%);\n  border: solid 2px hsl(140, 100%, 27%);\n}\n\n.butteruptoast.brutalist.error {\n  background-color: #fef0f0;\n  color: hsl(0, 100%, 27%);\n  border: solid 2px hsl(0, 100%, 27%);\n}\n\n.butteruptoast.brutalist.warning {\n  background-color: #fffdf0;\n  color: hsl(50, 100%, 27%);\n  border: solid 2px hsl(50, 100%, 27%);\n}\n\n.butteruptoast.brutalist.info {\n  background-color: #f0f8ff;\n  color: hsl(210, 100%, 27%);\n  border: solid 2px hsl(210, 100%, 27%);\n}\n";
+var butterupStyles = ".toaster {\n  font-family:\n    ui-sans-serif,\n    system-ui,\n    -apple-system,\n    BlinkMacSystemFont,\n    Segoe UI,\n    Roboto,\n    Helvetica Neue,\n    Arial,\n    Noto Sans,\n    sans-serif,\n    Apple Color Emoji,\n    Segoe UI Emoji,\n    Segoe UI Symbol,\n    Noto Color Emoji;\n  box-sizing: border-box;\n  padding: 0;\n  margin: 0;\n  list-style: none;\n  outline: none;\n  z-index: 999999999;\n  position: fixed;\n  padding: 5px;\n}\n\n@keyframes bce-icon-spin {\n  from {\n    transform: rotate(0deg);\n  }\n  to {\n    transform: rotate(360deg);\n  }\n}\n\n.bce-icon-spin {\n  animation: bce-icon-spin 1s linear infinite;\n}\n\n.toaster.bottom-right {\n  bottom: 20px;\n  right: 20px;\n}\n\n.toaster.bottom-left {\n  bottom: 20px;\n  left: 20px;\n}\n\n.toaster.top-right {\n  top: 20px;\n  right: 20px;\n}\n\n.toaster.top-left {\n  top: 20px;\n  left: 20px;\n}\n\n.toaster.bottom-center {\n  bottom: 20px;\n  left: 50%;\n  transform: translateX(-50%);\n}\n\n.toaster.top-center {\n  top: 20px;\n  left: 50%;\n  transform: translateX(-50%);\n}\n\n.toaster.top-center ol.rack {\n  flex-direction: column-reverse;\n}\n\n.toaster.top-left ol.rack {\n  flex-direction: column-reverse;\n}\n\n.toaster.top-right ol.rack {\n  flex-direction: column-reverse;\n}\n\n.toaster.bottom-center ol.rack {\n  flex-direction: column;\n}\n\n.toaster.bottom-left ol.rack {\n  flex-direction: column;\n}\n\n.toaster.bottom-right ol.rack {\n  flex-direction: column;\n}\n\nol.rack {\n  list-style: none;\n  padding: 0;\n  margin: 0;\n  /* reverse the list order so that the newest items are at the top */\n  display: flex;\n}\n\nol.rack li {\n  margin-bottom: 16px;\n}\n\n/* Stacked Toasts Enabled */\nol.rack.upperstack li {\n  margin-bottom: -35px;\n  transition: all 0.3s ease-in-out;\n}\n\nol.rack.upperstack li:hover {\n  margin-bottom: 16px;\n  scale: 1.03;\n  transition: all 0.3s ease-in-out;\n}\n\nol.rack.lowerstack li {\n  margin-top: -35px;\n}\n\nol.rack.lowerstack {\n  margin-bottom: 0px;\n}\n\n.butteruptoast {\n  border-radius: 8px;\n  box-shadow: 0 4px 12px #0000001a;\n  font-size: 13px;\n  display: flex;\n  padding: 16px;\n  border: 1px solid hsl(0, 0%, 93%);\n  background-color: white;\n  gap: 6px;\n  color: #282828;\n  width: 325px;\n  transition: all 0.3s ease-in-out;\n}\n\n.butteruptoast.dismissable {\n  cursor: pointer;\n}\n\n.butteruptoast .icon {\n  display: flex;\n  align-items: start;\n  flex-direction: column;\n}\n\n.butteruptoast .icon .bce-icon {\n  color: inherit;\n  font-size: 1.538em;\n  padding: 0;\n  margin: 0;\n}\n\n.butteruptoast .icon svg {\n  width: 1.538em;\n  height: 1.538em;\n  fill: currentColor;\n  padding: 0;\n  margin: 0;\n}\n\n.butteruptoast .notif .desc {\n  display: flex;\n  flex-direction: column;\n  gap: 2px;\n  padding: 0;\n  margin: 0;\n}\n\n.butteruptoast .notif .desc .title {\n  font-weight: 600;\n  line-height: 1.5;\n  padding: 0;\n  margin: 0;\n}\n\n.butteruptoast .notif .desc .message {\n  font-weight: 400;\n  line-height: 1.4;\n  padding: 0;\n  margin: 0;\n}\n\n.butteruptoast.success {\n  background-color: #ebfef2;\n  color: hsl(140, 100%, 27%);\n  border: solid 1px hsl(145, 92%, 91%);\n}\n\n.butteruptoast.error {\n  background-color: #fef0f0;\n  color: hsl(0, 100%, 27%);\n  border: solid 1px hsl(0, 92%, 91%);\n}\n\n.butteruptoast.warning {\n  background-color: #fffdf0;\n  color: hsl(50, 100%, 27%);\n  border: solid 1px hsl(50, 92%, 91%);\n}\n\n.butteruptoast.info {\n  background-color: #f0f8ff;\n  color: hsl(210, 100%, 27%);\n  border: solid 1px hsl(210, 92%, 91%);\n}\n\n/* Buttons */\n.toast-buttons {\n  display: flex;\n  gap: 8px;\n  width: 100%;\n  align-items: center;\n  flex-direction: row;\n  margin-top: 16px;\n}\n\n.toast-buttons .toast-button.primary {\n  background-color: #282828;\n  color: white;\n  padding: 8px 16px;\n  border-radius: 4px;\n  cursor: pointer;\n  border: none;\n  width: 100%;\n}\n\n.toast-buttons .toast-button.secondary {\n  background-color: #f0f8ff;\n  color: hsl(210, 100%, 27%);\n  border: solid 1px hsl(210, 92%, 91%);\n  padding: 8px 16px;\n  border-radius: 4px;\n  cursor: pointer;\n  width: 100%;\n}\n\n/* Success toast buttons */\n.butteruptoast.success .toast-button.primary {\n  background-color: hsl(145, 63%, 42%);\n  color: white;\n}\n\n.butteruptoast.success .toast-button.secondary {\n  background-color: hsl(145, 45%, 90%);\n  color: hsl(145, 63%, 32%);\n  border: solid 1px hsl(145, 63%, 72%);\n}\n\n/* Error toast buttons */\n.butteruptoast.error .toast-button.primary {\n  background-color: hsl(354, 70%, 54%);\n  color: white;\n}\n\n.butteruptoast.error .toast-button.secondary {\n  background-color: hsl(354, 30%, 90%);\n  color: hsl(354, 70%, 44%);\n  border: solid 1px hsl(354, 70%, 74%);\n}\n\n/* Warning toast buttons */\n.butteruptoast.warning .toast-button.primary {\n  background-color: hsl(45, 100%, 51%);\n  color: hsl(45, 100%, 15%);\n}\n\n.butteruptoast.warning .toast-button.secondary {\n  background-color: hsl(45, 100%, 96%);\n  color: hsl(45, 100%, 31%);\n  border: solid 1px hsl(45, 100%, 76%);\n}\n\n/* Info toast buttons */\n.butteruptoast.info .toast-button.primary {\n  background-color: hsl(207, 90%, 54%);\n  color: white;\n}\n\n.butteruptoast.info .toast-button.secondary {\n  background-color: hsl(207, 90%, 94%);\n  color: hsl(207, 90%, 34%);\n  border: solid 1px hsl(207, 90%, 74%);\n}\n\n/* Entrance animations */\n/*  Note: These animations need to differ depending on the location of the toaster\n\tElements that are in the top should slide and fade down from the top\n\tElemennts that are in the bottom should slide and fade up from the bottom\n*/\n\n.toastUp {\n  animation: slideUp 0.5s ease-in-out;\n  animation-fill-mode: forwards;\n}\n\n.toastDown {\n  animation: slideDown 0.5s ease-in-out;\n  animation-fill-mode: forwards;\n}\n\n@keyframes slideDown {\n  0% {\n    opacity: 0;\n    transform: translateY(-100%);\n  }\n  100% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n@keyframes slideUp {\n  0% {\n    opacity: 0;\n    transform: translateY(100%);\n  }\n  100% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n\n.fadeOutToast {\n  animation: fadeOut 0.3s ease-in-out;\n  animation-fill-mode: forwards;\n}\n\n@keyframes fadeOut {\n  0% {\n    opacity: 1;\n  }\n  100% {\n    opacity: 0;\n  }\n}\n\n/*  Additional Styles\n\tThese styles are an alternative to the standard option. A user can choose to use these\n\tstyles by setting the theme: variable per toast\n*/\n\n/* Glass */\n\n.butteruptoast.glass {\n  background-color: rgba(255, 255, 255, 0.42) !important;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: none;\n  box-shadow: 0 4px 12px #0000001a;\n  color: #282828;\n}\n\n.butteruptoast.glass.success {\n  background-color: rgba(235, 254, 242, 0.42) !important;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: none;\n  box-shadow: 0 4px 12px #0000001a;\n  color: hsl(140, 100%, 27%);\n}\n\n.butteruptoast.glass.error {\n  background-color: rgba(254, 240, 240, 0.42) !important;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: none;\n  box-shadow: 0 4px 12px #0000001a;\n  color: hsl(0, 100%, 27%);\n}\n\n.butteruptoast.glass.warning {\n  background-color: rgba(255, 253, 240, 0.42) !important;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: none;\n  box-shadow: 0 4px 12px #0000001a;\n  color: hsl(50, 100%, 27%);\n}\n\n.butteruptoast.glass.info {\n  background-color: rgba(240, 248, 255, 0.42) !important;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: none;\n  box-shadow: 0 4px 12px #0000001a;\n  color: hsl(210, 100%, 27%);\n}\n\n/* brutalist */\n.butteruptoast.brutalist {\n  border-radius: 0px;\n  box-shadow: 0 4px 12px #0000001a;\n  border: solid 2px #282828;\n  font-size: 13px;\n  align-items: center;\n  display: flex;\n  padding: 16px;\n  background-color: white;\n  gap: 6px;\n  color: #282828;\n  width: 325px;\n}\n\n.butteruptoast.brutalist.success {\n  background-color: #ebfef2;\n  color: hsl(140, 100%, 27%);\n  border: solid 2px hsl(140, 100%, 27%);\n}\n\n.butteruptoast.brutalist.error {\n  background-color: #fef0f0;\n  color: hsl(0, 100%, 27%);\n  border: solid 2px hsl(0, 100%, 27%);\n}\n\n.butteruptoast.brutalist.warning {\n  background-color: #fffdf0;\n  color: hsl(50, 100%, 27%);\n  border: solid 2px hsl(50, 100%, 27%);\n}\n\n.butteruptoast.brutalist.info {\n  background-color: #f0f8ff;\n  color: hsl(210, 100%, 27%);\n  border: solid 2px hsl(210, 100%, 27%);\n}\n";
 
-var styles = ".bct-button {\n  /* --button-size: 2rem;\n  width: var(--button-size);\n  height: var(--button-size); */\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  color: #000;\n  transform: translateY(4px);\n  padding: 2px 5px;\n  border: 1px solid transparent;\n}\n\n[data-theme='dark'] .bct-button {\n  color: #f5f5f5;\n}\n\n.bct-button:hover {\n  border: 1px solid lightgray;\n  border-radius: 4px;\n  transition: all 0.2s ease-in-out;\n}\n\n.bct-button svg {\n  width: 100%;\n  height: 100%;\n  /* Let the button control the size */\n  flex: 1;\n}\n\n.bct-button svg {\n  max-width: 21px;\n  max-height: 21px;\n}\n\n.bct-button span {\n  font-size: 12px !important;\n  font-weight: normal !important;\n  padding-right: 4px !important;\n}\n[data-theme='dark'] .bct-button svg {\n  filter: invert(1);\n}\n\n.bct-checkbox {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  position: relative;\n  height: 20px;\n  cursor: pointer;\n}\n\n.bct-checkbox .bct-checkmark {\n  /* You had no styles for this in the original, but leave this as a placeholder */\n}\n\n.bct-checkbox span:last-child {\n  margin-left: 2px;\n}\n\n.premature-comment {\n  border: 1px dashed #e62727;\n}\n";
+var styles = ".bce-icon {\n  display: inline-block;\n  width: 1em;\n  height: 1em;\n  flex: 0 0 auto;\n  color: inherit;\n  vertical-align: middle;\n  background-color: currentColor;\n  -webkit-mask: var(--un-icon) no-repeat;\n  mask: var(--un-icon) no-repeat;\n  -webkit-mask-size: 100% 100%;\n  mask-size: 100% 100%;\n}\n\n.bce-toolbar-button {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  width: 1em;\n  height: 1em;\n  margin: 0 0 0.125em 0.25em;\n  color: #5f5f5f;\n  font-size: 1.4em;\n  line-height: 1;\n  vertical-align: middle;\n  cursor: pointer;\n}\n\n[data-theme='dark'] .bce-toolbar-button {\n  color: #f5f5f5;\n}\n\n.bce-area-status {\n  margin-left: 0.625em;\n  padding: 0.2em 0.625em;\n  color: #a33a45;\n  font-size: 0.75em;\n  font-weight: 600;\n  line-height: 1.4;\n  background: rgba(240, 145, 153, 0.16);\n  border: 1px solid rgba(163, 58, 69, 0.2);\n  border-radius: 999px;\n  cursor: pointer;\n}\n\n.bce-area-status:hover,\n.bce-area-status:focus-visible {\n  color: #842c35;\n  background: rgba(240, 145, 153, 0.28);\n  outline: none;\n}\n\n[data-theme='dark'] .bce-area-status {\n  color: #f5a5ac;\n  background: rgba(245, 165, 172, 0.12);\n  border-color: rgba(245, 165, 172, 0.25);\n}\n\n.premature-comment {\n  border: 1px dashed #e62727;\n}\n";
 
 const butterup = {
     options: {
@@ -751,31 +924,7 @@ const butterup = {
                 toastIcon.innerHTML = customIcon;
             }
             if (type && !customIcon) {
-                toast.className += ` ${type}`;
-                if (type === 'success') {
-                    toastIcon.innerHTML
-                        = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">'
-                            + '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />'
-                            + '</svg>';
-                }
-                if (type === 'error') {
-                    toastIcon.innerHTML
-                        = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">'
-                            + '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />'
-                            + '</svg>';
-                }
-                if (type === 'warning') {
-                    toastIcon.innerHTML
-                        = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">'
-                            + '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" />'
-                            + '</svg>';
-                }
-                if (type === 'info') {
-                    toastIcon.innerHTML
-                        = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">'
-                            + '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" />'
-                            + '</svg>';
-                }
+                toastIcon.innerHTML = this.getIconForType(type);
             }
             console.log('toastIcon', toastIcon);
         }
@@ -881,7 +1030,7 @@ const butterup = {
             location: location,
             theme: theme || 'light',
             icon: true,
-            customIcon: '<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>',
+            customIcon: icon('loader-circle', 'bce-icon-spin'),
             dismissable: false,
         });
         return promise.then((result) => {
@@ -922,25 +1071,17 @@ const butterup = {
     getIconForType(type) {
         switch (type) {
             case 'success':
-                return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>';
+                return icon('circle-check');
             case 'error':
-                return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>';
+                return icon('circle-x');
             case 'warning':
-                return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>';
+                return icon('triangle-alert');
             case 'info':
-                return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" /></svg>';
+                return icon('info');
             default:
                 return '';
         }
     },
-};
-
-const Icons = {
-    eyeOpen: '<svg t="1747629142037" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1338"  ><path d="M947.6 477.1c-131.1-163.4-276.3-245-435.6-245s-304.5 81.7-435.6 245c-16.4 20.5-16.4 49.7 0 70.1 131.1 163.4 276.3 245 435.6 245s304.5-81.7 435.6-245c16.4-20.4 16.4-49.6 0-70.1zM512 720c-130.6 0-251.1-67.8-363.5-207.8 112.4-140 232.9-207.8 363.5-207.8s251.1 67.8 363.5 207.8C763.1 652.2 642.6 720 512 720z" fill="#5F5F5F" p-id="1339"></path><path d="M512 592c44.1 0 79.8-35.7 79.8-79.8 0-44.1-35.7-79.8-79.8-79.8-44.1 0-79.8 35.7-79.8 79.8-0.1 44.1 35.7 79.8 79.8 79.8z m0 72c-83.8 0-151.8-68-151.8-151.8 0-83.8 68-151.8 151.8-151.8 83.8 0 151.8 68 151.8 151.8 0 83.8-68 151.8-151.8 151.8z m0 0" fill="#5F5F5F" p-id="1340"></path></svg>',
-    newest: '<svg t="1747628315444" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1861"  ><path d="M512.736 992a483.648 483.648 0 0 1-164.672-28.8 36.88 36.88 0 1 1 25.104-69.36 407.456 407.456 0 1 0-184.608-136.512A36.912 36.912 0 0 1 129.488 801.6a473.424 473.424 0 0 1-97.472-290A480 480 0 1 1 512.736 992z" fill="#5F5F5F" p-id="1862"></path><path d="M685.6 638.592a32 32 0 0 1-14.032-2.96l-178.048-73.888a36.8 36.8 0 0 1-22.912-34.016V236.672a36.944 36.944 0 1 1 73.888 0v266.72l155.2 64.272a36.336 36.336 0 0 1 19.952 48 37.616 37.616 0 0 1-34.048 22.928z" fill="#5F5F5F" p-id="1863"></path></svg>',
-    gear: '<svg t="1741861365461" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2783" data-darkreader-inline-fill=""  ><path d="M594.9 64.8c36.8-0.4 66.9 29.1 67.3 65.9v7.8c0 38.2 31.5 69.4 70.2 69.4 12.3 0 24.5-3.3 35-9.3l7.1-4.1c10.3-5.9 22.1-9 33.9-9 23.9 0 46.2 12.5 58.3 32.8L949.9 359c18.7 31.6 7.6 71.9-24.6 90.1l-6.9 3.9c-34 19.2-45.7 61.2-26.4 93.8 6.1 10.3 14.9 18.9 25.4 24.8l7 3.9c32.3 18 43.6 58.5 24.8 90.2L866 806.3c-9.1 15.2-23.8 26.2-41 30.6-17.1 4.4-35.3 2.2-50.7-6.4l-7-3.9c-21.9-12.2-48.5-12.4-70.6-0.4-10.7 5.9-19.7 14.5-25.9 25-6.1 10.4-9.4 22.1-9.3 33.8v7.8c0.1 17.8-7.2 34.7-20 47.1-12.6 12.2-29.6 19-47.2 19H428c-36.6 0.3-66.7-29-67.2-65.5l-0.1-7.8c-0.1-18.4-7.6-36-20.8-48.8-22.5-22-56.9-26.5-84.3-10.9l-7 4.1c-10.3 5.8-22 8.9-33.8 8.9-23.9 0-46.1-12.4-58.2-32.8L73.2 665.2c-8.9-15.1-11.3-33.2-6.7-50.1 4.6-16.9 15.8-31.3 31.2-39.8l6.8-3.9c16.2-9 28.2-24.2 33.1-42.1 4.9-17.4 2.4-36.1-6.9-51.6-6.2-10.4-15.1-19-25.7-24.9l-6.9-3.9c-15.5-8.4-27-22.8-31.7-39.8-4.7-17-2.3-35.2 6.7-50.4L156.3 218c9-15.1 23.8-26.2 41-30.6 17.1-4.4 35.3-2.1 50.7 6.5l7.1 3.9c21.9 12.3 48.6 12.5 70.7 0.5 10.8-5.9 19.8-14.6 26-25.1 6.1-10.4 9.3-22.2 9.2-34.1v-7.9c-0.2-17.8 7-34.8 19.8-47.2 12.6-12.3 29.7-19.1 47.5-19.1h166.6z m-163.2 71c-3.1 0-6.1 1.2-8.4 3.3-1.9 1.8-2.9 4.2-2.9 6.8l0.1 7.6c0.2 21.2-5.4 42-16.3 60.3a120.02 120.02 0 0 1-45.2 43.7c-37.4 20.4-82.6 20.2-119.7-0.7l-6.8-3.8c-2.8-1.6-6.1-2-9.2-1.2-2.8 0.7-5.3 2.5-6.8 5l-80 135.1c-2.7 4.5-1.1 10.2 4.1 13l6.7 3.7c18.6 10.3 34 25.3 44.7 43.4 16.3 27.6 20.6 59.9 12.1 90.8-8.5 30.8-29 56.9-56.9 72.5l-6.6 3.7c-5 2.9-6.6 8.5-3.9 12.9l80 135.1c1.9 3.2 5.7 5.3 10 5.3 2.1 0 4.3-0.5 6.1-1.6l6.8-3.8c18.1-10.3 38.8-15.8 59.9-15.8 31.8 0 62 12.3 84.7 34.4 23 22.5 35.9 52.6 36 84.7v7.5c0 5.2 4.9 9.9 11.3 9.9h160c3.2 0 6.2-1.2 8.3-3.3 1.8-1.7 2.9-4.2 2.9-6.7v-7.5c-0.1-20.9 5.6-41.6 16.4-59.8 10.8-18.3 26.4-33.4 45.1-43.7 37.3-20.4 82.4-20.2 119.5 0.6l6.7 3.8c2.8 1.5 6.1 1.9 9.2 1.1 2.8-0.7 5.3-2.5 6.8-5l80-135c2.7-4.5 1.1-10.2-4-13l-6.7-3.7c-18.4-10.2-33.7-25.2-44.4-43.3-33.8-57.1-13.4-130.5 45-163.5l6.6-3.7c5.1-2.9 6.6-8.5 3.9-13l-79.9-135.1c-2.2-3.4-6-5.4-10-5.3-2.1 0-4.3 0.5-6.1 1.6l-6.8 3.8c-18.3 10.5-39.1 16-60.2 16-66.5 0.2-120.6-53.5-120.8-119.9v-7.5c0-5.3-4.8-10-11.3-10l-160 0.3z m-3.4-15.5" fill="#5F5F5F" p-id="2784"></path><path d="M512 584c39.8 0 72-32.2 72-72s-32.2-72-72-72-72 32.2-72 72 32.2 72 72 72z m0 72c-79.5 0-144-64.5-144-144s64.5-144 144-144 144 64.5 144 144-64.5 144-144 144z m0 0" fill="#5F5F5F" p-id="2785"></path></svg>',
-    expandAll: '<svg t="1775995412772" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1513"><path d="M882.9 277.2c-15.2-12.7-38-10.7-50.7 4.4L512 663.2 191.8 281.6c-12.7-15.2-35.6-17.2-50.7-4.4-15.2 12.7-17.2 35.6-4.4 50.7l347.7 414.4 0.3 0.3 0.6 0.6c0.2 0.2 0.4 0.5 0.7 0.7l0.6 0.6 0.7 0.7c0.2 0.2 0.4 0.4 0.6 0.5 0.3 0.2 0.5 0.5 0.8 0.7 0.1 0.1 0.2 0.2 0.3 0.2 0.1 0.1 0.2 0.2 0.4 0.3 0.2 0.2 0.5 0.4 0.7 0.6 0.3 0.2 0.5 0.4 0.8 0.6 0.2 0.1 0.4 0.3 0.6 0.4 0.3 0.2 0.7 0.5 1 0.7 0.1 0.1 0.3 0.2 0.4 0.2 0.4 0.3 0.8 0.5 1.3 0.8l0.1 0.1c4.6 2.6 9.6 4.1 14.7 4.6h0.2c0.5 0 0.9 0.1 1.4 0.1h3.2c0.5 0 0.9-0.1 1.4-0.1h0.2c5.1-0.4 10.1-2 14.7-4.6l0.1-0.1c0.4-0.2 0.8-0.5 1.3-0.8 0.1-0.1 0.3-0.2 0.4-0.2 0.3-0.2 0.7-0.4 1-0.7 0.2-0.1 0.4-0.3 0.6-0.4 0.3-0.2 0.5-0.4 0.8-0.6 0.2-0.2 0.5-0.4 0.7-0.6 0.1-0.1 0.2-0.2 0.4-0.3 0.1-0.1 0.2-0.2 0.3-0.2 0.3-0.2 0.5-0.4 0.8-0.7 0.2-0.2 0.4-0.4 0.6-0.5l0.7-0.7 0.6-0.6c0.2-0.2 0.4-0.5 0.7-0.7l0.6-0.6 0.3-0.3 347.7-414.4c12.4-15.1 10.4-38-4.8-50.7z" fill="#5f5f5f" p-id="1514"></path></svg>',
-    collapseAll: '<svg t="1775995432841" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1697" ><path d="M141.1 746.8c15.2 12.7 38 10.7 50.7-4.4L512 360.8l320.2 381.6c12.7 15.2 35.6 17.2 50.7 4.4 15.2-12.7 17.2-35.6 4.4-50.7L539.6 281.6l-0.3-0.3-0.6-0.6c-0.2-0.2-0.4-0.5-0.7-0.7l-0.6-0.6-0.7-0.7c-0.2-0.2-0.4-0.4-0.6-0.5-0.3-0.2-0.5-0.5-0.8-0.7-0.1-0.1-0.2-0.2-0.3-0.2-0.1-0.1-0.2-0.2-0.4-0.3-0.2-0.2-0.5-0.4-0.7-0.6-0.3-0.2-0.5-0.4-0.8-0.6-0.2-0.1-0.4-0.3-0.6-0.4-0.3-0.2-0.7-0.5-1-0.7-0.1-0.1-0.3-0.2-0.4-0.2-0.4-0.3-0.8-0.5-1.3-0.8l-0.1-0.1c-4.6-2.6-9.6-4.1-14.7-4.6h-0.2c-0.5 0-0.9-0.1-1.4-0.1h-3.2c-0.5 0-0.9 0.1-1.4 0.1h-0.2c-5.1 0.4-10.1 2-14.7 4.6l-0.1 0.1c-0.4 0.2-0.8 0.5-1.3 0.8-0.1 0.1-0.3 0.2-0.4 0.2-0.3 0.2-0.7 0.4-1 0.7-0.2 0.1-0.4 0.3-0.6 0.4-0.3 0.2-0.5 0.4-0.8 0.6-0.2 0.2-0.5 0.4-0.7 0.6-0.1 0.1-0.2 0.2-0.4 0.3-0.1 0.1-0.2 0.2-0.3 0.2-0.3 0.2-0.5 0.4-0.8 0.7-0.2 0.2-0.4 0.4-0.6 0.5l-0.7 0.7-0.6 0.6c-0.2 0.2-0.4 0.5-0.7 0.7l-0.6 0.6-0.3 0.3-347.3 414.5c-12.8 15.1-10.8 38 4.4 50.7z" fill="#5f5f5f" p-id="1698"></path></svg>',
 };
 
 function initCloudSettings(userSettings, episodeMode = false) {
@@ -1063,9 +1204,12 @@ function setUpCloudLifeCycleHooks() {
 }
 
 (async function () {
-    if (!BGM_EP_REGEX.test(location.href) && !BGM_GROUP_REGEX.test(location.href)) {
+    const currentCommentArea = getCommentArea(location.href);
+    if (!currentCommentArea) {
         return;
     }
+    const episodeMode = currentCommentArea === 'episode';
+    const commentAreaDisabled = getDisabledCommentAreas().includes(currentCommentArea);
     Storage.init({
         hidePlainComments: true,
         minimumFeaturedCommentLength: 15,
@@ -1083,13 +1227,37 @@ function setUpCloudLifeCycleHooks() {
         stickyMentioned: Storage.get('stickyMentioned'),
         hidePremature: Storage.get('hidePremature'),
     };
+    if (commentAreaDisabled) {
+        const disabledStyleEl = document.createElement('style');
+        disabledStyleEl.textContent = `${String(unoStyles)}${String(styles)}`;
+        document.head.append(disabledStyleEl);
+        createSettingMenu(userSettings, episodeMode, true);
+        const disabledMenuBar = $('<h3 style="padding:10px;padding-bottom:7.5px;display:flex;width:100%;align-items:center;"><span style="display:inline-block;">评论区增强</span></h3>');
+        const enableAreaBtn = $('<button type="button"></button>')
+            .addClass('bce-area-status')
+            .text('已禁用 · 点击启用')
+            .attr('title', '仅重新启用当前评论区域')
+            .on('click', () => {
+            setCommentAreaEnabled(currentCommentArea);
+            location.reload();
+        });
+        const disabledSettingBtn = $('<strong></strong>')
+            .addClass('bce-toolbar-button')
+            .html(icon('settings'))
+            .attr('title', '设置')
+            .on('click', () => window.BCE.settingsDialog.show());
+        disabledMenuBar.append(enableAreaBtn);
+        disabledMenuBar.append(disabledSettingBtn);
+        $('#comment_list').prepend(disabledMenuBar);
+        return;
+    }
     const sortModeData = userSettings.sortMode || 'reactionCount';
     (() => {
         const butterupStyleEl = document.createElement('style');
         butterupStyleEl.textContent = String(butterupStyles);
         document.head.append(butterupStyleEl);
         const styleEl = document.createElement('style');
-        styleEl.textContent = String(styles);
+        styleEl.textContent = `${String(unoStyles)}${String(styles)}`;
         document.head.append(styleEl);
     })();
     let { plainCommentsCount, featuredCommentsCount, container, plainCommentElements, featuredCommentElements, preservedRow, lastRow, isLastRowFeatured, } = processComments(userSettings);
@@ -1118,21 +1286,13 @@ function setUpCloudLifeCycleHooks() {
     });
     stateBar.append(hiddenCommentsInfo);
     container.find('.row').detach();
-    const menuBarCSSProperties = {
-        display: 'inline-block',
-        width: '20px',
-        height: '20px',
-        transform: 'translate(0, -3px)',
-        margin: '0 0 0 5px',
-        cursor: 'pointer',
-    };
     const settingBtn = $('<strong></strong>')
-        .css(menuBarCSSProperties)
-        .html(Icons.gear)
+        .addClass('bce-toolbar-button')
+        .html(icon('settings'))
         .attr('title', '设置');
     const jumpToNewestBtn = $('<strong></strong>')
-        .css(menuBarCSSProperties)
-        .html(Icons.newest)
+        .addClass('bce-toolbar-button')
+        .html(icon('clock-3'))
         .attr('title', '跳转到最新评论')
         .click(() => {
         $('#comment_list_plain').slideDown();
@@ -1157,8 +1317,8 @@ function setUpCloudLifeCycleHooks() {
     let allExpanded = false;
     const preservedPostID = $(location).attr('href').split('#').length > 1 ? $(location).attr('href').split('#')[1] : null;
     const expandToggleBtn = $('<strong></strong>')
-        .css(menuBarCSSProperties)
-        .html(Icons.expandAll)
+        .addClass('bce-toolbar-button')
+        .html(icon('chevrons-down'))
         .attr('title', '展开所有评论')
         .click(() => {
         allExpanded = !allExpanded;
@@ -1183,14 +1343,14 @@ function setUpCloudLifeCycleHooks() {
             duration: 1500,
             icon: true,
         });
-        expandToggleBtn.html(allExpanded ? Icons.collapseAll : Icons.expandAll);
+        expandToggleBtn.html(icon(allExpanded ? 'chevrons-up' : 'chevrons-down'));
         expandToggleBtn.attr('title', allExpanded ? '折叠所有评论' : '展开所有评论');
     });
-    const menuBar = $('<h3 style="padding:10px;display:flex;width:100%;align-items:center;">所有精选评论</h3>');
-    if (BGM_EP_REGEX.test(location.href)) {
+    const menuBar = $('<h3 style="padding:10px;padding-bottom:7.5px;display:flex;width:100%;align-items:center;"><span style="display:inline-block;">所有精选评论</span></h3>');
+    if (episodeMode) {
         const showPrematureBtn = $('<strong></strong>')
-            .css(menuBarCSSProperties)
-            .html(Icons.eyeOpen)
+            .addClass('bce-toolbar-button')
+            .html(icon('eye'))
             .attr('title', '显示开播前发表的评论')
             .click(() => {
             const hideStatus = $('.premature-comment').is(':visible');
@@ -1252,8 +1412,8 @@ function setUpCloudLifeCycleHooks() {
     if (featuredCommentsCount < 10 && userSettings.hidePlainComments === true) {
         $('#toggleFilteredBtn').click();
     }
-    initCloudSettings(userSettings, BGM_EP_REGEX.test(location.href));
-    createSettingMenu(userSettings, BGM_EP_REGEX.test(location.href));
+    initCloudSettings(userSettings, episodeMode);
+    createSettingMenu(userSettings, episodeMode);
     settingBtn.on('click', () => window.BCE.settingsDialog.show());
     $(document).on('settingsSaved', () => {
         butterup.toast({
