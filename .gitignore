@@ -1,0 +1,11 @@
+test
+node_modules
+.idea/
+.vscode/
+dist/
+
+
+.playwright-mcp/
+skills/
+skills-lock.json
+
