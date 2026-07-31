@@ -49,3 +49,4 @@ jobs:
           body:
             ${{ github.event.head_commit.message }}
           artifacts: dist/index.user.js
+          makeLatest: 'legacy'
