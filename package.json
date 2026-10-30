@@ -22,7 +22,7 @@
     "lint-staged": "lint-staged"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.2.0",
+    "@antfu/eslint-config": "^10.0.0",
     "@iconify-json/lucide": "^1.2.120",
     "@rollup/plugin-strip": "^3.0.4",
     "@rollup/plugin-typescript": "^11.1.6",
